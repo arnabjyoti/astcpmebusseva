@@ -1,0 +1,70 @@
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+}
+
+.stat-info {
+  flex-grow: 1;
+}
+
+.stat-title {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+}
+
+/* Gradient Colors */
+.bg-bus {
+  background: linear-gradient(135deg, #4e73df, #224abe);
+}
+
+.bg-driver {
+  background: linear-gradient(135deg, #1cc88a, #17a673);
+}
+
+.bg-conductor {
+  background: linear-gradient(135deg, #f6c23e, #dda20a);
+}
+
+.bg-route {
+  background: linear-gradient(135deg, #e74a3b, #be2617);
+}
+
+
+/* chart styles */
+
+canvas {
+  width: 100% !important;
+  height: 420px !important;
+}

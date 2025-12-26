@@ -1,0 +1,263 @@
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Cash Management Dashboard
+                    </h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item active"><a href="#">Home</a></li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content card">
+        <div class="container-fluid mt-4">
+
+            <div class="float-right">
+                <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download" style="color:aliceblue"></i
+                    > Download CSV</button> &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-primary mb-3" (click)="redirectTo()"> <i class="fas fa-plus" style="color:aliceblue"></i
+                    >  Add Data</button>
+                <!-- <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#formModal">Add Data</button> -->
+            </div>
+
+            <div class="d-flex">
+                <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span class="px-2 d-flex align-items-center">to</span>
+                <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id=""> &nbsp;&nbsp;&nbsp;&nbsp;
+                <button class="btn btn-info" (click)="search()"> <i class="fas fa-search" style="color:aliceblue"></i
+                    >  Search</button>
+            </div>
+        
+           <div>
+            
+           </div>
+            <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Driver Name</th>
+                        <th>Conductor Name</th>
+                        <th>Timesheet No</th>
+                        <th>Route No</th>
+                        <th>OMR Opening Km</th>
+                        <th>CRM Closing Km</th>
+                        <th>Total Km Operated </th>
+                        <th>Chalo Machine No</th>
+                        <th>No Of Trip</th>
+                        <th>Way Bill No</th>
+                        <th>Challan Deposited</th>
+                        <th>Wallet Card</th>
+                        <th>Mobile Pass</th>
+                        <th>Student Mpass</th>
+                        <th>Scan Pay</th>
+
+                        <th>Unprinted Ticiket</th>
+                        <th>Card Recharge</th>
+                        <th>Phone Pe</th>
+                        <th>Total Earning </th>
+                        <th>Basistha Parking</th>
+                        <th>Trip Allowance</th>
+                        <th>Net Amount Deposited</th>
+                        <th>Trageted Earning</th>
+                        <th>Amount To Be Deposited</th>
+
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of dataList; let i = index">
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.driverName }}</td>
+                        <td>{{ data.conductorName }}</td>
+                        <td>{{ data.timesheetNo }}</td>
+                        <td>{{ data.routeNo }}-{{ data.routeName }}</td>
+                        <td>{{ data.omr }}</td>
+                        <td>{{ data.cmr }}</td>
+                        <td>{{ data.totalOperated }}</td>
+                        <td>{{ data.chaloMachineNo }}</td>
+                        <td>{{ data.noOfTrip }}</td>
+                        <td>{{ data.wayBillNo }}</td>
+                        <td>{{ data.challanDeposited }}</td>
+
+                        <td>{{ data.walletCard }}</td>
+                        <td>{{ data.mobilePass }}</td>
+                        <td>{{ data.studentMpass }}</td>
+                        <td>{{ data.scanPay }}</td>
+
+                        <td>{{ data.unprintedTiciket }}</td>
+                        <td>{{ data.cardRecharge }}</td>
+                        <td>{{ data.phonePe }}</td>
+
+                        <td>
+                            {{getTotalEarn([data.challanDeposited, data.walletCard, data.mobilePass, data.studentMpass, data.scanPay, data.unprintedTiciket, data.cardRecharge, data.phonePe])}}
+
+                            <!-- {{[data.challanDeposited, data.walletCard, data.mobilePass, data.studentMpass, data.scanPay, data.unprintedTiciket, data.cardRecharge, data.phonePe].map(item => Number(item)).reduce((acc, val) => acc + val, 0)}} -->
+                        </td>
+
+
+                        <td>{{ data.basisthaParking }}</td>
+                        <td>{{ data.tripAllowance }}</td>
+                        <td>{{ data.netAmountDeposited }}</td>
+                        <td>{{ data.tragetedEarning }}</td>
+                        <td>{{ data.amountToBeDeposited }}</td>
+                        <td>{{ data.remarks }}</td>
+                        <td>
+                            <button class="btn btn-default" data-toggle="modal" data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        
+            <!-- Form Modal -->
+            <div class="modal fade" id="formModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Data</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label>Driver Name</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.driverName" name="driverName">
+                                </div>
+                                <div class="form-group">
+                                    <label>Conductor Name</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.conductorName" name="conductorName">
+                                </div>
+                                <div class="form-group">
+                                    <label>Trip Start Time</label>
+                                    <input type="time" class="form-control" [(ngModel)]="form.tripStartTime" name="tripStartTime">
+                                </div>
+                                <div class="form-group">
+                                    <label>Bus No</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Allotted Route No</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.allottedRouteNo" name="allottedRouteNo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Destination Route</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.destinationRoute" name="destinationRoute">
+                                </div>
+                                <div class="form-group">
+                                    <label>Battery Start (%)</label>
+                                    <input type="number" class="form-control" [(ngModel)]="form.batteryStart" name="batteryStart">
+                                </div>
+                                <div class="form-group">
+                                    <label>Battery End (%)</label>
+                                    <input type="number" class="form-control" [(ngModel)]="form.batteryEnd" name="batteryEnd">
+                                </div>
+                                <div class="form-group">
+                                    <label>Electric Charge Unit Consumption</label>
+                                    <input type="number" class="form-control" [(ngModel)]="form.electricChargeUnitConsumption" name="electricChargeUnitConsumption">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tyre Pressure</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.tyrePressure" name="tyrePressure">
+                                </div>
+                                <div class="form-group">
+                                    <label>No. of Trips</label>
+                                    <input type="number" class="form-control" [(ngModel)]="form.noOfTrips" name="noOfTrips">
+                                </div>
+                                <div class="form-group">
+                                    <label>Cash Collection (Rs)</label>
+                                    <input type="number" class="form-control" [(ngModel)]="form.cashCollection" name="cashCollection">
+                                </div>
+                                <div class="form-group">
+                                    <label>KPI</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.kpi" name="kpi">
+                                </div>
+                                <div class="form-group">
+                                    <label>Account Cash Tally</label>
+                                    <input type="text" class="form-control" [(ngModel)]="form.accountCashTally" name="accountCashTally">
+                                </div>
+                                <button type="button" class="btn btn-success" (click)="saveData()" data-dismiss="modal">Save</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- View Modal -->
+            <div class="modal fade" id="viewModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">View Details</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body" *ngIf="selectedData">
+                            <p><strong>Driver Name:</strong> {{ selectedData.driverName }}</p>
+                            <p><strong>Conductor Name:</strong> {{ selectedData.conductorName }}</p>
+                            <p><strong>Trip Start Time:</strong> {{ selectedData.tripStartTime }}</p>
+                            <p><strong>Bus No:</strong> {{ selectedData.busNo }}</p>
+                            <p><strong>Allotted Route No:</strong> {{ selectedData.allottedRouteNo }}</p>
+                            <p><strong>Destination Route:</strong> {{ selectedData.destinationRoute }}</p>
+                            <p><strong>Battery Start (%):</strong> {{ selectedData.batteryStart }}</p>
+                            <p><strong>Battery End (%):</strong> {{ selectedData.batteryEnd }}</p>
+                            <p><strong>Electric Charge Unit Consumption:</strong> {{ selectedData.electricChargeUnitConsumption }}</p>
+                            <p><strong>Tyre Pressure:</strong> {{ selectedData.tyrePressure }}</p>
+                            <p><strong>No. of Trips:</strong> {{ selectedData.noOfTrips }}</p>
+                            <p><strong>Cash Collection (Rs):</strong> {{ selectedData.cashCollection }}</p>
+                            <p><strong>KPI:</strong> {{ selectedData.kpi }}</p>
+                            <p><strong>Account Cash Tally:</strong> {{ selectedData.accountCashTally }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteModal" tabindex="-1">
+                <div class="modal-dialog modal-sm">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h2 class="modal-title">Confirmation Message</h2>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <h4>
+                        Are you sure ! You want to delete earning details?
+                        ?
+                      </h4>
+                      <button
+                        type="button"
+                        class="btn btn-primary float-sm-right"
+                        (click)="handleDeleteEarningDetails()"
+                        data-dismiss="modal"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-default float-sm-right"
+                        data-dismiss="modal"
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+        
+        </section>
+        </div>

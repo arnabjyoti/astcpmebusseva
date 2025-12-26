@@ -1,0 +1,15 @@
+::placeholder{
+        padding-left:30px;
+        padding-top:15px;
+        font-size:14px;
+    }
+    .custom-search input{
+        background-color: #ffffffad;
+        color:white !important;
+        
+    }
+
+    .navbar-light-black{
+        background-color: #343a40;
+        color: aliceblue;
+    }

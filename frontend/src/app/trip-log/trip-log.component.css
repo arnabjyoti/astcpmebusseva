@@ -1,0 +1,11 @@
+.table-responsive {
+  min-width: 1200px; /* Force horizontal scroll for smaller screens */
+}
+
+.table-sm td, .table-sm th {
+  white-space: nowrap;
+}
+
+[aria-hidden="true"] {
+  pointer-events: none;
+}

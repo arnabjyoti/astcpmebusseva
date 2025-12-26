@@ -1,0 +1,98 @@
+<!-- Loading starts -->
+<div id="loading-wrapper" *ngIf="isLodaing">
+  <ngx-spinner bdColor="rgba(0,0,0,0.9)" type="ball-clip-rotate"></ngx-spinner>
+</div>
+
+<!-- Loading ends -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Dashboard
+          </h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item active"><a href="#">Home</a></li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Total Bus -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+          <div class="stat-card">
+            <div class="stat-icon bg-bus">
+              <i class="fas fa-bus"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-title">Total Buses</p>
+              <h3 class="stat-value">{{ totalBus }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bus Driver -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+          <div class="stat-card">
+            <div class="stat-icon bg-driver">
+              <i class="fas fa-id-badge"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-title">Bus Drivers</p>
+              <h3 class="stat-value">{{ totalDriver }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bus Conductor -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+          <div class="stat-card">
+            <div class="stat-icon bg-conductor">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-title">Conductors</p>
+              <h3 class="stat-value">{{ totalConductor }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Routes -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+          <div class="stat-card">
+            <div class="stat-icon bg-route">
+              <i class="fas fa-route"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-title">Routes</p>
+              <h3 class="stat-value">{{ totalRoute }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="chart-card">
+            <h5 class="chart-title">Overall Transport Statistics</h5>
+            <canvas id="transportBarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </section>
+
+</div>
