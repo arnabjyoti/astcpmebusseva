@@ -5,6 +5,8 @@ import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import html2pdf from 'html2pdf.js';
+
 @Component({
   selector: 'app-daily-update-form',
   templateUrl: './daily-update-form.component.html',
@@ -124,4 +126,34 @@ export class DailyUpdateFormComponent {
   calculateDiposite=()=>{
     this.form.amountToBeDeposited = this.form.tragetedEarning - this.form.netAmountDeposited
   }
+
+
+showPreview = false;
+
+openPreview() {
+  this.showPreview = true;
+}
+
+  downloadPdf() {
+  const element:any = document.getElementById('printA4');
+
+  html2pdf().set({
+    margin: 0,
+    filename: 'Bus Earning Log ' + this.busDetails.busNo + ' / ' + this.selectedDate + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      scrollY: 0
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
+  }).from(element).save();
+}
+
+get currentTime() {
+  return new Date().toLocaleTimeString();
+}
 }

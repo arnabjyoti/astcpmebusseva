@@ -29,6 +29,153 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div class="d-flex justify-content-between p-3">
+            <div class="no-print">
+              <h3>
+                <button class="btn btn-info mr-2" (click)="openPreview()" data-toggle="modal"
+                  data-target="#exampleModal">
+                  Preview
+                </button>
+
+
+              </h3>
+            </div>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <button class="btn btn-danger" (click)="downloadPdf()" *ngIf="showPreview">
+                      Download PDF
+                    </button>
+                    <!-- PRINT AREA -->
+                    <!-- EXACT A4 PRINT AREA -->
+                    <!-- PDF / PREVIEW TEMPLATE -->
+                    <div class="a4-wrapper" *ngIf="showPreview">
+                    <div id="printA4" class="pdf-page">
+
+                      <h2 class="text-center">Vehicle Log Sheet (Opening)</h2>
+
+                      <div class="pdf-header py-3">
+                        <div class="logo-left">
+                          <img src="../../../assets/image/login/astc.png" alt="Left Logo">
+                        </div>
+<!-- 
+                        <div class="header-title">
+                          <h3>Vehicle Log Sheet (Opening)</h3>
+                        </div> -->
+
+                        <div class="logo-right">
+                          <img src="../../../assets/image/logo.png" alt="Right Logo">
+                        </div>
+                      </div>
+
+                      <table class="pdf-table pt-3">
+                        <tr>
+                          <td><strong>Bus No</strong></td>
+                          <td>{{ busDetails.busNo }}</td>
+                          <td><strong>Bus Name</strong></td>
+                          <td>{{ busDetails.busName }}</td>
+                          <td><strong>Date</strong></td>
+                          <td>{{ selectedDate | date:'dd/MM/yyyy' }}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Driver Name</strong></td>
+                          <td colspan="2">{{ busDetails.driverName }}</td>
+                          <td><strong>Conductor</strong></td>
+                          <td colspan="2">{{ busDetails.conductorName }}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Timesheet No</strong></td>
+                          <td colspan="2">{{ form.timesheetNo }}</td>
+                          <td><strong>Route</strong></td>
+                          <td colspan="4">{{ routeName }}</td>
+                        </tr>
+                      </table>
+
+                      <h4>Operation Details</h4>
+                      <table class="pdf-table">
+                        <tr>
+                          <th style="width:20%">Opening Meter Reading</th>
+                          <th style="width:20%">Closing Meter Reading</th>
+                          <th style="width:20%">Total KM</th>
+                          <th style="width:20%">No of Trips</th>
+                        </tr>
+                        <tr>
+                          <td>{{ form.omr }}</td>
+                          <td></td>
+                          <td></td>
+                          <td>{{ form.noOfTrip }}</td>
+                        </tr>
+                      </table>
+
+                      <h4>Collection Details</h4>
+                      <table class="pdf-table">
+                        <tr>
+                          <td style="width:40%">Challan</td>
+                          <td style="width:10%"> </td>
+                          <td style="width:40%">Wallet Card</td>
+                          <td style="width:10%"> </td>
+                        </tr>
+                        <tr>
+                          <td style="width:40%">Mobile Pass</td>
+                          <td style="width:10%"> </td>
+                          <td style="width:40%">Student Mpass</td>
+                          <td style="width:10%"> </td>
+                        </tr>
+                        <tr>
+                          <td style="width:40%">Scan & Pay</td>
+                          <td style="width:10%"> </td>
+                          <td style="width:40%">PhonePe</td>
+                          <td style="width:10%"> </td>
+                        </tr>
+                        <tr>
+                          <td style="width:40%">Unprinted Ticket</td>
+                          <td style="width:10%"> </td>
+                          <td style="width:40%">Card Recharge</td>
+                          <td style="width:10%"> </td>
+                        </tr>
+                        <tr>
+                          <td style="width:40%">Parking (GMC)</td>
+                          <td style="width:10%"> </td>
+                          <td style="width:40%">Trip Allowance</td>
+                          <td style="width:10%"> </td>
+                        </tr>
+                      </table>
+
+                      <h4>Summary</h4>
+                      <table class="pdf-table">
+                        <tr>
+                          <td style="width:40%">Net Amount Deposited</td>
+                          <td style="width:10%">{{ form.netAmountDeposited }}</td>
+                          <td style="width:40%">Targeted Earning</td>
+                          <td style="width:10%">{{ form.tragetedEarning }}</td>
+                        </tr>
+                        <tr>
+                          <td style="width:40%">Amount to be Deposited</td>
+                          <td style="width:10%"></td>
+                          <td style="width:40%">Remarks</td>
+                          <td style="width:10%">{{ form.remarks }}</td>
+                        </tr>
+                      </table>
+
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+          </div>
+        </div>
+        <div class="col-lg-12 col-12 no-print">
+          <div class="d-flex justify-content-between p-3">
             <div>
               <h3>
                 <strong>Bus No: {{ busDetails.busNo }}</strong>
@@ -47,255 +194,130 @@
 
               <div class="col-md-6 pt-3">
                 <label>Bus Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="busDetails.busName"
-                  name="busName"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="busDetails.busName" name="busName" readonly />
               </div>
               <div class="col-md-6 pt-3">
                 <label>Conductor Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="busDetails.conductorName"
-                  name="conductorName"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="busDetails.conductorName" name="conductorName"
+                  readonly />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Timesheet No. </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.timesheetNo"
-                  name="timesheetNo"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.timesheetNo" name="timesheetNo" />
               </div>
 
               <div class="col-md-6 pt-3">
-                <label>Route No. 
+                <label>Route No.
                   <!-- {{form.routeNo}} -->
                 </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="routeName"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="routeName" readonly />
               </div>
               <div class="col-md-6 pt-3">
                 <label>OMR Opening Km</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.omr"
-                  (change)="calculateTotalOperated()"
-                  name="omr"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
+                  name="omr" />
               </div>
               <div class="col-md-6 pt-3">
                 <label>CMR Closing Km</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.cmr"
-                  (change)="calculateTotalOperated()"
-                  name="cmr"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.cmr" (change)="calculateTotalOperated()"
+                  name="cmr" />
               </div>
               <div class="col-md-6 pt-3">
                 <label>Total Km Operated </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.totalOperated"
-
-                  name="totalOperated"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.totalOperated" name="totalOperated" />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Chalo Machine No.</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.chaloMachineNo"
-                  name="chaloMachineNo"
-                />
+                <input type="text" class="form-control" [(ngModel)]="form.chaloMachineNo" name="chaloMachineNo" />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>No Of Trip</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.noOfTrip"
-                  name="noOfTrip"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.noOfTrip" name="noOfTrip" />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Way Bill no. </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.wayBillNo"
-                  name="wayBillNo"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.wayBillNo" name="wayBillNo" />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Challan Deposited (in Rs.) </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.challanDeposited"
-                  (change)="calculateAmount()"
-                  name="challanDeposited"
-                  />
-                </div>
-                
-                <div class="col-md-6 pt-3">
-                  <label>Wallet Card </label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.walletCard"
-                  (change)="calculateAmount()"
-                  name="walletCard"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Mobile Pass </label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.mobilePass"
-                  (change)="calculateAmount()"
-                  name="mobilePass"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Student Mpass </label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.studentMpass"
-                  (change)="calculateAmount()"
-                  name="studentMpass"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Scan & Pay </label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.scanPay"
-                  (change)="calculateAmount()"
-                  name="scanPay"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Unprinted Ticiket</label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.unprintedTiciket"
-                  (change)="calculateAmount()"
-                  name="unprintedTiciket"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Card Recharge</label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.cardRecharge"
-                  (change)="calculateAmount()"
-                  name="cardRecharge"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Phone Pe</label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.phonePe"
-                  (change)="calculateAmount()"
-                  name="phonePe"
-                  />
-                </div>
-                
-                <div class="col-md-6 pt-3">
-                  <label>Basistha Parking (GMC)</label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.basisthaParking"
-                  (change)="calculateAmount()"
-                  name="basisthaParking"
-                  />
-                </div>
-                
-                <div class="col-md-6 pt-3">
-                  <label>Trip Allowance ( in Rs)</label>
-                  <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.tripAllowance"
-                  (change)="calculateAmount()"
-                  name="tripAllowance"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.challanDeposited"
+                  (change)="calculateAmount()" name="challanDeposited" />
+              </div>
+
+              <div class="col-md-6 pt-3">
+                <label>Wallet Card </label>
+                <input type="number" class="form-control" [(ngModel)]="form.walletCard" (change)="calculateAmount()"
+                  name="walletCard" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Mobile Pass </label>
+                <input type="number" class="form-control" [(ngModel)]="form.mobilePass" (change)="calculateAmount()"
+                  name="mobilePass" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Student Mpass </label>
+                <input type="number" class="form-control" [(ngModel)]="form.studentMpass" (change)="calculateAmount()"
+                  name="studentMpass" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Scan & Pay </label>
+                <input type="number" class="form-control" [(ngModel)]="form.scanPay" (change)="calculateAmount()"
+                  name="scanPay" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Unprinted Ticiket</label>
+                <input type="number" class="form-control" [(ngModel)]="form.unprintedTiciket"
+                  (change)="calculateAmount()" name="unprintedTiciket" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Card Recharge</label>
+                <input type="number" class="form-control" [(ngModel)]="form.cardRecharge" (change)="calculateAmount()"
+                  name="cardRecharge" />
+              </div>
+              <div class="col-md-6 pt-3">
+                <label>Phone Pe</label>
+                <input type="number" class="form-control" [(ngModel)]="form.phonePe" (change)="calculateAmount()"
+                  name="phonePe" />
+              </div>
+
+              <div class="col-md-6 pt-3">
+                <label>Basistha Parking (GMC)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.basisthaParking"
+                  (change)="calculateAmount()" name="basisthaParking" />
+              </div>
+
+              <div class="col-md-6 pt-3">
+                <label>Trip Allowance ( in Rs)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.tripAllowance" (change)="calculateAmount()"
+                  name="tripAllowance" />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Net Amt deposited in WaySide Cahier</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.netAmountDeposited"
-                  name="netAmountDeposited"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
+                  name="netAmountDeposited" />
               </div>
               <div class="col-md-6 pt-3">
                 <label>Trageted Earning</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.tragetedEarning"
-                  name="tragetedEarning"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
               </div>
               <div class="col-md-6 pt-3">
                 <label>Amount to be deposited</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.amountToBeDeposited"
-                  name="amountToBeDeposited"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited"
+                  name="amountToBeDeposited" />
               </div>
               <div class="col-md-6 pt-3">
                 <label>Remarks</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.remarks"
-                  name="remarks"
-                />
+                <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />
               </div>
 
               <div class="text-center p-3">
-                <button
-                  type="button"
-                  class="btn btn-success text-center"
-                  (click)="saveData()"
-                  data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-success text-center" (click)="saveData()" data-dismiss="modal">
                   Save
                 </button>
               </div>

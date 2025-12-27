@@ -1,0 +1,65 @@
+.pdf-page {
+  width: 210mm;
+  height: auto;
+  padding: 6mm;
+  background: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+}
+
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.pdf-table td,
+.pdf-table th {
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+h3, h4 {
+  margin: 6px 0;
+}
+
+.a4-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  overflow-x: auto;
+}
+
+
+/* heder logo and title */
+.pdf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.logo-left {
+  width: 50px; /* fixed width so title stays centered */
+}
+.logo-right {
+  width: 200px; /* fixed width so title stays centered */
+}
+
+.logo-left img,
+.logo-right img {
+  max-width: 100%;
+  height: auto;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+}
+
+.header-title h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
