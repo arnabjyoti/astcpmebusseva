@@ -104,10 +104,15 @@ export class HomeComponent implements OnInit {
       }
 
       // Assign API values
-      this.totalBus = res.totalBus;
-      this.totalDriver = res.totalDriver;
+      this.totalBus = 60;
+      this.totalDriver = 72;
       this.totalConductor = res.totalConductor;
-      this.totalRoute = res.totalRoute;
+      this.totalRoute = 10;
+
+      // this.totalBus = res.totalBus;
+      // this.totalDriver = res.totalDriver;
+      // this.totalConductor = res.totalConductor;
+      // this.totalRoute = res.totalRoute;
 
       // Load chart AFTER data arrives
       setTimeout(() => {

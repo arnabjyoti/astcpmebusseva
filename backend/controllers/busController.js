@@ -23,6 +23,7 @@ const env = process.env.NODE_ENV || "production";
 const config = require(__dirname + "/../config/config.json")[env];
 // const { Sequelize, Model } = require('sequelize');
 const { sequelize } = require("../models");
+const { log } = require("console");
 
 module.exports = {
   upload_config: multer({
@@ -1186,5 +1187,26 @@ END AS estimated_time,
       console.error("Error fetching dashboard counts:", error);
       res.status(500).send({ error: "Failed to fetch dashboard counts" });
     }
+  },
+
+  async getCurrentISTTime(req, res) {
+  try {
+    const { getCurrentIST } = require('../utils/utils');
+
+    const istDate = getCurrentIST();
+
+    log("IST Date:", istDate);
+
+    res.status(200).send({
+      currentIST: istDate,
+      timestamp: istDate.getTime(),
+      iso: istDate.toISOString()
+    });
+
+  } catch (error) {
+    console.error("Error fetching IST time:", error);
+    res.status(500).send({ error: "Failed to fetch IST time" });
   }
+}
+
 };

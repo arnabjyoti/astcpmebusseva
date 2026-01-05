@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import html2pdf from 'html2pdf.js';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-daily-update-form',
@@ -17,8 +18,14 @@ export class DailyUpdateFormComponent {
     private route: ActivatedRoute,
     private http: HttpClient,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private spinner: NgxSpinnerService,
   ) {}
+
+  private apiUrl = 'https://worldtimeapi.org/api/timezone/Asia/Kolkata';
+  currentTinme: string | null = null;
+
+  public isLodaing: boolean = true;
 
   busId: string | null = null;
   busDetails : any = {};
@@ -57,6 +64,13 @@ export class DailyUpdateFormComponent {
     });
   }
 
+  spiner() {
+    this.spinner.show();
+    setTimeout(() => {
+      this.spinner.hide();
+    }, 5000);
+  }
+
   getBusDetails = (busId: any) => {
     // getBusData
 
@@ -69,7 +83,8 @@ export class DailyUpdateFormComponent {
         this.busDetails = response;
         this.form.busId = this.busId;
         this.form.date = this.selectedDate;
-        this.form.routeNo = response.allotedRouteNo;
+        this.form.routeNo = response.allotedRouteNo
+        this.form.depot = response.depotName;
         this.routeName = response.routeName;
       },
       (error) => {
@@ -123,18 +138,31 @@ export class DailyUpdateFormComponent {
     this.calculateDiposite();
   }
 
-  calculateDiposite=()=>{
-    this.form.amountToBeDeposited = this.form.tragetedEarning - this.form.netAmountDeposited
-  }
+  calculateDiposite = () => {
+  this.form.amountToBeDeposited = Math.max(
+    0,
+    this.form.tragetedEarning - this.form.netAmountDeposited
+  );
+};
 
 
 showPreview = false;
 
 openPreview() {
+  this.isLodaing = true;
+    this.spiner();
+    this.getCurrentISTTime();
   this.showPreview = true;
+  this.isLodaing = false;
 }
 
   downloadPdf() {
+
+    if (!this.form.omr || this.form.omr === 0) {
+    this.toastr.warning('OMR value must be greater than 0', 'Warning');
+    return;
+  }
+  
   const element:any = document.getElementById('printA4');
 
   html2pdf().set({
@@ -156,4 +184,26 @@ openPreview() {
 get currentTime() {
   return new Date().toLocaleTimeString();
 }
+
+ getCurrentISTTime = () => {
+
+  const ENDPOINT = `${environment.BASE_URL}/api/getCurrentISTTime`;
+
+  this.http.get(ENDPOINT).subscribe(
+    (response: any) => {
+      console.log('IST response ==>> ', response);
+
+      this.currentTinme = response.timestamp;
+
+    },
+    (error) => {
+      console.log('error here ', error);
+      this.toastr.error('Failed to fetch IST time!', 'Warning');
+    },
+    () => {
+      console.log('IST Observable is now completed.');
+    }
+  );
+};
+
 }

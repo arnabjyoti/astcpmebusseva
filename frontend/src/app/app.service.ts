@@ -65,4 +65,8 @@ export class AppService {
 			}
 		);
   }
+
+  getCurrentISTTime() {
+    return this.http.get<any>(`${environment.BASE_URL}/api/current-ist-time`);
+  }
 }

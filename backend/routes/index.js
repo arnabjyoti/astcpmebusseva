@@ -48,5 +48,8 @@ module.exports = (app) => {
 	//home dashboard
 	app.get('/api/getDashboardCounts', BusController.getDashboardCounts);
 
+	//current time
+	app.get('/api/getCurrentISTTime', BusController.getCurrentISTTime);
+
 
 	};
