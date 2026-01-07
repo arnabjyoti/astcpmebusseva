@@ -8,6 +8,12 @@ module.exports = (sequelize, type) => {
         },
         conductor_name: type.STRING,
         contact_no: type.STRING,
+        aadhaar: type.STRING,
+        pan: type.STRING,
+        voter: type.STRING,
+        dl: type.STRING,
+        address: type.STRING,
+        photo: type.STRING,
         status: type.STRING
     }, {timestamps:true});
     conductorMaster.associate = function(models) {

@@ -28,10 +28,10 @@ module.exports = (app) => {
 	app.post('/api/deleteEarningDetails', BusController.deleteEarningDetails);
 
 
-	app.post('/api/saveDriver', BusController.saveDriver);
+	app.post('/api/saveDriver', BusController.upload_driver_image.single("photo"), BusController.saveDriver);
 	app.post('/api/updateDriver', BusController.updateDriver);
 	app.post('/api/deleteDriver', BusController.deleteDriver);
-	app.post('/api/saveConductor', BusController.saveConductor);
+	app.post('/api/saveConductor', BusController.upload_conductor_image.single("photo"), BusController.saveConductor);
 	app.post('/api/updateConductor', BusController.updateConductor);
 	app.post('/api/deleteConductor', BusController.deleteConductor);
 	app.get('/api/getDriver', BusController.getDriver);
