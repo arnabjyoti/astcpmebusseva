@@ -19,7 +19,7 @@ const stationsModel = require("../models").stations;
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
 // const { Sequelize, Model } = require('sequelize');
 const { sequelize } = require("../models");
@@ -231,6 +231,7 @@ upload_driver_image: multer({
   },
 
   getDriver(req, res) {
+    console.log("here");
     let query = {
       where:{status:'Active'},
       raw: true,
@@ -289,6 +290,7 @@ upload_driver_image: multer({
   },
 
   getConductor(req, res) {
+    console.log("here1");
     let query = {
       where:{status:'Active'},
       raw: true,
