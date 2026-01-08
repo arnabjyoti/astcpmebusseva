@@ -27,6 +27,7 @@ export class DailyUpdateFormComponent {
 
   public isLodaing: boolean = true;
 
+  // currentStatus: string | null = null;
   busId: string | null = null;
   busDetails : any = {};
   selectedDate: string | null = null;
@@ -34,6 +35,11 @@ export class DailyUpdateFormComponent {
     omr: 0,
     cmr: 0,
     totalOperated : 0,
+    osoc: 0,
+    csoc: 0,
+    consumedSOC: 0,
+    targetedTrip:6,
+    noOfTrip: 0,
     routeNo: "",
 
     challanDeposited:0,
@@ -48,19 +54,33 @@ export class DailyUpdateFormComponent {
     tripAllowance: 0,
     tragetedEarning: 6500,
     amountToBeDeposited: 6500,
+    currentStatus: '',
 
   };
 
   routeName:any;
+  triptId: any;
+  formtype: string | null = null;
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       this.busId = params['busId'];
       this.selectedDate = params['date'];
+      this.form.currentStatus = params['currentStatus'];
+      this.form.noOfTrip = params['noOfTrip'];
+      this.triptId = params['triptId'];
+      this.formtype = params['type'];
 
-     
+     if(this.triptId){
+      console.log("update");
+      
+      this.tripDetails(this.triptId);
+     }
+     else{
+      console.log("create");
+       this.getBusDetails(params['busId']);
+     }
 
-      this.getBusDetails(params['busId']);
     });
   }
 
@@ -70,6 +90,51 @@ export class DailyUpdateFormComponent {
       this.spinner.hide();
     }, 5000);
   }
+
+  tripDetails = (triptId: any) => {
+    // getBusData
+
+    const ENDPOINT = `${environment.BASE_URL}/api/getOneTripDetails`;
+
+    this.http.post(ENDPOINT, { id: triptId }).subscribe(
+      (response:any) => {
+        console.log('tripDetails ==>> ', response[0]);
+        let data = response[0];
+        data.currentStatus = 'finished'
+        console.log('data ==>> ', data);
+        
+        this.form = data;
+
+        let busDetails = {
+          busName : data.busName,
+          busNo : data.busNo,
+          driverName : data.driverName,
+          driverContactNo : data.driverContactNo,
+          conductorName : data.conductorName,
+          conductorContactNo : data.conductorContactNo,
+          baseDepot : data.baseDepot,
+        }
+        this.busDetails = busDetails;
+        this.routeName = data.routeName
+
+
+        // this.form.currentStatus = 'finished'
+
+        // this.form.busId = this.busId;
+        // this.form.date = this.selectedDate;
+        // this.form.routeNo = response.allotedRouteNo
+        // this.form.depot = response.depotName;
+        // this.routeName = response.routeName;
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      },
+      () => {
+        console.log('Observable is now completed.');
+      }
+    );
+  };
 
   getBusDetails = (busId: any) => {
     // getBusData
@@ -126,9 +191,46 @@ export class DailyUpdateFormComponent {
     );
   };
 
+
+  updateData = () => {
+    const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
+    const requestOptions = {
+      requestObject: this.form,
+      id : this.triptId
+    };
+    console.log('mmmmmmmmmmm', requestOptions);
+    this.http.post(ENDPOINT, requestOptions).subscribe(
+      (response) => {
+        console.log("response ", response);
+        // this.getBuses();
+        // this.form = { ...this.originalForm };
+
+
+        this.router.navigate(['/buses']);
+
+
+        this.toastr.success("Added Successfully", "Success");
+      },
+      (error) => {
+        console.log("error here ", error);
+        this.toastr.error("Something went wrong !", "Warning");
+        
+      },
+      () => {
+        console.log('Observable is now completed.');
+      }
+    );
+  };
+
   calculateTotalOperated=()=>{
     // console.log("data", this.form.cmr - this.form.omr);
-    this.form.totalOperated = this.form.cmr - this.form.omr
+    let data = this.form.cmr - this.form.omr
+    this.form.totalOperated = data > 0 ? data : 0
+  }
+  calculateTotalCosumed=()=>{
+    // console.log("data", this.form.cmr - this.form.omr);
+    let data = this.form.osoc -this.form.csoc ;
+    this.form.consumedSOC = this.form.csoc == 0 ? 0 : data > 0 ? data : 0
   }
 
   calculateAmount=()=>{

@@ -14,6 +14,14 @@ module.exports = (sequelize, type) => {
         omr: type.STRING,
         cmr: type.STRING,
         totalOperated: type.STRING,
+
+        osoc: type.STRING,
+        csoc: type.STRING,
+        consumedSOC: type.STRING,
+        targetedTrip: type.STRING,
+        currentStatus: type.STRING,
+
+
         chaloMachineNo: type.STRING,
         noOfTrip: type.STRING,
         wayBillNo: type.STRING,

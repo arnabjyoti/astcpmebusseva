@@ -16,11 +16,18 @@ export class DriverConductorComponent {
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router
-  ) {}
+  ) { }
+
+  imagePreview: string | ArrayBuffer | null = null;
 
   form1: any = {
     driver_name: '',
     contact_no: '',
+    aadhaar: '',
+    pan: '',
+    voter: '',
+    dl: '',
+    photo: null,
   };
 
   form2: any = {
@@ -45,39 +52,79 @@ export class DriverConductorComponent {
     this.form1 = {
       driver_name: '',
       contact_no: '',
+      aadhaar: '',
+      pan: '',
+      voter: '',
+      dl: '',
+      photo: null,
     };
   };
 
-  saveData = () => {
-    if (!this.form1.driver_name || !this.form1.contact_no) {
-      this.toastr.warning('Please fill-up the form before proceed', 'Warning');
-      return;
-    }
-    const ENDPOINT = `${environment.BASE_URL}/api/saveDriver`;
-    const requestOptions = {
-      requestObject: this.form1,
-    };
+  onPhotoChange(event: any) {
+  const file = event.target.files[0];
 
-    this.http.post(ENDPOINT, requestOptions).subscribe(
-      (response) => {
-        console.log('response ', response);
-        this.getDrivers();
-        this.resetForm1();
-        this.toastr.success('Added Successfully', 'Success');
-      },
-      (error) => {
-        console.log('error here ', error);
-        this.toastr.error('Something went wrong !', 'Warning');
-      },
-      () => {
-        console.log('Observable is now completed.');
-      }
+  if (!file) return;
+
+  // optional validation
+  if (!file.type.startsWith('image/')) {
+    this.toastr.warning('Only image files allowed');
+    return;
+  }
+
+  this.form1.photo = file;
+
+  // preview
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.imagePreview = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+  saveData = (form: any) => {
+  if (form.invalid || !this.form1.photo) {
+    this.toastr.warning(
+      'Please fill-up all fields and upload photo',
+      'Warning'
     );
-  };
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('driver_name', this.form1.driver_name);
+  formData.append('contact_no', this.form1.contact_no);
+  formData.append('aadhaar', this.form1.aadhaar);
+  formData.append('pan', this.form1.pan);
+  formData.append('voter', this.form1.voter);
+  formData.append('dl', this.form1.dl);
+  formData.append('photo', this.form1.photo); // ✅ IMPORTANT
+
+  const ENDPOINT = `${environment.BASE_URL}/api/saveDriver`;
+
+  // 🔥 SEND FORMDATA — NOT JSON
+  this.http.post(ENDPOINT, formData).subscribe(
+    (response) => {
+      console.log('response ', response);
+      this.getDrivers();
+      this.resetForm1();
+      this.toastr.success('Added Successfully', 'Success');
+      this.imagePreview = null;
+    },
+    (error) => {
+      console.log('error here ', error);
+      this.toastr.error('Something went wrong !', 'Error');
+      this.imagePreview = null;
+    }
+  );
+};
+
+closeForm() {
+    this.imagePreview = null;
+  }
 
   openEditDriverDialog = (data: any) => {
     console.log(data);
-    
+
     this.isEdit = true;
     this.form1 = {
       id: data?.id,
@@ -134,13 +181,13 @@ export class DriverConductorComponent {
     );
   };
 
-  toBeDeletedDriverRecord:any = {};
-  openConfirmationDialog=(data:any)=>{
+  toBeDeletedDriverRecord: any = {};
+  openConfirmationDialog = (data: any) => {
     this.toBeDeletedDriverRecord = data;
   }
 
-  handleDeleteDriver =()=>{
-    if(this.toBeDeletedDriverRecord.id!=''){
+  handleDeleteDriver = () => {
+    if (this.toBeDeletedDriverRecord.id != '') {
       const ENDPOINT = `${environment.BASE_URL}/api/deleteDriver`;
       const requestOptions = {
         requestObject: this.toBeDeletedDriverRecord,
@@ -153,13 +200,13 @@ export class DriverConductorComponent {
         (error) => {
           console.log("error here ", error);
           this.toastr.error("Something went wrong !", "Warning");
-          
+
         },
         () => {
           console.log('Observable is now completed.');
         }
       );
-    }else{
+    } else {
       this.toastr.warning("Please enter data properly before proceed", "Warning Message");
     }
   }
@@ -271,13 +318,13 @@ export class DriverConductorComponent {
     );
   };
 
-  toBeDeletedConductorRecord:any = {};
-  openDeleteConfirmationDialog=(data:any)=>{
+  toBeDeletedConductorRecord: any = {};
+  openDeleteConfirmationDialog = (data: any) => {
     this.toBeDeletedConductorRecord = data;
   }
 
-  handleDeleteConductor =()=>{
-    if(this.toBeDeletedConductorRecord.id!=''){
+  handleDeleteConductor = () => {
+    if (this.toBeDeletedConductorRecord.id != '') {
       const ENDPOINT = `${environment.BASE_URL}/api/deleteConductor`;
       const requestOptions = {
         requestObject: this.toBeDeletedConductorRecord,
@@ -290,13 +337,13 @@ export class DriverConductorComponent {
         (error) => {
           console.log("error here ", error);
           this.toastr.error("Something went wrong !", "Warning");
-          
+
         },
         () => {
           console.log('Observable is now completed.');
         }
       );
-    }else{
+    } else {
       this.toastr.warning("Please enter data properly before proceed", "Warning Message");
     }
   }

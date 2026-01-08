@@ -15,22 +15,12 @@
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item active">
-              <button
-                *ngIf="activeTabName == 'Driver'"
-                class="btn btn-default btn-sm"
-                data-toggle="modal"
-                data-target="#formModal"
-                (click)="openNewDriverDialog()"
-              >
+              <button *ngIf="activeTabName == 'Driver'" class="btn btn-default btn-sm" data-toggle="modal"
+                data-target="#formModal" (click)="openNewDriverDialog()">
                 <i class="fas fa-plus"></i> New Driver
               </button>
-              <button
-                *ngIf="activeTabName == 'Conductor'"
-                class="btn btn-default btn-sm"
-                data-toggle="modal"
-                data-target="#conductorModal"
-                (click)="openNewConductorDialog()"
-              >
+              <button *ngIf="activeTabName == 'Conductor'" class="btn btn-default btn-sm" data-toggle="modal"
+                data-target="#conductorModal" (click)="openNewConductorDialog()">
                 <i class="fas fa-plus"></i> New Conductor
               </button>
             </li>
@@ -60,46 +50,17 @@
   <section class="content card p-2">
     <div class="container-fluid">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li
-          class="nav-item"
-          role="presentation"
-          (click)="setAddNewButton('Driver')"
-        >
-          <a
-            class="nav-link active"
-            id="driver-tab"
-            data-toggle="tab"
-            href="#driver"
-            role="tab"
-            aria-controls="driver"
-            aria-selected="true"
-            ><b>Driver</b></a
-          >
+        <li class="nav-item" role="presentation" (click)="setAddNewButton('Driver')">
+          <a class="nav-link active" id="driver-tab" data-toggle="tab" href="#driver" role="tab" aria-controls="driver"
+            aria-selected="true"><b>Driver</b></a>
         </li>
-        <li
-          class="nav-item"
-          role="presentation"
-          (click)="setAddNewButton('Conductor')"
-        >
-          <a
-            class="nav-link"
-            id="conductor-tab"
-            data-toggle="tab"
-            href="#conductor"
-            role="tab"
-            aria-controls="conductor"
-            aria-selected="false"
-            ><b>Conductor</b></a
-          >
+        <li class="nav-item" role="presentation" (click)="setAddNewButton('Conductor')">
+          <a class="nav-link" id="conductor-tab" data-toggle="tab" href="#conductor" role="tab"
+            aria-controls="conductor" aria-selected="false"><b>Conductor</b></a>
         </li>
       </ul>
       <div class="tab-content" id="myTabContent">
-        <div
-          class="tab-pane fade show active"
-          id="driver"
-          role="tabpanel"
-          aria-labelledby="driver-tab"
-        >
+        <div class="tab-pane fade show active" id="driver" role="tabpanel" aria-labelledby="driver-tab">
           <!-- <div class="row">
             <div class="col-sm-12">
               <ol class="breadcrumb float-sm-right">
@@ -132,30 +93,18 @@
                       <td>{{ data.driver_name }}</td>
                       <td>{{ data.contact_no }}</td>
                       <td>
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#viewModal"
-                          (click)="viewDriverData(i)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#viewModal"
+                          (click)="viewDriverData(i)">
                           <i class="fa fa-eye"></i>
                         </button>
                         <!-- (click)="openEditDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#formModal"
-                          (click)="openEditDriverDialog(data)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#formModal"
+                          (click)="openEditDriverDialog(data)">
                           <i class="fas fa-edit"></i>
                         </button>
                         <!-- (click)="openConfirmationDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#deleteDriverModal"
-                          (click)="openConfirmationDialog(data)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#deleteDriverModal"
+                          (click)="openConfirmationDialog(data)">
                           <i class="fas fa-trash"></i>
                         </button>
                       </td>
@@ -164,75 +113,96 @@
                 </table>
 
                 <!-- Form Modal -->
-                <div class="modal fade" id="formModal" tabindex="-1">
-                  <div class="modal-dialog modal-sm">
+                <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-backdrop="static" id="formModal" tabindex="-1">
+                  <div class="modal-dialog modal-md">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h2 class="modal-title">Driver Details</h2>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" (click)="closeForm()" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
                       <div class="modal-body">
-                        <form>
+                        <form #driverForm="ngForm" novalidate>
                           <div class="form-group">
+
                             <div class="row">
+                              <div class="col-md-6">
+                                <label>Driver Name *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form1.driver_name"
+                                  name="driver_name" required />
+                              </div>
+
+                              <div class="col-md-6">
+                                <label>Driver Contact No *</label>
+                                <input type="number" class="form-control" [(ngModel)]="form1.contact_no"
+                                  name="contact_no" required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>AADHAAR *</label>
+                                <input type="number" class="form-control" [(ngModel)]="form1.aadhaar" name="aadhaar"
+                                  required />
+                              </div>
+
+                              <div class="col-md-6">
+                                <label>PAN No *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form1.pan" name="pan" required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>Voter ID *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form1.voter" name="voter"
+                                  required />
+                              </div>
+
+                              <div class="col-md-6">
+                                <label>Driving License *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form1.dl" name="dl" required />
+                              </div>
+                            </div>
+
+                            <div class="row p-3">
                               <div class="col-md-12">
-                                <label>Driver Name</label>
+                                <label>Driver Photo *</label>
                                 <input
-                                  type="text"
+                                  type="file"
                                   class="form-control"
-                                  [(ngModel)]="form1.driver_name"
-                                  name="driver_name"
+                                  accept="image/*"
+                                  (change)="onPhotoChange($event)"
+                                />
+                              </div>
+
+                              <div class="col-md-12" *ngIf="imagePreview">
+                                <label>Preview</label><br />
+                                <img
+                                  [src]="imagePreview"
+                                  style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc; padding: 4px;"
                                 />
                               </div>
                             </div>
-                            <div class="row">
-                              <div class="col-md-12 pt-3">
-                                <label>Driver Contact No</label>
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  [(ngModel)]="form1.contact_no"
-                                  name="contact_no"
-                                />
-                              </div>
-                            </div>
+
                           </div>
 
-                          <button
-                            *ngIf="!isEdit"
-                            style="float: right"
-                            type="button"
-                            class="btn btn-info"
-                            (click)="saveData()"
-                            data-dismiss="modal"
-                          >
+                          <button *ngIf="!isEdit" type="button" class="btn btn-info float-right"
+                            [disabled]="driverForm.invalid" (click)="saveData(driverForm)" data-dismiss="modal">
                             Save
                           </button>
-                          <button
-                            *ngIf="isEdit"
-                            style="float: right"
-                            type="button"
-                            class="btn btn-info"
-                            (click)="updateData()"
-                            data-dismiss="modal"
-                          >
+
+                          <button *ngIf="isEdit" type="button" class="btn btn-info float-right" (click)="updateData()"
+                            data-dismiss="modal">
                             Update
                           </button>
-                          <button
-                            style="float: right; margin-right: 5px"
-                            type="button"
-                            class="btn btn-default"
-                            data-dismiss="modal"
-                          >
+
+                          <button type="button" (click)="closeForm()" class="btn btn-default float-right mr-2" data-dismiss="modal">
                             Cancel
                           </button>
                         </form>
+
                       </div>
                     </div>
                   </div>
@@ -244,11 +214,7 @@
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title">View Details</h5>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
@@ -272,39 +238,23 @@
                     <div class="modal-content">
                       <div class="modal-header">
                         <h2 class="modal-title">Confirmation Message</h2>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
                       <div class="modal-body">
                         <h4>
                           Are you sure ! You want to delete driver
-                          <strong
-                            ><i
-                              >"{{ toBeDeletedDriverRecord.driver_name }}-{{
-                                toBeDeletedDriverRecord.contact_no
-                              }}"</i
-                            ></strong
-                          >
+                          <strong><i>"{{ toBeDeletedDriverRecord.driver_name }}-{{
+                              toBeDeletedDriverRecord.contact_no
+                              }}"</i></strong>
                           ?
                         </h4>
-                        <button
-                          type="button"
-                          class="btn btn-primary float-sm-right"
-                          (click)="handleDeleteDriver()"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteDriver()"
+                          data-dismiss="modal">
                           Yes
                         </button>
-                        <button
-                          type="button"
-                          class="btn btn-default float-sm-right"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
                           No
                         </button>
                       </div>
@@ -315,12 +265,7 @@
             </div>
           </div>
         </div>
-        <div
-          class="tab-pane fade"
-          id="conductor"
-          role="tabpanel"
-          aria-labelledby="conductor-tab"
-        >
+        <div class="tab-pane fade" id="conductor" role="tabpanel" aria-labelledby="conductor-tab">
           <!-- <div class="row">
             <div class="col-sm-12">
               <ol class="breadcrumb float-sm-right">
@@ -353,30 +298,18 @@
                       <td>{{ data.conductor_name }}</td>
                       <td>{{ data.contact_no }}</td>
                       <td>
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#viewConductorModal"
-                          (click)="viewConductorData(i)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#viewConductorModal"
+                          (click)="viewConductorData(i)">
                           <i class="fas fa-eye"></i>
                         </button>
                         <!-- (click)="openEditDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#conductorModal"
-                          (click)="openEditConductorDialog(data)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#conductorModal"
+                          (click)="openEditConductorDialog(data)">
                           <i class="fas fa-edit"></i>
                         </button>
                         <!-- (click)="openConfirmationDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#deleteConductorModal"
-                          (click)="openDeleteConfirmationDialog(data)"
-                        >
+                        <button class="btn btn-default" data-toggle="modal" data-target="#deleteConductorModal"
+                          (click)="openDeleteConfirmationDialog(data)">
                           <i class="fas fa-trash"></i>
                         </button>
                       </td>
@@ -390,11 +323,7 @@
                     <div class="modal-content">
                       <div class="modal-header">
                         <h2 class="modal-title">Conductor Details</h2>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
@@ -404,54 +333,30 @@
                             <div class="row">
                               <div class="col-md-12">
                                 <label>Conductor Name</label>
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  [(ngModel)]="form2.conductor_name"
-                                  name="conductor_name"
-                                />
+                                <input type="text" class="form-control" [(ngModel)]="form2.conductor_name"
+                                  name="conductor_name" />
                               </div>
 
                               <div class="col-md-12 pt-3">
                                 <label>Conductor Contact No</label>
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  [(ngModel)]="form2.contact_no"
-                                  name="contact_no"
-                                />
+                                <input type="number" class="form-control" [(ngModel)]="form2.contact_no"
+                                  name="contact_no" />
                               </div>
                             </div>
                           </div>
 
-                          <button
-                          *ngIf="!isConductorEdit"
-                          style="float: right"
-                            type="button"
-                            class="btn btn-info"
-                            (click)="saveDataConductor()"
-                            data-dismiss="modal"
-                          >
+                          <button *ngIf="!isConductorEdit" style="float: right" type="button" class="btn btn-info"
+                            (click)="saveDataConductor()" data-dismiss="modal">
                             Save
                           </button>
-                          <button
-                          *ngIf="isConductorEdit"
-                          style="float: right"
-                          type="button"
-                          class="btn btn-info"
-                          (click)="updateDataConductor()"
-                          data-dismiss="modal"
-                        >
-                          Update
-                        </button>
-                        <button
-                          style="float: right; margin-right: 5px"
-                          type="button"
-                          class="btn btn-default"
-                          data-dismiss="modal"
-                        >
-                          Cancel
-                        </button>
+                          <button *ngIf="isConductorEdit" style="float: right" type="button" class="btn btn-info"
+                            (click)="updateDataConductor()" data-dismiss="modal">
+                            Update
+                          </button>
+                          <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"
+                            data-dismiss="modal">
+                            Cancel
+                          </button>
                         </form>
                       </div>
                     </div>
@@ -464,11 +369,7 @@
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title">View Details</h5>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
@@ -492,39 +393,23 @@
                     <div class="modal-content">
                       <div class="modal-header">
                         <h2 class="modal-title">Confirmation Message</h2>
-                        <button
-                          type="button"
-                          class="close"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="close" data-dismiss="modal">
                           &times;
                         </button>
                       </div>
                       <div class="modal-body">
                         <h4>
                           Are you sure ! You want to delete conductor
-                          <strong
-                            ><i
-                              >"{{
-                                toBeDeletedConductorRecord.conductor_name
-                              }}-{{ toBeDeletedConductorRecord.contact_no }}"</i
-                            ></strong
-                          >
+                          <strong><i>"{{
+                              toBeDeletedConductorRecord.conductor_name
+                              }}-{{ toBeDeletedConductorRecord.contact_no }}"</i></strong>
                           ?
                         </h4>
-                        <button
-                          type="button"
-                          class="btn btn-primary float-sm-right"
-                          (click)="handleDeleteConductor()"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteConductor()"
+                          data-dismiss="modal">
                           Yes
                         </button>
-                        <button
-                          type="button"
-                          class="btn btn-default float-sm-right"
-                          data-dismiss="modal"
-                        >
+                        <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
                           No
                         </button>
                       </div>
