@@ -290,7 +290,22 @@ export class BusesComponent {
     }
 
     this.router.navigate(['/daily-update'], {
-      queryParams: { date: this.selectedDate, busId: this.selectedData.id }
+      queryParams: { date: this.selectedDate, busId: this.selectedData.id, currentStatus:'running', noOfTrip:0 }
+    });
+  }
+
+  redirectToUpdateForm(data:any) {
+    const dateInput = document.querySelector('input[name="date"]') as HTMLInputElement;
+    console.log("data ==> ", data);
+    
+
+    if (!data.id) {
+      alert("Bus id not found!");
+      return;
+    }
+
+    this.router.navigate(['/daily-update'], {
+      queryParams: { busId: data.id, triptId: data.dailyUpdateId, currentStatus:'finished', type:'update' }
     });
   }
 }

@@ -321,6 +321,36 @@ upload_driver_image: multer({
       });
   },
 
+
+  updateDailyUpdates(req, res) {
+    let {requestObject, id} = req.body;
+
+    console.log("requestObject", requestObject);
+    console.log("id", id);
+
+    let data = requestObject;
+
+
+    dailyUpdatesModel
+      .update(requestObject, { where: { id: id } })
+      .then((response) => {
+        return res.status(200).send({ message: "Success" });
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+
+
+    // dailyUpdatesModel
+    //   .create(data)
+    //   .then((response) => {
+    //     return res.status(200).send({ message: "Success" });
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //   });
+  },
+
   createTrips(req, res) {
     console.log("res ", req.body.requestObject);
     tripModel
@@ -380,21 +410,51 @@ upload_driver_image: multer({
   // *****************************************
   getBusList(req, res) {
     // const sql = "SELECT * FROM busMasters WHERE status = 'Active' ORDER BY id DESC";
-    const sql = `SELECT 
-    bus.id,
-    bus.busName,
-    bus.busNo,
-    bus.baseDepot,
-    bus.conductorName,
-    bus.conductorContactNo,
-    bus.driverName,
-    bus.driverContactNo,
-    bus.status,
-    bus.createdAt,
-    bus.updatedAt,
-    routes.routeName AS routeName
-FROM busMasters as bus
-JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
+//     const sql = `SELECT 
+//     bus.id,
+//     bus.busName,
+//     bus.busNo,
+//     bus.baseDepot,
+//     bus.conductorName,
+//     bus.conductorContactNo,
+//     bus.driverName,
+//     bus.driverContactNo,
+//     bus.status,
+//     bus.createdAt,
+//     bus.updatedAt,
+//     routes.routeName AS routeName
+// FROM busMasters as bus
+// JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
+// WHERE bus.status = 'Active'
+// ORDER BY bus.id DESC;
+// `;
+
+const sql = `SELECT 
+bus.id,
+bus.busName,
+bus.busNo,
+bus.baseDepot,
+bus.conductorName,
+bus.conductorContactNo,
+bus.driverName,
+bus.driverContactNo,
+bus.status,
+bus.createdAt,
+bus.updatedAt,
+routes.routeName AS routeName,
+du.currentStatus AS currentStatus,
+du.noOfTrip AS noOfTrip,
+du.id AS dailyUpdateId
+FROM busMasters AS bus
+JOIN busRoutesMasters AS routes 
+ON bus.allotedRouteNo = routes.id
+LEFT JOIN dailyUpdates AS du
+ON du.busId = bus.id
+AND du.createdAt = (
+    SELECT MAX(createdAt)
+    FROM dailyUpdates
+    WHERE busId = bus.id
+)
 WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
@@ -513,6 +573,33 @@ LIMIT 1;
     try {
       const [results] = await sequelize.query(sqlQuery, {
         replacements: [dateFrom, dateTo],
+      });
+
+      console.log("res =>", results);
+      res.send(results);
+    } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send({ error: "Failed to fetch data" });
+    }
+  },
+
+
+  async getOneTripDetails(req, res) {
+    let { id } = req.body;
+
+    console.log("id===>>", id);
+
+    let sqlQuery = `
+        SELECT  bm.id as busId, bm.*, br.id as routeNo, br.*, du.id as id, du.*
+        FROM dailyUpdates AS du
+        INNER JOIN busMasters AS bm ON bm.id = du.busId
+        INNER JOIN busRoutesMasters AS br ON br.id = du.routeNo
+        WHERE du.id = ?
+    `;
+
+    try {
+      const [results] = await sequelize.query(sqlQuery, {
+        replacements: [id],
       });
 
       console.log("res =>", results);

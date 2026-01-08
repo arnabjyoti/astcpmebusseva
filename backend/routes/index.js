@@ -25,6 +25,8 @@ module.exports = (app) => {
 	app.get('/api/getBusList', BusController.getBusList);
 	app.post('/api/getBusData', BusController.getBusData);
 	app.post('/api/getDailyUpdates', BusController.getDailyUpdates);
+	app.post('/api/updateDailyUpdates', BusController.updateDailyUpdates);
+	app.post('/api/getOneTripDetails', BusController.getOneTripDetails);
 	app.post('/api/deleteEarningDetails', BusController.deleteEarningDetails);
 
 
