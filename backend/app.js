@@ -13,7 +13,7 @@ const agent = require('agentkeepalive');
 //code to run in local env
 // const env ="test"; 
 //code to run in production env
-const env ="production"; 
+const env ="development"; 
 console.log("env: ", env);
 const config = require(__dirname + '/config/config.json')[env];
 console.log("config: ", config);
