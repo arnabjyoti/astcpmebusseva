@@ -19,81 +19,38 @@ const stationsModel = require("../models").stations;
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
 // const { Sequelize, Model } = require('sequelize');
 const { sequelize } = require("../models");
 const { log } = require("console");
 
 module.exports = {
-  upload_config: multer({
+upload_driver_image: multer({
     storage: multer.diskStorage({
-      destination: function (req, file, cb) {
-        console.log("config", config);
-        console.log("dbid", req.body);
-        let dbID = req.body.dbid + "_";
-        console.log("9999999999999999999", req.body.dbid);
-        const userFolder = "closed_account";
-        let dest = path.join(config.FILE_UPLOAD_PATH);
-        console.log("dddddddddddddddddd", dest);
-        module.exports.checkDirectory(dest, () => {
-          cb(null, dest);
-        });
+      destination: (req, file, cb) => {
+        const dest = path.join(config.FILE_UPLOAD_PATH, "image", "driver");
+        if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+        cb(null, dest);
       },
-      filename: function (req, file, cb) {
-        console.log("xxxxxxxxxxxx", file);
-        cb(null, file.originalname);
-      },
-    }),
+      filename: (req, file, cb) => {
+        cb(null, "driver_" + Date.now() + path.extname(file.originalname));
+      }
+    })
   }),
 
-  checkDirectory(directory, callback) {
-    fs.stat(directory, (err, stats) => {
-      console.log("nnnnnnnnnnnnnnnn", directory);
-      //Check if error defined and the error code is "not exists"
-      if (
-        err &&
-        (err.errno === 34 || err.errno === -4058 || err.errno === -2)
-      ) {
-        console.log("ERROR:  ", err, "   ERROR CODE:  ", err.errno);
-        //Create the directory, call the callback.
-        console.log("Create " + directory);
-        fs.mkdir(directory, callback);
-      } else {
-        //just in case there was a different error:
-        console.log("cccccccccccccccccccccc");
-        console.log("Directory not created " + directory);
-        if (!err) {
-          return callback && callback();
-        }
-        console.log(err);
+  upload_conductor_image: multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dest = path.join(config.FILE_UPLOAD_PATH, "image", "conductor");
+        if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+        cb(null, dest);
+      },
+      filename: (req, file, cb) => {
+        cb(null, "conductor_" + Date.now() + path.extname(file.originalname));
       }
-    });
-  },
-
-  checkDirectory(directory, callback) {
-    fs.stat(directory, (err, stats) => {
-      console.log("nnnnnnnnnnnnnnnn", directory);
-      //Check if error defined and the error code is "not exists"
-      if (
-        err &&
-        (err.errno === 34 || err.errno === -4058 || err.errno === -2)
-      ) {
-        console.log("ERROR:  ", err, "   ERROR CODE:  ", err.errno);
-        //Create the directory, call the callback.
-        console.log("Create " + directory);
-        fs.mkdir(directory, callback);
-      } else {
-        //just in case there was a different error:
-        console.log("cccccccccccccccccccccc");
-        console.log("Directory not created " + directory);
-        if (!err) {
-          return callback && callback();
-        }
-        console.log(err);
-      }
-    });
-  },
+    })
+  }),
 
   createBus(req, res) {
     let requestObject = req.body.requestObject;
@@ -213,17 +170,38 @@ module.exports = {
   // const conductorMasterModel = require("../models").conductorMaster;
 
   saveDriver(req, res) {
-    let data = req.body.requestObject;
-    data.status='Active';
-    driverMasterModel
+    console.log("reqqqqqqqqqqq", req.body);
+    
+  try {
+    const data = {
+      driver_name: req.body.driver_name,
+      contact_no: req.body.contact_no,
+      aadhaar: req.body.aadhaar,
+      pan: req.body.pan,
+      voter: req.body.voter,
+      dl: req.body.dl,
+      status: 'Active',
+      photo: req.file
+        ? `image/driver/${req.file.filename}`
+        : null,
+    };
+
+    return driverMasterModel
       .create(data)
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
+      .then((project) => {
+        console.log("hhhhhhhhhhhhhhh",project);
+        res.status(200).send({ message: 'Success' });
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log('DB error:', err);
+        res.status(500).send({ message: 'Database error' });
       });
-  },
+
+  } catch (err) {
+    console.log('Server error:', err);
+    res.status(500).send({ message: 'Server error' });
+  }
+},
 
   updateDriver(req, res) {
     let data = req.body.requestObject;
@@ -253,6 +231,7 @@ module.exports = {
   },
 
   getDriver(req, res) {
+    console.log("here");
     let query = {
       where:{status:'Active'},
       raw: true,
@@ -311,6 +290,7 @@ module.exports = {
   },
 
   getConductor(req, res) {
+    console.log("here1");
     let query = {
       where:{status:'Active'},
       raw: true,
@@ -339,6 +319,36 @@ module.exports = {
       .catch((err) => {
         console.log("err", err);
       });
+  },
+
+
+  updateDailyUpdates(req, res) {
+    let {requestObject, id} = req.body;
+
+    console.log("requestObject", requestObject);
+    console.log("id", id);
+
+    let data = requestObject;
+
+
+    dailyUpdatesModel
+      .update(requestObject, { where: { id: id } })
+      .then((response) => {
+        return res.status(200).send({ message: "Success" });
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+
+
+    // dailyUpdatesModel
+    //   .create(data)
+    //   .then((response) => {
+    //     return res.status(200).send({ message: "Success" });
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //   });
   },
 
   createTrips(req, res) {
@@ -400,21 +410,51 @@ module.exports = {
   // *****************************************
   getBusList(req, res) {
     // const sql = "SELECT * FROM busMasters WHERE status = 'Active' ORDER BY id DESC";
-    const sql = `SELECT 
-    bus.id,
-    bus.busName,
-    bus.busNo,
-    bus.baseDepot,
-    bus.conductorName,
-    bus.conductorContactNo,
-    bus.driverName,
-    bus.driverContactNo,
-    bus.status,
-    bus.createdAt,
-    bus.updatedAt,
-    routes.routeName AS routeName
-FROM busMasters as bus
-JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
+//     const sql = `SELECT 
+//     bus.id,
+//     bus.busName,
+//     bus.busNo,
+//     bus.baseDepot,
+//     bus.conductorName,
+//     bus.conductorContactNo,
+//     bus.driverName,
+//     bus.driverContactNo,
+//     bus.status,
+//     bus.createdAt,
+//     bus.updatedAt,
+//     routes.routeName AS routeName
+// FROM busMasters as bus
+// JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
+// WHERE bus.status = 'Active'
+// ORDER BY bus.id DESC;
+// `;
+
+const sql = `SELECT 
+bus.id,
+bus.busName,
+bus.busNo,
+bus.baseDepot,
+bus.conductorName,
+bus.conductorContactNo,
+bus.driverName,
+bus.driverContactNo,
+bus.status,
+bus.createdAt,
+bus.updatedAt,
+routes.routeName AS routeName,
+du.currentStatus AS currentStatus,
+du.noOfTrip AS noOfTrip,
+du.id AS dailyUpdateId
+FROM busMasters AS bus
+JOIN busRoutesMasters AS routes 
+ON bus.allotedRouteNo = routes.id
+LEFT JOIN dailyUpdates AS du
+ON du.busId = bus.id
+AND du.createdAt = (
+    SELECT MAX(createdAt)
+    FROM dailyUpdates
+    WHERE busId = bus.id
+)
 WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
@@ -533,6 +573,33 @@ LIMIT 1;
     try {
       const [results] = await sequelize.query(sqlQuery, {
         replacements: [dateFrom, dateTo],
+      });
+
+      console.log("res =>", results);
+      res.send(results);
+    } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send({ error: "Failed to fetch data" });
+    }
+  },
+
+
+  async getOneTripDetails(req, res) {
+    let { id } = req.body;
+
+    console.log("id===>>", id);
+
+    let sqlQuery = `
+        SELECT  bm.id as busId, bm.*, br.id as routeNo, br.*, du.id as id, du.*
+        FROM dailyUpdates AS du
+        INNER JOIN busMasters AS bm ON bm.id = du.busId
+        INNER JOIN busRoutesMasters AS br ON br.id = du.routeNo
+        WHERE du.id = ?
+    `;
+
+    try {
+      const [results] = await sequelize.query(sqlQuery, {
+        replacements: [id],
       });
 
       console.log("res =>", results);

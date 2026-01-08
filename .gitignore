@@ -5,8 +5,6 @@
 
 # Node artifact files
 node_modules/
-dist/
-image/
 
 # Angular cache
 .angular/
@@ -32,7 +30,6 @@ backend/image/vendor
 
 # Maven
 target/
-dist/
 
 # JetBrains IDE
 .idea/
