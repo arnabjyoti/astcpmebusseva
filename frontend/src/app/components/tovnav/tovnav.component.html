@@ -1,20 +1,21 @@
 <!-- Header start -->
 <!-- <header class="header"> -->
-<nav class="main-header navbar navbar-expand  navbar-light-black">
+<nav class="header-height main-header navbar navbar-expand  navbar-light-black">
   <!-- Left navbar links -->
-  <ul class="navbar-nav">
+  <ul class="navbar-nav header-icons-alignment">
     <li class="nav-item">
       <a class="nav-link" data-widget="pushmenu" href="#" role="button"
-        ><i class="fas fa-stream"></i
+        ><i class="fas fa-stream navbar-text"></i
       ></a>
     </li>
     <li class="nav-item d-none d-sm-inline-block">
-      <a routerLink="/home" class="nav-link">Home</a>
+      <a routerLink="/home" class="nav-link navbar-text">Home</a>
     </li>
     <li class="nav-item d-none d-sm-inline-block">
-      <a routerLink="/profile" class="nav-link">
+      <a routerLink="/profile" class="nav-link navbar-text navbar-icon-text">
         <i class="nav-icon fas fa-user-circle"> </i>
-        {{ user.f_name | titlecase }} {{ user.l_name | titlecase }}</a
+        <span>{{ user.f_name | titlecase }} {{ user.l_name | titlecase }}</span>
+        </a
       >
     </li>
   </ul>
