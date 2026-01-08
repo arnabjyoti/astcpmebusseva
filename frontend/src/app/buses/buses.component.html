@@ -8,21 +8,21 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
+      <div class="row mb-2 d-flex align-items-center">
         <div class="col-sm-6">
-          <h1 class="m-0">Buses</h1>
+          <h1 class="m-0">Vehicle Info</h1>
         </div>
         <!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item active">
               <button
-                class="btn btn-default"
+                class="btn btn-outline-info add-vehicle-btn"
                 data-toggle="modal"
                 data-target="#formModal"
                 (click)="openNewDialog()"
               >
-                <i class="fas fa-plus"></i> New Bus
+                <span><i class="fas fa-plus"></i></span> <span>New Vehicle</span>
               </button>
             </li>
           </ol>
@@ -43,7 +43,7 @@
           <div>
             <table class="table table-bordered">
               <thead>
-                <tr>
+                <tr style="background-color: #546cc0; color: rgb(57, 52, 52);">
                   <th>Bus Name</th>
                   <th>Veh No</th>
                   <th>Driver Name</th>
@@ -57,6 +57,7 @@
               </thead>
               <tbody>
                 <tr
+                  style="background-color: #c7d0ef;"
                   *ngFor="let data of busList; let i = index"
                   [ngClass]="{ 'running-bg': data.currentStatus === 'running' }"
                 >

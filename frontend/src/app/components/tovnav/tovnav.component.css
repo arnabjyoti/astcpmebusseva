@@ -13,3 +13,26 @@
         background-color: #343a40;
         color: aliceblue;
     }
+
+    .header-icons-alignment {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 16px;
+    }
+
+    .header-height {
+        height: 3.2rem;
+    }
+
+    .navbar-text {
+        color: white !important;
+    }
+
+    .navbar-icon-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
