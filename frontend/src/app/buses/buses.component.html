@@ -41,6 +41,12 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div>
+
+            <div class="form-group">
+              <input type="date" class="form-control" [(ngModel)]="dataForDate" name="dataForDate" id="">
+              <button class="btn btn-success" (click)="getBuses()">Get</button>
+            </div>
+
             <table class="table table-bordered">
               <thead>
                 <tr>
@@ -52,13 +58,19 @@
                   <th>Conductor Contact No</th>
                   <th>Base Depot</th>
                   <th>Alloted Route No</th>
+                  <th>Current Status</th>
                   <th style="text-align: center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   *ngFor="let data of busList; let i = index"
-                  [ngClass]="{ 'running-bg': data.currentStatus === 'running' }"
+                  [ngClass]="{ 
+                    'running-bg': data.currentStatus === 'running',
+                    'still-bg': data.currentStatus === 'still',
+                    'finished-bg': data.currentStatus === 'finished',
+                  
+                   }"
                 >
                   <td>{{ data.busName }}</td>
                   <td>{{ data.busNo }}</td>
@@ -68,6 +80,10 @@
                   <td>{{ data.conductorContactNo }}</td>
                   <td>{{ data.baseDepot }}</td>
                   <td>{{ data.routeName }}</td>
+                  <td>
+                    {{ data.currentStatus || 'idle' | titlecase }}
+                    {{ data.currentStatus == 'running' ? ' (' + data.noOfTrip + ')' : '' }}
+                  </td>
                   <td style="text-align: center; width: 15%;">
                     <button
                       class="btn btn-default"
@@ -99,10 +115,10 @@
                         <button
                           class="btn btn-warning btn-sm"
                           data-toggle="modal"
-                          data-target="#addDetailsModal"
+                          data-target="#updateRoute"
                           (click)="viewData(i)"
                         >
-                        <i class="fas fa-recycle"></i> Update Trip
+                        <i class="fas fa-recycle"></i> Update Rounds
                         </button>
                       </div>
                       <div class="pb-2" *ngIf="data.currentStatus == 'running' ">
@@ -123,7 +139,7 @@
                           data-target="#addDetailsModal"
                           (click)="viewData(i)"
                         >
-                          <i class="fas fa-plus"></i> Start Trip
+                          <i class="fas fa-plus"></i> Update Trip
                         </button>
                       </div>
                     </div>
@@ -397,6 +413,45 @@
                 </div>
               </div>
             </div>
+
+
+            <!-- Update route -->
+            <div class="modal fade" id="updateRoute" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Update Round</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                      &times;
+                    </button>
+                  </div>
+                  <div class="modal-body" *ngIf="selectedData">
+                    <p><strong>Bus Name:</strong> {{ selectedData.busName }}</p>
+                    <p><strong>Bus No:</strong> {{ selectedData.busNo }}</p>
+                    <p><strong>Current Round:</strong> {{ selectedData.noOfTrip }}</p>
+
+                    <p>
+                      <label for="">Update Trip:</label>
+                      <input type="text" name="newRoundTrip" [(ngModel)]="newRoundTrip" class="form-control col-md-4" />
+                    </p>
+
+                    <div class="text-center">
+                      <button
+                        class="btn btn-primary"
+                        data-dismiss="modal"
+                        (click)="updateTrip()"
+                      >
+                        Update Trip
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
 
             <div class="modal fade" id="deleteModal" tabindex="-1">
               <div class="modal-dialog modal-sm">
