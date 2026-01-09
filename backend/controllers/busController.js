@@ -7,6 +7,7 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
+ const { Sequelize } = require("sequelize");
 const busModel = require("../models").busMaster;
 const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
@@ -74,8 +75,10 @@ module.exports = {
           busName: data?.busName,
           busNo: data?.busNo,
           driverName: data?.driverName,
+          driverId: data?.driverId,
           driverContactNo: data?.driverContactNo,
           conductorName: data?.conductorName,
+          conductorId: data?.conductorId,
           conductorContactNo: data?.conductorContactNo,
           baseDepot: data?.baseDepot,
           allotedRouteNo: data?.allotedRouteNo,
@@ -409,11 +412,26 @@ module.exports = {
         console.log("err", err);
       });
   },
+  blockConductor(req, res) {
+    let data = req.body.requestObject;
+    console.log("status ", data.status);
+    let status = data.status == "Block" ? "Active" : "Block";
+    conductorMasterModel
+      .update({ status: status }, { where: { id: data.id } })
+      .then((response) => {
+        return res.status(200).send({ message: "Success" });
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  },
 
   getConductor(req, res) {
     console.log("here1");
     let query = {
-      where: { status: "Active" },
+      where: {
+        [Op.or]: [{ status: "Active" }, { status: "Block" }],
+      },
       raw: true,
       order: [["id", "DESC"]],
     };
@@ -428,6 +446,74 @@ module.exports = {
         return res.status(400).send(error);
       });
   },
+
+
+  // const { Op, Sequelize } = require("sequelize");
+
+  getConductorAttendance(req, res) {
+    try {
+      // const { month } = req.body; 
+      const month = req.query.month;
+      // expected format: "2025-09-01"
+  
+      if (!month) {
+        return res.status(400).send({ message: "Month is required" });
+      }
+  
+      const sql = `
+        WITH RECURSIVE calendar AS (
+            SELECT DATE(:month) AS day
+            UNION ALL
+            SELECT day + INTERVAL 1 DAY
+            FROM calendar
+            WHERE day < LAST_DAY(:month)
+        ),
+        attendance_raw AS (
+            SELECT
+                cm.id AS conductor_id,
+                cm.conductor_name,
+                c.day,
+                CASE
+                    WHEN du.conductorId IS NOT NULL THEN 'P'
+                    ELSE 'A'
+                END AS status
+            FROM conductorMasters cm
+            CROSS JOIN calendar c
+            LEFT JOIN dailyUpdates du
+                ON du.conductorId = cm.id
+               AND DATE(du.date) = c.day
+            WHERE cm.status IN ('Active', 'Block')
+        )
+        SELECT
+            conductor_name AS conductor,
+            JSON_OBJECTAGG(
+                DATE_FORMAT(day, '%Y-%m-%d'),
+                status
+            ) AS attendance
+        FROM attendance_raw
+        GROUP BY conductor_id, conductor_name
+        ORDER BY conductor_name;
+      `;
+  
+      return sequelize
+        .query(sql, {
+          replacements: { month },
+          type: Sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          return res.status(200).send(data);
+        })
+        .catch((error) => {
+          console.error(error);
+          return res.status(400).send(error);
+        });
+  
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  },
+  
 
   saveDailyUpdates(req, res) {
     let data = req.body.requestObject;
@@ -596,6 +682,7 @@ SELECT
     bus.baseDepot,
     bus.conductorName,
     bus.conductorContactNo,
+    bus.conductorId,
     bus.driverName,
     bus.driverContactNo,
     bus.status,
@@ -604,10 +691,13 @@ SELECT
     routes.routeName AS routeName,
     du.currentStatus AS currentStatus,
     du.noOfTrip AS noOfTrip,
-    du.id AS dailyUpdateId
+    du.id AS dailyUpdateId,
+    cm.status as conductorStatus
 FROM busMasters AS bus
 JOIN busRoutesMasters AS routes 
     ON bus.allotedRouteNo = routes.id
+  LEFT JOIN conductorMasters AS cm
+    ON cm.id = bus.conductorId
 LEFT JOIN dailyUpdates AS du
     ON du.busId = bus.id
    AND du.date = ${filterDate ? "?" : "CURDATE()"}
@@ -676,6 +766,8 @@ ORDER BY bus.id DESC;
     busMasters.status,
     busMasters.createdAt,
     busMasters.updatedAt,
+    busMasters.driverId,
+    busMasters.conductorId,
     busRoutesMasters.routeName AS routeName
 FROM busMasters
 LEFT JOIN busRoutesMasters 
@@ -1414,8 +1506,11 @@ END AS estimated_time,
 
       const idleBus = await dailyUpdatesModel.count({
         where: {
-          currentStatus: "Idle",
-        },
+          [Op.or]: [
+            { currentStatus: "Idle" },
+            { currentStatus: null }
+          ]
+        }
       });
 
       const finishedBus = await dailyUpdatesModel.count({

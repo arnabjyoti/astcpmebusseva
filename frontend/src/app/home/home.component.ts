@@ -112,10 +112,10 @@ export class HomeComponent implements OnInit {
       }
 
       // Assign API values
-      this.totalBus = 60;
-      this.totalDriver = 72;
+      this.totalBus = res.totalBus;
+      this.totalDriver = res.totalDriver;
       this.totalConductor = res.totalConductor;
-      this.totalRoute = 10;
+      this.totalRoute = res.totalRoute;
 
       this.runningBus = res.runningBus;
       this.idleBus = res.idleBus;

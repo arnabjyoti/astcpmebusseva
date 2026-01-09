@@ -146,6 +146,8 @@ export class DailyUpdateFormComponent {
         this.form.date = this.selectedDate;
         this.form.routeNo = response.allotedRouteNo;
         this.form.depot = response.depotName;
+        this.form.driverId = response.driverId;
+        this.form.conductorId = response.conductorId;
         this.routeName = response.routeName;
       },
       (error) => {

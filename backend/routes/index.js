@@ -36,8 +36,10 @@ module.exports = (app) => {
 	app.post('/api/saveConductor', BusController.upload_conductor_image.single("photo"), BusController.saveConductor);
 	app.post('/api/updateConductor', BusController.upload_conductor_image.single('photo'), BusController.updateConductor);
 	app.post('/api/deleteConductor', BusController.deleteConductor);
+	app.post('/api/blockConductor', BusController.blockConductor);
 	app.get('/api/getDriver', BusController.getDriver);
 	app.get('/api/getConductor', BusController.getConductor);
+	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
 
 	app.post('/api/sendOtp', sendMail.sendOtp);
 

@@ -232,26 +232,9 @@
                   readonly
                 />
               </div>
-              <div class="col-md-6 pt-3">
-                <label>Conductor Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="busDetails.conductorName"
-                  name="conductorName"
-                  readonly
-                />
-              </div>
+             
 
-              <div class="col-md-6 pt-3">
-                <label>Timesheet No. </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.timesheetNo"
-                  name="timesheetNo"
-                />
-              </div>
+             
 
               <div class="col-md-6 pt-3">
                 <label
@@ -265,6 +248,40 @@
                   readonly
                 />
               </div>
+
+              <div class="col-md-4 pt-3">
+                <label>Conductor Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="busDetails.conductorName"
+                  name="conductorName"
+                  readonly
+                />
+              </div>
+
+              <div class="col-md-4 pt-3">
+                <label>Timesheet No. </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.timesheetNo"
+                  name="timesheetNo"
+                />
+              </div>
+
+              <div class="col-md-4 pt-3">
+                <label>Start time. </label>
+                <input
+                  type="time"
+                  class="form-control"
+                  [(ngModel)]="form.startTime"
+                  name="startTime"
+                />
+              </div>
+
+
+
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
                 <input
@@ -496,6 +513,15 @@
                   class="form-control"
                   [(ngModel)]="form.amountToBeDeposited"
                   name="amountToBeDeposited"
+                />
+              </div>
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Stop time</label>
+                <input
+                  type="time"
+                  class="form-control"
+                  [(ngModel)]="form.stopTime"
+                  name="stopTime"
                 />
               </div>
               <div class="col-md-4 pt-3">
