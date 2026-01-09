@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "u476288869_ev",
-      "password": "&6ND$|~uA",
-      "database": "u476288869_ev",
+      "username": "u476288869_astcpme",
+      "password": "JouoST|zL&f2",
+      "database": "u476288869_astcpme",
       "host": "62.72.28.52",
       "dialect": "mysql",
         "dialectOptions": {
@@ -11,7 +11,7 @@
         "logging": false,
         "timezone": "+05:30",
         "operatorsAliases": false,
-        "FILE_UPLOAD_PATH":"image",
+        "FILE_UPLOAD_PATH": "D:\\Skaplink\\astcpmebusseva.com\\backend\\files",
         "cert": {
 			"key": "./cert/temp/key.pem",
 			"crt": "./cert/temp/cert.pem"

@@ -26,6 +26,108 @@
   <!-- Main content -->
   <section class="content">
     <div class="container-fluid">
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+
+            <!-- Running Buses -->
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card status-running">
+                <div class="stat-icon">
+                  <i class="fas fa-bus"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Running Today</p>
+                  <h3 class="stat-value">{{ runningBus }}</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Idle Buses -->
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card">
+                <div class="stat-icon bg-idle status-idle">
+                  <i class="fas fa-parking"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Idle Today</p>
+                  <h3 class="stat-value">{{ idleBus }}</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finished Buses -->
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card status-finished">
+                <div class="stat-icon bg-finished">
+                  <i class="fas fa-flag-checkered"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Finished Today</p>
+                  <h3 class="stat-value">{{ finishedBus }}</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Still Not Started -->
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card status-still">
+                <div class="stat-icon bg-still">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Not Started</p>
+                  <h3 class="stat-value">{{ stillBus }}</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Todays Earning -->
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card earnings today">
+                <div class="stat-icon">
+                  <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Today's Earnings</p>
+                  <h3 class="stat-value">₹ {{ todayEarning || '-' }}</h3>
+                  <small class="stat-sub">Live collection</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <div class="stat-card earnings yesterday">
+                <div class="stat-icon">
+                  <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-info">
+                  <p class="stat-title">Yesterday's Earnings</p>
+                  <h3 class="stat-value">₹ {{ yesterdayEarning || '-' }}</h3>
+                  <small class="stat-sub">Completed day</small>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-md-6 col-12">
+          <div class="chart-card bg-white rounded p-3">
+            <h5 class="chart-title mb-3">Today's Transport Statistics</h5>
+            <div class="chart-container">
+              <canvas id="transportPieChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+
+      <br><br>
+
       <div class="row">
         <!-- Total Bus -->
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
@@ -80,14 +182,17 @@
         </div>
       </div>
 
+
       <div class="row">
-        <div class="col-12">
-          <div class="chart-card">
+        <div class="col-12 col-sm-12">
+          <div class="chart-card bg-white rounded p-1">
             <h5 class="chart-title">Overall Transport Statistics</h5>
             <canvas id="transportBarChart"></canvas>
           </div>
         </div>
+
       </div>
+
 
 
     </div>

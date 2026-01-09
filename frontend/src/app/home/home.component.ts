@@ -22,6 +22,14 @@ export class HomeComponent implements OnInit {
   totalConductor = 0;
   totalRoute = 0;
 
+  runningBus = 0;
+  idleBus = 0;
+  finishedBus = 0;
+  stillBus = 0;
+
+  todayEarning = 0;
+  yesterdayEarning = 0;
+
   barChart!: Chart;
 
 
@@ -109,6 +117,14 @@ export class HomeComponent implements OnInit {
       this.totalConductor = res.totalConductor;
       this.totalRoute = 10;
 
+      this.runningBus = res.runningBus;
+      this.idleBus = res.idleBus;
+      this.finishedBus = res.finishedBus;
+      this.stillBus = res.stillBus;
+
+      this.todayEarning = 0
+      this.yesterdayEarning = 0
+
       // this.totalBus = res.totalBus;
       // this.totalDriver = res.totalDriver;
       // this.totalConductor = res.totalConductor;
@@ -117,6 +133,7 @@ export class HomeComponent implements OnInit {
       // Load chart AFTER data arrives
       setTimeout(() => {
         this.loadBarChart();
+        this.loadPieChart();
       }, 0);
     });
   }
@@ -128,7 +145,7 @@ export class HomeComponent implements OnInit {
         labels: ['Buses', 'Drivers', 'Conductors', 'Routes'],
         datasets: [{
           label: 'Count',
-          data: [128, 96, 82, 45],
+          data: [this.totalBus, this.totalDriver, this.totalConductor, this.totalRoute],
           backgroundColor: [
             '#4e73df',
             '#1cc88a',
@@ -143,4 +160,43 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+
+
+  loadPieChart() {
+  new Chart('transportPieChart', {
+    type: 'pie',
+    data: {
+      labels: ['Running Today', 'Idle Today', 'Finished Today', 'Not Started'],
+      datasets: [
+        {
+          data: [
+            this.runningBus,
+            this.idleBus,
+            this.finishedBus,
+            this.stillBus
+          ],
+          backgroundColor: [
+            '#4e73df',
+            '#1cc88a',
+            '#f6c23e',
+            '#e74a3b'
+          ],
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
 }
+
+}
+
+

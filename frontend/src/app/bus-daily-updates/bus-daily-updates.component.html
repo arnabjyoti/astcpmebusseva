@@ -69,6 +69,7 @@
                         <th>Net Amount Deposited</th>
                         <th>Trageted Earning</th>
                         <th>Amount To Be Deposited</th>
+                        <th>Status</th>
 
                         <th>Remarks</th>
                         <th>Actions</th>
@@ -110,6 +111,7 @@
                         <td>{{ data.netAmountDeposited }}</td>
                         <td>{{ data.tragetedEarning }}</td>
                         <td>{{ data.amountToBeDeposited }}</td>
+                        <td>{{ data.currentStatus | titlecase }}</td>
                         <td>{{ data.remarks }}</td>
                         <td>
                             <button class="btn btn-default" data-toggle="modal" data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)"><i class="fa fa-trash"></i></button>
