@@ -56,7 +56,9 @@ export class BusesComponent {
       return ele.id === parseInt(this.form?.conductorName);
     });
 
+    this.form.driverId = selectedDriverDetails.id;
     this.form.driverName = selectedDriverDetails.driver_name;
+    this.form.conductorId = selectedConductorDetails.id;
     this.form.conductorName = selectedConductorDetails.conductor_name;
     const requestOptions = {
       requestObject: this.form,
@@ -88,9 +90,11 @@ export class BusesComponent {
 
     this.form.driverName = selectedDriverDetails.driver_name;
     this.form.conductorName = selectedConductorDetails.conductor_name;
+    this.form.driverId = selectedDriverDetails.id;
+    this.form.conductorId = selectedConductorDetails.id;
     const requestOptions = {
       requestObject: this.form,
-    };
+    };  
 
     this.http.post(ENDPOINT, requestOptions).subscribe(
       (response) => {

@@ -348,6 +348,34 @@ closeForm() {
     }
   }
 
+
+  handleBlockConductor = () => {
+    if (this.toBeDeletedConductorRecord.id != '') {
+      const ENDPOINT = `${environment.BASE_URL}/api/blockConductor`;
+      const requestOptions = {
+        requestObject: this.toBeDeletedConductorRecord,
+      };
+      this.http.post(ENDPOINT, requestOptions).subscribe(
+        (response) => {
+          this.getConductors();
+          this.toastr.success("Conductor deleted successfully", "Success Message");
+        },
+        (error) => {
+          console.log("error here ", error);
+          this.toastr.error("Something went wrong !", "Warning");
+
+        },
+        () => {
+          console.log('Observable is now completed.');
+        }
+      );
+    } else {
+      this.toastr.warning("Please enter data properly before proceed", "Warning Message");
+    }
+  }
+
+  
+
   selectedDataConductor: any;
   viewConductorData = (id: any) => {
     this.selectedDataConductor = this.conductorList[id];
@@ -361,4 +389,60 @@ closeForm() {
   resetForm2() {
     (this.form2.conductor_name = ''), (this.form2.contact_no = '');
   }
+
+
+
+
+
+  attendanceMonth: string = ''; // ex: "2025-09"
+  conductorAttendance: any[] = [];
+  daysInMonth: string[] = [];
+  
+  getConductorAttendance = () => {
+    if (!this.attendanceMonth) {
+      return;
+    }
+  
+    const [year, month] = this.attendanceMonth.split('-').map(Number);
+  
+    const ENDPOINT = `${environment.BASE_URL}/api/getConductorAttendance?month=${year}-${month}-01`;
+  
+    this.http.get<any[]>(ENDPOINT).subscribe(
+      (response) => {
+        console.log('getConductorAttendance ', response);
+  
+        // 1️⃣ Generate days of selected month
+        this.generateMonthDays(year, month - 1);
+  
+        // 2️⃣ Parse attendance JSON string
+        this.conductorAttendance = response.map(item => ({
+          ...item,
+          attendance: typeof item.attendance === 'string'
+            ? JSON.parse(item.attendance)
+            : item.attendance
+        }));
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      }
+    );
+  };
+  
+
+  generateMonthDays(year: number, month: number) {
+    this.daysInMonth = [];
+  
+    const daysInSelectedMonth = new Date(year, month + 1, 0).getDate();
+  
+    for (let day = 1; day <= daysInSelectedMonth; day++) {
+      const dd = String(day).padStart(2, '0');
+      const mm = String(month + 1).padStart(2, '0');
+  
+      this.daysInMonth.push(`${year}-${mm}-${dd}`);
+    }
+  }
+  
+  
+
 }

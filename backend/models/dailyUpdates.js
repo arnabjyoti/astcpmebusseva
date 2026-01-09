@@ -20,6 +20,11 @@ module.exports = (sequelize, type) => {
         consumedSOC: type.STRING,
         targetedTrip: type.STRING,
         currentStatus: type.STRING,
+        startTime: type.STRING,
+        stopTime: type.STRING,
+        driverId: type.STRING,
+        conductorId: type.STRING,
+
 
 
         chaloMachineNo: type.STRING,
