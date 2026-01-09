@@ -8,6 +8,8 @@ module.exports = (sequelize, type) => {
         },
         busName: type.STRING,
         busNo: type.STRING,
+        driverId: type.STRING,
+        conductorId: type.STRING,
         driverName: type.STRING,
         driverContactNo: type.STRING,
         conductorName: type.STRING,
