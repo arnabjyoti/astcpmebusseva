@@ -48,8 +48,9 @@
                         <th>Conductor Name</th>
                         <th>Timesheet No</th>
                         <th>Route No</th>
+                        <th>Start Time</th>
                         <th>OMR Opening Km</th>
-                        <th>CRM Closing Km</th>
+                        <th>CMR Closing Km</th>
                         <th>Total Km Operated </th>
                         <th>Chalo Machine No</th>
                         <th>No Of Trip</th>
@@ -69,6 +70,8 @@
                         <th>Net Amount Deposited</th>
                         <th>Trageted Earning</th>
                         <th>Amount To Be Deposited</th>
+                        <th>End Time</th>
+                        <th>Status</th>
 
                         <th>Remarks</th>
                         <th>Actions</th>
@@ -81,6 +84,7 @@
                         <td>{{ data.conductorName }}</td>
                         <td>{{ data.timesheetNo }}</td>
                         <td>{{ data.routeNo }}-{{ data.routeName }}</td>
+                        <td>{{ data.startTime }}</td>
                         <td>{{ data.omr }}</td>
                         <td>{{ data.cmr }}</td>
                         <td>{{ data.totalOperated }}</td>
@@ -110,6 +114,8 @@
                         <td>{{ data.netAmountDeposited }}</td>
                         <td>{{ data.tragetedEarning }}</td>
                         <td>{{ data.amountToBeDeposited }}</td>
+                        <td>{{ data.stopTime }}</td>
+                        <td>{{ data.currentStatus | titlecase }}</td>
                         <td>{{ data.remarks }}</td>
                         <td>
                             <button class="btn btn-default" data-toggle="modal" data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)"><i class="fa fa-trash"></i></button>
@@ -119,106 +125,7 @@
             </table>
             </div>
         
-            <!-- Form Modal -->
-            <div class="modal fade" id="formModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Data</h5>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="form-group">
-                                    <label>Driver Name</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.driverName" name="driverName">
-                                </div>
-                                <div class="form-group">
-                                    <label>Conductor Name</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.conductorName" name="conductorName">
-                                </div>
-                                <div class="form-group">
-                                    <label>Trip Start Time</label>
-                                    <input type="time" class="form-control" [(ngModel)]="form.tripStartTime" name="tripStartTime">
-                                </div>
-                                <div class="form-group">
-                                    <label>Bus No</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo">
-                                </div>
-                                <div class="form-group">
-                                    <label>Allotted Route No</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.allottedRouteNo" name="allottedRouteNo">
-                                </div>
-                                <div class="form-group">
-                                    <label>Destination Route</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.destinationRoute" name="destinationRoute">
-                                </div>
-                                <div class="form-group">
-                                    <label>Battery Start (%)</label>
-                                    <input type="number" class="form-control" [(ngModel)]="form.batteryStart" name="batteryStart">
-                                </div>
-                                <div class="form-group">
-                                    <label>Battery End (%)</label>
-                                    <input type="number" class="form-control" [(ngModel)]="form.batteryEnd" name="batteryEnd">
-                                </div>
-                                <div class="form-group">
-                                    <label>Electric Charge Unit Consumption</label>
-                                    <input type="number" class="form-control" [(ngModel)]="form.electricChargeUnitConsumption" name="electricChargeUnitConsumption">
-                                </div>
-                                <div class="form-group">
-                                    <label>Tyre Pressure</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.tyrePressure" name="tyrePressure">
-                                </div>
-                                <div class="form-group">
-                                    <label>No. of Trips</label>
-                                    <input type="number" class="form-control" [(ngModel)]="form.noOfTrips" name="noOfTrips">
-                                </div>
-                                <div class="form-group">
-                                    <label>Cash Collection (Rs)</label>
-                                    <input type="number" class="form-control" [(ngModel)]="form.cashCollection" name="cashCollection">
-                                </div>
-                                <div class="form-group">
-                                    <label>KPI</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.kpi" name="kpi">
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Cash Tally</label>
-                                    <input type="text" class="form-control" [(ngModel)]="form.accountCashTally" name="accountCashTally">
-                                </div>
-                                <button type="button" class="btn btn-success" (click)="saveData()" data-dismiss="modal">Save</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- View Modal -->
-            <div class="modal fade" id="viewModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">View Details</h5>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body" *ngIf="selectedData">
-                            <p><strong>Driver Name:</strong> {{ selectedData.driverName }}</p>
-                            <p><strong>Conductor Name:</strong> {{ selectedData.conductorName }}</p>
-                            <p><strong>Trip Start Time:</strong> {{ selectedData.tripStartTime }}</p>
-                            <p><strong>Bus No:</strong> {{ selectedData.busNo }}</p>
-                            <p><strong>Allotted Route No:</strong> {{ selectedData.allottedRouteNo }}</p>
-                            <p><strong>Destination Route:</strong> {{ selectedData.destinationRoute }}</p>
-                            <p><strong>Battery Start (%):</strong> {{ selectedData.batteryStart }}</p>
-                            <p><strong>Battery End (%):</strong> {{ selectedData.batteryEnd }}</p>
-                            <p><strong>Electric Charge Unit Consumption:</strong> {{ selectedData.electricChargeUnitConsumption }}</p>
-                            <p><strong>Tyre Pressure:</strong> {{ selectedData.tyrePressure }}</p>
-                            <p><strong>No. of Trips:</strong> {{ selectedData.noOfTrips }}</p>
-                            <p><strong>Cash Collection (Rs):</strong> {{ selectedData.cashCollection }}</p>
-                            <p><strong>KPI:</strong> {{ selectedData.kpi }}</p>
-                            <p><strong>Account Cash Tally:</strong> {{ selectedData.accountCashTally }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="modal fade" id="deleteModal" tabindex="-1">
                 <div class="modal-dialog modal-sm">

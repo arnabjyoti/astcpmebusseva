@@ -7,6 +7,7 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
+ const { Sequelize } = require("sequelize");
 const busModel = require("../models").busMaster;
 const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
@@ -26,7 +27,7 @@ const { sequelize } = require("../models");
 const { log } = require("console");
 
 module.exports = {
-upload_driver_image: multer({
+  upload_driver_image: multer({
     storage: multer.diskStorage({
       destination: (req, file, cb) => {
         const dest = path.join(config.FILE_UPLOAD_PATH, "image", "driver");
@@ -35,8 +36,8 @@ upload_driver_image: multer({
       },
       filename: (req, file, cb) => {
         cb(null, "driver_" + Date.now() + path.extname(file.originalname));
-      }
-    })
+      },
+    }),
   }),
 
   upload_conductor_image: multer({
@@ -48,8 +49,8 @@ upload_driver_image: multer({
       },
       filename: (req, file, cb) => {
         cb(null, "conductor_" + Date.now() + path.extname(file.originalname));
-      }
-    })
+      },
+    }),
   }),
 
   createBus(req, res) {
@@ -74,8 +75,10 @@ upload_driver_image: multer({
           busName: data?.busName,
           busNo: data?.busNo,
           driverName: data?.driverName,
+          driverId: data?.driverId,
           driverContactNo: data?.driverContactNo,
           conductorName: data?.conductorName,
+          conductorId: data?.conductorId,
           conductorContactNo: data?.conductorContactNo,
           baseDepot: data?.baseDepot,
           allotedRouteNo: data?.allotedRouteNo,
@@ -171,37 +174,34 @@ upload_driver_image: multer({
 
   saveDriver(req, res) {
     console.log("reqqqqqqqqqqq", req.body);
-    
-  try {
-    const data = {
-      driver_name: req.body.driver_name,
-      contact_no: req.body.contact_no,
-      aadhaar: req.body.aadhaar,
-      pan: req.body.pan,
-      voter: req.body.voter,
-      dl: req.body.dl,
-      status: 'Active',
-      photo: req.file
-        ? `image/driver/${req.file.filename}`
-        : null,
-    };
 
-    return driverMasterModel
-      .create(data)
-      .then((project) => {
-        console.log("hhhhhhhhhhhhhhh",project);
-        res.status(200).send({ message: 'Success' });
-      })
-      .catch((err) => {
-        console.log('DB error:', err);
-        res.status(500).send({ message: 'Database error' });
-      });
+    try {
+      const data = {
+        driver_name: req.body.driver_name,
+        contact_no: req.body.contact_no,
+        aadhaar: req.body.aadhaar,
+        pan: req.body.pan,
+        voter: req.body.voter,
+        dl: req.body.dl,
+        status: "Active",
+        photo: req.file ? `image/driver/${req.file.filename}` : null,
+      };
 
-  } catch (err) {
-    console.log('Server error:', err);
-    res.status(500).send({ message: 'Server error' });
-  }
-},
+      return driverMasterModel
+        .create(data)
+        .then((project) => {
+          console.log("hhhhhhhhhhhhhhh", project);
+          res.status(200).send({ message: "Success" });
+        })
+        .catch((err) => {
+          console.log("DB error:", err);
+          res.status(500).send({ message: "Database error" });
+        });
+    } catch (err) {
+      console.log("Server error:", err);
+      res.status(500).send({ message: "Server error" });
+    }
+  },
 
   updateDriver(req, res) {
     let data = req.body.requestObject;
@@ -233,7 +233,7 @@ upload_driver_image: multer({
   getDriver(req, res) {
     console.log("here");
     let query = {
-      where:{status:'Active'},
+      where: { status: "Active" },
       raw: true,
       order: [["id", "DESC"]],
     };
@@ -251,7 +251,7 @@ upload_driver_image: multer({
 
   saveConductor(req, res) {
     let data = req.body.requestObject;
-    data.status='Active';
+    data.status = "Active";
     conductorMasterModel
       .create(data)
       .then((response) => {
@@ -288,11 +288,26 @@ upload_driver_image: multer({
         console.log("err", err);
       });
   },
+  blockConductor(req, res) {
+    let data = req.body.requestObject;
+    console.log("status ", data.status);
+    let status = data.status == "Block" ? "Active" : "Block";
+    conductorMasterModel
+      .update({ status: status }, { where: { id: data.id } })
+      .then((response) => {
+        return res.status(200).send({ message: "Success" });
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  },
 
   getConductor(req, res) {
     console.log("here1");
     let query = {
-      where:{status:'Active'},
+      where: {
+        [Op.or]: [{ status: "Active" }, { status: "Block" }],
+      },
       raw: true,
       order: [["id", "DESC"]],
     };
@@ -308,9 +323,77 @@ upload_driver_image: multer({
       });
   },
 
+
+  // const { Op, Sequelize } = require("sequelize");
+
+  getConductorAttendance(req, res) {
+    try {
+      // const { month } = req.body; 
+      const month = req.query.month;
+      // expected format: "2025-09-01"
+  
+      if (!month) {
+        return res.status(400).send({ message: "Month is required" });
+      }
+  
+      const sql = `
+        WITH RECURSIVE calendar AS (
+            SELECT DATE(:month) AS day
+            UNION ALL
+            SELECT day + INTERVAL 1 DAY
+            FROM calendar
+            WHERE day < LAST_DAY(:month)
+        ),
+        attendance_raw AS (
+            SELECT
+                cm.id AS conductor_id,
+                cm.conductor_name,
+                c.day,
+                CASE
+                    WHEN du.conductorId IS NOT NULL THEN 'P'
+                    ELSE 'A'
+                END AS status
+            FROM conductorMasters cm
+            CROSS JOIN calendar c
+            LEFT JOIN dailyUpdates du
+                ON du.conductorId = cm.id
+               AND DATE(du.date) = c.day
+            WHERE cm.status IN ('Active', 'Block')
+        )
+        SELECT
+            conductor_name AS conductor,
+            JSON_OBJECTAGG(
+                DATE_FORMAT(day, '%Y-%m-%d'),
+                status
+            ) AS attendance
+        FROM attendance_raw
+        GROUP BY conductor_id, conductor_name
+        ORDER BY conductor_name;
+      `;
+  
+      return sequelize
+        .query(sql, {
+          replacements: { month },
+          type: Sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          return res.status(200).send(data);
+        })
+        .catch((error) => {
+          console.error(error);
+          return res.status(400).send(error);
+        });
+  
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  },
+  
+
   saveDailyUpdates(req, res) {
     let data = req.body.requestObject;
-    data.status='Active';
+    data.status = "Active";
     dailyUpdatesModel
       .create(data)
       .then((response) => {
@@ -321,15 +404,13 @@ upload_driver_image: multer({
       });
   },
 
-
   updateDailyUpdates(req, res) {
-    let {requestObject, id} = req.body;
+    let { requestObject, id } = req.body;
 
     console.log("requestObject", requestObject);
     console.log("id", id);
 
     let data = requestObject;
-
 
     dailyUpdatesModel
       .update(requestObject, { where: { id: id } })
@@ -339,7 +420,6 @@ upload_driver_image: multer({
       .catch((err) => {
         console.log("err", err);
       });
-
 
     // dailyUpdatesModel
     //   .create(data)
@@ -406,61 +486,114 @@ upload_driver_image: multer({
   //     });
   // },
 
-
   // *****************************************
   getBusList(req, res) {
-    // const sql = "SELECT * FROM busMasters WHERE status = 'Active' ORDER BY id DESC";
-//     const sql = `SELECT 
-//     bus.id,
-//     bus.busName,
-//     bus.busNo,
-//     bus.baseDepot,
-//     bus.conductorName,
-//     bus.conductorContactNo,
-//     bus.driverName,
-//     bus.driverContactNo,
-//     bus.status,
-//     bus.createdAt,
-//     bus.updatedAt,
-//     routes.routeName AS routeName
-// FROM busMasters as bus
-// JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
-// WHERE bus.status = 'Active'
-// ORDER BY bus.id DESC;
-// `;
+    // get params data
+    const reqDate = req.query.date;
 
-const sql = `SELECT 
-bus.id,
-bus.busName,
-bus.busNo,
-bus.baseDepot,
-bus.conductorName,
-bus.conductorContactNo,
-bus.driverName,
-bus.driverContactNo,
-bus.status,
-bus.createdAt,
-bus.updatedAt,
-routes.routeName AS routeName,
-du.currentStatus AS currentStatus,
-du.noOfTrip AS noOfTrip,
-du.id AS dailyUpdateId
+    // const sql = "SELECT * FROM busMasters WHERE status = 'Active' ORDER BY id DESC";
+    //     const sql = `SELECT
+    //     bus.id,
+    //     bus.busName,
+    //     bus.busNo,
+    //     bus.baseDepot,
+    //     bus.conductorName,
+    //     bus.conductorContactNo,
+    //     bus.driverName,
+    //     bus.driverContactNo,
+    //     bus.status,
+    //     bus.createdAt,
+    //     bus.updatedAt,
+    //     routes.routeName AS routeName
+    // FROM busMasters as bus
+    // JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
+    // WHERE bus.status = 'Active'
+    // ORDER BY bus.id DESC;
+    // `;
+
+    // const sql = `SELECT
+    // bus.id,
+    // bus.busName,
+    // bus.busNo,
+    // bus.baseDepot,
+    // bus.conductorName,
+    // bus.conductorContactNo,
+    // bus.driverName,
+    // bus.driverContactNo,
+    // bus.status,
+    // bus.createdAt,
+    // bus.updatedAt,
+    // routes.routeName AS routeName,
+    // du.currentStatus AS currentStatus,
+    // du.noOfTrip AS noOfTrip,
+    // du.id AS dailyUpdateId
+    // FROM busMasters AS bus
+    // JOIN busRoutesMasters AS routes
+    // ON bus.allotedRouteNo = routes.id
+    // LEFT JOIN dailyUpdates AS du
+    // ON du.busId = bus.id
+    // AND du.createdAt = (
+    //     SELECT MAX(createdAt)
+    //     FROM dailyUpdates
+    //     WHERE busId = bus.id
+    // )
+    // WHERE bus.status = 'Active'
+    // ORDER BY bus.id DESC;
+    // `;
+
+    if (reqDate) {
+      const [yyyy, mm, dd] = reqDate.split("-");
+      filterDate = `${yyyy}-${mm}-${dd}`;
+    } else {
+      filterDate = null; // will use CURDATE()
+    }
+
+    console.log("filterDate", filterDate);
+
+    const sql = `
+SELECT 
+    bus.id,
+    bus.busName,
+    bus.busNo,
+    bus.baseDepot,
+    bus.conductorName,
+    bus.conductorContactNo,
+    bus.conductorId,
+    bus.driverName,
+    bus.driverContactNo,
+    bus.status,
+    bus.createdAt,
+    bus.updatedAt,
+    routes.routeName AS routeName,
+    du.currentStatus AS currentStatus,
+    du.noOfTrip AS noOfTrip,
+    du.id AS dailyUpdateId,
+    cm.status as conductorStatus
 FROM busMasters AS bus
 JOIN busRoutesMasters AS routes 
-ON bus.allotedRouteNo = routes.id
+    ON bus.allotedRouteNo = routes.id
+  LEFT JOIN conductorMasters AS cm
+    ON cm.id = bus.conductorId
 LEFT JOIN dailyUpdates AS du
-ON du.busId = bus.id
-AND du.createdAt = (
-    SELECT MAX(createdAt)
-    FROM dailyUpdates
-    WHERE busId = bus.id
-)
+    ON du.busId = bus.id
+   AND du.date = ${filterDate ? "?" : "CURDATE()"}
+   AND du.createdAt = (
+        SELECT MAX(createdAt)
+        FROM dailyUpdates
+        WHERE busId = bus.id
+          AND date = ${filterDate ? "?" : "CURDATE()"}
+   )
 WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
-  
+
+    const replacements = filterDate ? [filterDate, filterDate] : [];
+
     sequelize
-      .query(sql, { type: sequelize.QueryTypes.SELECT })
+      .query(sql, {
+        replacements,
+        type: sequelize.QueryTypes.SELECT,
+      })
       .then((bus) => {
         return res.status(200).send(bus);
       })
@@ -470,9 +603,6 @@ ORDER BY bus.id DESC;
       });
   },
   // *****************************************
-
-
-
 
   // getBusData(req, res) {
   //   let busId = req.body.busId;
@@ -497,7 +627,7 @@ ORDER BY bus.id DESC;
 
   getBusData(req, res) {
     const busId = req.body.busId;
-  
+
     const sql = `
     SELECT 
     busMasters.id,
@@ -512,6 +642,8 @@ ORDER BY bus.id DESC;
     busMasters.status,
     busMasters.createdAt,
     busMasters.updatedAt,
+    busMasters.driverId,
+    busMasters.conductorId,
     busRoutesMasters.routeName AS routeName
 FROM busMasters
 LEFT JOIN busRoutesMasters 
@@ -521,11 +653,11 @@ AND busMasters.status = 'Active'
 LIMIT 1;
 
     `;
-  
+
     sequelize
-      .query(sql, { 
-        replacements: { busId }, 
-        type: sequelize.QueryTypes.SELECT 
+      .query(sql, {
+        replacements: { busId },
+        type: sequelize.QueryTypes.SELECT,
       })
       .then((bus) => {
         return res.status(200).send(bus.length ? bus[0] : {});
@@ -582,7 +714,6 @@ LIMIT 1;
       res.status(500).send({ error: "Failed to fetch data" });
     }
   },
-
 
   async getOneTripDetails(req, res) {
     let { id } = req.body;
@@ -1225,30 +1356,30 @@ END AS estimated_time,
     try {
       const totalBus = await busMasterModel.count({
         where: {
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
       const totalDriver = await driverMasterModel.count({
         where: {
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
       const totalConductor = await conductorMasterModel.count({
         where: {
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
       const totalRoute = await busRoutesModel.count({
         where: {
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
 
       res.status(200).send({
         totalBus,
         totalDriver,
         totalConductor,
-        totalRoute
+        totalRoute,
       });
     } catch (error) {
       console.error("Error fetching dashboard counts:", error);
@@ -1257,23 +1388,21 @@ END AS estimated_time,
   },
 
   async getCurrentISTTime(req, res) {
-  try {
-    const { getCurrentIST } = require('../utils/utils');
+    try {
+      const { getCurrentIST } = require("../utils/utils");
 
-    const istDate = getCurrentIST();
+      const istDate = getCurrentIST();
 
-    log("IST Date:", istDate);
+      log("IST Date:", istDate);
 
-    res.status(200).send({
-      currentIST: istDate,
-      timestamp: istDate.getTime(),
-      iso: istDate.toISOString()
-    });
-
-  } catch (error) {
-    console.error("Error fetching IST time:", error);
-    res.status(500).send({ error: "Failed to fetch IST time" });
-  }
-}
-
+      res.status(200).send({
+        currentIST: istDate,
+        timestamp: istDate.getTime(),
+        iso: istDate.toISOString(),
+      });
+    } catch (error) {
+      console.error("Error fetching IST time:", error);
+      res.status(500).send({ error: "Failed to fetch IST time" });
+    }
+  },
 };

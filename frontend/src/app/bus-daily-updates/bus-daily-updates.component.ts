@@ -45,25 +45,7 @@ export class BusDailyUpdatesComponent {
     
   }
 
-  saveData() {
-    this.dataList.push({ ...this.form });
-    this.form = {
-      driverName: '',
-      conductorName: '',
-      tripStartTime: '',
-      busNo: '',
-      allottedRouteNo: '',
-      destinationRoute: '',
-      batteryStart: '',
-      batteryEnd: '',
-      electricChargeUnitConsumption: '',
-      tyrePressure: '',
-      noOfTrips: '',
-      cashCollection: '',
-      kpi: '',
-      accountCashTally: '',
-    };
-  }
+
 
   viewData(index: number) {
     this.selectedData = this.dataList[index];
