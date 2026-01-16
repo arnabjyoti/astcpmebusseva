@@ -82,8 +82,8 @@
                   <td>{{ data.driverContactNo }}</td>
                   <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">{{ data.conductorName }}</td>
                   <td>{{ data.conductorContactNo }}</td>
-                  <td>{{ data.baseDepot }}</td>
-                  <td>{{ data.routeName }}</td>
+                  <td>{{ data.routeDepot }}</td>
+                  <td>{{ data.routeNo }}</td>
                   <td>
                     {{ data.currentStatus || 'idle' | titlecase }}
                     {{ data.currentStatus == 'running' ? ' (' + data.noOfTrip + ')' : '' }}
@@ -196,10 +196,10 @@
                               name="conductorContactNo" readonly />
                           </div>
 
-                          <div class="col-md-6 pt-3">
+                          <!-- <div class="col-md-6 pt-3">
                             <label>Base Depot</label>
                             <input type="text" class="form-control" [(ngModel)]="form.baseDepot" name="baseDepot" />
-                          </div>
+                          </div> -->
 
                           <!-- routeList  -->
 
@@ -215,7 +215,7 @@
                             <select class="form-control" name="allotedRouteNo" [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
                               <option *ngFor="let route of routeList" [value]="route.id">
-                                {{ route.routeName }}
+                                {{ route.routeNo }}
                               </option>
                             </select>
                           </div>
@@ -280,11 +280,11 @@
                     </p>
                     <p>
                       <strong>Conductor Base Depot:</strong>
-                      {{ selectedData.baseDepot }}
+                      {{ selectedData.routeDepot }}
                     </p>
                     <p>
                       <strong>Alloted Route No:</strong>
-                      {{ selectedData.allotedRouteNo }}
+                      {{ selectedData.routeNo }}
                     </p>
                     <p>
                       <strong>Remarks:</strong>

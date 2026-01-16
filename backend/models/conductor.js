@@ -6,6 +6,7 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: true
         },
+        conductor_id: type.STRING,
         conductor_name: type.STRING,
         contact_no: type.STRING,
         aadhaar: type.STRING,

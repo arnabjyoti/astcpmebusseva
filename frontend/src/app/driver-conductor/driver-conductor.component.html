@@ -139,6 +139,7 @@
                 <table class="table table-bordered">
                   <thead>
                     <tr>
+                      <th>Driver ID</th>
                       <th>Driver Name</th>
                       <th>Driver Contact No</th>
                       <th>Action</th>
@@ -146,6 +147,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let data of driverList; let i = index">
+                      <td>{{ data.driver_id }}</td>
                       <td>{{ data.driver_name }}</td>
                       <td>{{ data.contact_no }}</td>
                       <td>
@@ -200,6 +202,17 @@
                         <form #driverForm="ngForm" novalidate>
                           <div class="form-group">
                             <div class="row">
+                              <div class="col-md-6">
+                                <label>Driver ID *</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form1.driver_id"
+                                  name="driver_id"
+                                  required
+                                />
+                              </div>
+
                               <div class="col-md-6">
                                 <label>Driver Name *</label>
                                 <input
@@ -348,9 +361,12 @@
                               <table class="table table-borderless table-sm mb-0">
                                 <tbody>
                                   <tr>
-                                    <th class="text-muted w-50">Driver Name</th>
-                                    <td>{{ selectedData.driver_name }}</td>
+                                    <th class="text-muted w-50">Driver ID</th>
+                                    <td>{{ selectedData.driver_id }}</td>
                                   </tr>
+
+
+
                                   <tr>
                                     <th class="text-muted">Contact No</th>
                                     <td>{{ selectedData.contact_no }}</td>
@@ -472,6 +488,7 @@
                 <table class="table table-bordered">
                   <thead>
                     <tr>
+                      <th>Conductor ID</th>
                       <th>Conductor Name</th>
                       <th>Conductor Contact No</th>
                       <th>Status</th>
@@ -485,6 +502,7 @@
                         'bg-danger': data.status === 'Block'
                       }"
                     >
+                      <td>{{ data.conductor_id }}</td>
                       <td>{{ data.conductor_name }}</td>
                       <td>{{ data.contact_no }}</td>
                       <td>{{ data.status }}</td>
@@ -546,6 +564,16 @@
                         <form #conductorForm="ngForm" novalidate>
                           <div class="form-group">
                             <div class="row">
+                              <div class="col-md-6">
+                                <label>Conductor ID</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form2.conductor_id"
+                                  name="conductor_id"
+                                />
+                              </div>
+
                               <div class="col-md-6">
                                 <label>Conductor Name</label>
                                 <input
@@ -656,6 +684,10 @@
                             <div class="col-md-8">
                               <table class="table table-borderless table-sm mb-0">
                                 <tbody>
+                                  <tr>
+                                    <th class="text-muted w-50">Conductor ID</th>
+                                    <td>{{ selectedDataConductor.conductor_id }}</td>
+                                  </tr>
                                   <tr>
                                     <th class="text-muted w-50">Conductor Name</th>
                                     <td>{{ selectedDataConductor.conductor_name }}</td>
@@ -824,6 +856,12 @@
                   (click)="getConductorAttendance()"
                 >
                   Get Attendance
+                </button>
+                &nbsp;
+                <button
+                  class="btn btn-success"
+                >
+                  Download Report
                 </button>
               </div>
               <div>

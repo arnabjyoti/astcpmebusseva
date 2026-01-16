@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppService } from '../app.service';
 import { environment } from 'src/environments/environment';
-import { add } from 'lodash';
+import { add, cond } from 'lodash';
 
 @Component({
   selector: 'app-driver-conductor',
@@ -25,6 +25,7 @@ export class DriverConductorComponent {
   imagePreview: string | ArrayBuffer | null = null;
 
   form1: any = {
+    driver_id: '',
     driver_name: '',
     contact_no: '',
     aadhaar: '',
@@ -36,6 +37,7 @@ export class DriverConductorComponent {
   };
 
   form2: any = {
+    conductor_id: '',
     conductor_name: '',
     contact_no: '',
     aadhaar: '',
@@ -61,6 +63,7 @@ export class DriverConductorComponent {
   openNewDriverDialog = () => {
     this.isEdit = false;
     this.form1 = {
+      driver_id: '',
       driver_name: '',
       contact_no: '',
       aadhaar: '',
@@ -109,6 +112,7 @@ export class DriverConductorComponent {
   }
 
   const formData = new FormData();
+  formData.append('driver_id', this.form1.driver_id);
   formData.append('driver_name', this.form1.driver_name);
   formData.append('contact_no', this.form1.contact_no);
   formData.append('aadhaar', this.form1.aadhaar);
@@ -146,6 +150,7 @@ closeForm() {
 
   this.form1 = {
     id: data?.id,
+    driver_id: data?.driver_id,
     driver_name: data?.driver_name,
     contact_no: data?.contact_no,
     aadhaar: data?.aadhaar,
@@ -177,6 +182,7 @@ closeForm() {
 
   const formData = new FormData();
   formData.append('id', this.form1.id);
+  formData.append('driver_id', this.form1.driver_id);
   formData.append('driver_name', this.form1.driver_name);
   formData.append('contact_no', this.form1.contact_no);
   formData.append('aadhaar', this.form1.aadhaar || '');
@@ -274,6 +280,7 @@ closeForm() {
   openNewConductorDialog = () => {
     this.isConductorEdit = false;
     this.form2 = {
+      conductor_id: '',
       conductor_name: '',
       contact_no: '',
       aadhaar: '',
@@ -297,6 +304,7 @@ closeForm() {
   }
 
   const formData = new FormData();
+  formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
@@ -325,6 +333,7 @@ closeForm() {
   this.isConductorEdit = true;
 
   this.form2 = {
+    conductor_id: data?.conductor_id,
     id: data?.id,
     conductor_name: data?.conductor_name,
     contact_no: data?.contact_no,
@@ -354,7 +363,9 @@ closeForm() {
   }
 
   const formData = new FormData();
+  
   formData.append('id', this.form2.id);
+  formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);

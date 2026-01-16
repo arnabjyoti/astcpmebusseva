@@ -279,7 +279,7 @@ export class BusesComponent {
       conductorName: selectedConductorDetails?.id,
       conductorContactNo: data?.conductorContactNo,
       baseDepot: data?.baseDepot,
-      allotedRouteNo: data?.allotedRouteNo,
+      allotedRouteNo: data?.routeId,
     };
   };
 

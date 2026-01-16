@@ -20,6 +20,7 @@ module.exports = (app) => {
 	app.post('/api/createBusRoutes', BusController.createBusRoutes);
 	app.post('/api/updateBusRoutes', BusController.updateBusRoutes);
 	app.post('/api/deleteBusRoutes', BusController.deleteBusRoutes);
+	app.get('/api/getRouteSuggestions', BusController.getRouteSuggestions);
 	app.get('/api/getBusRoutes', BusController.getBusRoutes);
 	app.post('/api/saveDailyUpdates', BusController.saveDailyUpdates);
 	app.get('/api/getBusList', BusController.getBusList);

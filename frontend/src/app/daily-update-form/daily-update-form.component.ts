@@ -42,6 +42,12 @@ export class DailyUpdateFormComponent {
     noOfTrip: 0,
     routeNo: '',
 
+    routeStart: '',
+    routeEnd: '',
+    routeVia: '',
+    routeDepot: '',
+    routeDistance: '',
+
     challanDeposited: 0,
     walletCard: 0,
     mobilePass: 0,
@@ -57,7 +63,7 @@ export class DailyUpdateFormComponent {
     currentStatus: '',
   };
 
-  routeName: any;
+  routeNo: any;
   triptId: any;
   formtype: string | null = null;
 
@@ -106,13 +112,15 @@ export class DailyUpdateFormComponent {
           busName: data.busName,
           busNo: data.busNo,
           driverName: data.driverName,
+          driver_id: data.driver_id,
           driverContactNo: data.driverContactNo,
           conductorName: data.conductorName,
+          conductor_id: data.conductor_id,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
         };
         this.busDetails = busDetails;
-        this.routeName = data.routeName;
+        this.routeNo = data.routeNo;
 
         // this.form.currentStatus = 'finished'
 
@@ -148,7 +156,12 @@ export class DailyUpdateFormComponent {
         this.form.depot = response.depotName;
         this.form.driverId = response.driverId;
         this.form.conductorId = response.conductorId;
-        this.routeName = response.routeName;
+        this.form.routeNo = response.routeNo;
+        this.form.routeDepot = response.routeDepot;
+        this.form.routeStart = response.routeStart;
+        this.form.routeEnd = response.routeEnd;
+        this.form.routeVia = response.routeVia;
+        this.form.routeDistance = response.routeDistance;
       },
       (error) => {
         console.log('error here ', error);
@@ -262,8 +275,8 @@ export class DailyUpdateFormComponent {
   }
 
   downloadPdf() {
-    if (!this.form.omr || this.form.omr === 0) {
-      this.toastr.warning('OMR value must be greater than 0', 'Warning');
+    if (!this.form.omr || this.form.omr === 0 || !this.form.osoc || this.form.osoc === 0) {
+      this.toastr.warning('OMR and SOC values must be greater than 0', 'Warning');
       return;
     }
 
@@ -271,7 +284,7 @@ export class DailyUpdateFormComponent {
 
     html2pdf()
       .set({
-        margin: 0,
+        margin: [4, 4, 4, 4],
         filename:
           'Bus Earning Log ' +
           this.busDetails.busNo +
@@ -280,7 +293,8 @@ export class DailyUpdateFormComponent {
           '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-          scale: 2,
+          scale: 1.2,   
+          dpi: 144,
           scrollY: 0,
         },
         jsPDF: {

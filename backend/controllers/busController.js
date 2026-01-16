@@ -25,6 +25,7 @@ const config = require(__dirname + "/../config/config.json")[env];
 // const { Sequelize, Model } = require('sequelize');
 const { sequelize } = require("../models");
 const { log } = require("console");
+const conductor = require("../models/conductor");
 
 module.exports = {
   upload_driver_image: multer({
@@ -75,10 +76,10 @@ module.exports = {
           busName: data?.busName,
           busNo: data?.busNo,
           driverName: data?.driverName,
-          driverId: data?.driverId,
+          driver_id: data?.driver_id,
           driverContactNo: data?.driverContactNo,
           conductorName: data?.conductorName,
-          conductorId: data?.conductorId,
+          conductor_id: data?.conductor_id,
           conductorContactNo: data?.conductorContactNo,
           baseDepot: data?.baseDepot,
           allotedRouteNo: data?.allotedRouteNo,
@@ -112,9 +113,9 @@ module.exports = {
 
   getBusRoutes(req, res) {
     let query = {
-      where: {
-        status: "Active",
-      },
+      // where: {
+      //   status: "Active",
+      // },
       raw: true,
       order: [["id", "DESC"]],
     };
@@ -130,44 +131,150 @@ module.exports = {
       });
   },
 
-  createBusRoutes(req, res) {
-    console.log("res ", req.body.requestObject);
-    busRoutesModel
-      .create(req.body.requestObject)
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  },
-
-  updateBusRoutes(req, res) {
+  async createBusRoutes(req, res) {
+  try {
     let data = req.body.requestObject;
-    busRoutesModel
-      .update(
-        { routeName: data.routeName, routeNo: data.routeNo },
-        { where: { id: data.id } }
-      )
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  },
+
+    // Capitalize first letter utility
+    const capitalizeFirst = (str) =>
+      str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+
+    // Format fields
+    const depot = capitalizeFirst(data.depot);
+    const start = capitalizeFirst(data.start);
+    const end = capitalizeFirst(data.end);
+    const via = capitalizeFirst(data.via);
+
+    // Check duplicate routeNo
+    const exists = await busRoutesModel.findOne({
+      where: { routeNo: data.routeNo }
+    });
+
+    if (exists) {
+      return res.status(409).json({ message: "Route number already exists" });
+    }
+
+    // Create
+    await busRoutesModel.create({
+      depot,
+      start,
+      end,
+      via,
+      routeNo: data.routeNo,
+      routeDistance: data.routeDistance,
+      depot_to_start_distance: data.depot_to_start_distance,
+      end_to_depot_distance: data.end_to_depot_distance,
+      status: data.status || 'Active'
+    });
+
+    return res.status(200).json({ message: "Success" });
+
+  } catch (err) {
+    console.error("Create route error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+},
+
+
+  async updateBusRoutes(req, res) {
+  try {
+    let data = req.body.requestObject;
+
+    const capitalizeFirst = (str) =>
+      str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+
+    const depot = capitalizeFirst(data.depot);
+    const start = capitalizeFirst(data.start);
+    const end = capitalizeFirst(data.end);
+    const via = capitalizeFirst(data.via);
+
+    // Prevent duplicate routeNo on update
+    const { Op } = require('sequelize');
+
+    const exists = await busRoutesModel.findOne({
+      where: {
+        routeNo: data.routeNo,
+        id: { [Op.ne]: data.id }
+      }
+    });
+
+    if (exists) {
+      return res.status(409).json({ message: "Route number already exists" });
+    }
+
+    await busRoutesModel.update(
+      {
+        depot,
+        start,
+        end,
+        via,
+        routeNo: data.routeNo,
+        routeDistance: data.routeDistance,
+        depot_to_start_distance: data.depot_to_start_distance,
+        end_to_depot_distance: data.end_to_depot_distance,
+        status: data.status
+      },
+      { where: { id: data.id } }
+    );
+
+    return res.status(200).json({ message: "Success" });
+
+  } catch (err) {
+    console.error("Update route error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+},
+
 
   deleteBusRoutes(req, res) {
-    let data = req.body.requestObject;
-    busRoutesModel
-      .update({ status: "Inactive" }, { where: { id: data.id } })
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  },
+  try {
+    const data = req.body.requestObject;
+    console.log("Delete Route:", data);
+
+    busRoutesModel.update(
+      { status: "Inactive" },
+      { where: { id: data.id } }
+    )
+    .then(() => {
+      return res.status(200).json({ message: "Success" });
+    })
+    .catch((err) => {
+      console.error("Delete error:", err);
+      return res.status(500).json({ message: "Failed to delete route" });
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+},
+
+
+async getRouteSuggestions(req, res) {
+  try {
+    const field = req.query.field; // depot | start | end | via | routeNo
+
+    if (!['depot', 'start', 'end', 'via', 'routeNo'].includes(field)) {
+      return res.status(400).json({ message: "Invalid field" });
+    }
+
+    const results = await busRoutesModel.findAll({
+      attributes: [
+        [require('sequelize').fn('DISTINCT', require('sequelize').col(field)), field]
+      ],
+      where: { status: 'Active' }
+    });
+
+    const suggestions = results.map(r => r[field]).filter(Boolean);
+
+    return res.status(200).json(suggestions);
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+},
+
 
   //   const driverMasterModel = require("../models").driverMaster;
   // const conductorMasterModel = require("../models").conductorMaster;
@@ -177,6 +284,7 @@ module.exports = {
     
   try {
     const data = {
+      driver_id: req.body.driver_id,
       driver_name: req.body.driver_name,
       contact_no: req.body.contact_no,
       aadhaar: req.body.aadhaar,
@@ -209,6 +317,7 @@ module.exports = {
   try {
     const {
       id,
+      driver_id,
       driver_name,
       contact_no,
       aadhaar,
@@ -244,6 +353,7 @@ module.exports = {
     }
 
     const updateData = {
+      driver_id,
       driver_name,
       contact_no,
       aadhaar,
@@ -306,6 +416,7 @@ module.exports = {
     
   try {
     const data = {
+      conductor_id: req.body.conductor_id,
       conductor_name: req.body.conductor_name,
       contact_no: req.body.contact_no,
       aadhaar: req.body.aadhaar,
@@ -340,6 +451,7 @@ module.exports = {
   try {
     const {
       id,
+      conductor_id,
       conductor_name,
       contact_no,
       aadhaar,
@@ -375,6 +487,7 @@ module.exports = {
     }
 
     const updateData = {
+      conductor_id,
       conductor_name,
       contact_no,
       aadhaar,
@@ -612,69 +725,19 @@ module.exports = {
 
   // *****************************************
   getBusList(req, res) {
-    // get params data
-    const reqDate = req.query.date;
+  const reqDate = req.query.date;
+  let filterDate;
 
-    // const sql = "SELECT * FROM busMasters WHERE status = 'Active' ORDER BY id DESC";
-    //     const sql = `SELECT
-    //     bus.id,
-    //     bus.busName,
-    //     bus.busNo,
-    //     bus.baseDepot,
-    //     bus.conductorName,
-    //     bus.conductorContactNo,
-    //     bus.driverName,
-    //     bus.driverContactNo,
-    //     bus.status,
-    //     bus.createdAt,
-    //     bus.updatedAt,
-    //     routes.routeName AS routeName
-    // FROM busMasters as bus
-    // JOIN busRoutesMasters as routes ON bus.allotedRouteNo = routes.id
-    // WHERE bus.status = 'Active'
-    // ORDER BY bus.id DESC;
-    // `;
+  if (reqDate) {
+    const [yyyy, mm, dd] = reqDate.split("-");
+    filterDate = `${yyyy}-${mm}-${dd}`;
+  } else {
+    filterDate = null;
+  }
 
-    // const sql = `SELECT
-    // bus.id,
-    // bus.busName,
-    // bus.busNo,
-    // bus.baseDepot,
-    // bus.conductorName,
-    // bus.conductorContactNo,
-    // bus.driverName,
-    // bus.driverContactNo,
-    // bus.status,
-    // bus.createdAt,
-    // bus.updatedAt,
-    // routes.routeName AS routeName,
-    // du.currentStatus AS currentStatus,
-    // du.noOfTrip AS noOfTrip,
-    // du.id AS dailyUpdateId
-    // FROM busMasters AS bus
-    // JOIN busRoutesMasters AS routes
-    // ON bus.allotedRouteNo = routes.id
-    // LEFT JOIN dailyUpdates AS du
-    // ON du.busId = bus.id
-    // AND du.createdAt = (
-    //     SELECT MAX(createdAt)
-    //     FROM dailyUpdates
-    //     WHERE busId = bus.id
-    // )
-    // WHERE bus.status = 'Active'
-    // ORDER BY bus.id DESC;
-    // `;
+  console.log("filterDate", filterDate);
 
-    if (reqDate) {
-      const [yyyy, mm, dd] = reqDate.split("-");
-      filterDate = `${yyyy}-${mm}-${dd}`;
-    } else {
-      filterDate = null; // will use CURDATE()
-    }
-
-    console.log("filterDate", filterDate);
-
-    const sql = `
+  const sql = `
 SELECT 
     bus.id,
     bus.busName,
@@ -688,16 +751,30 @@ SELECT
     bus.status,
     bus.createdAt,
     bus.updatedAt,
-    routes.routeName AS routeName,
+
+    -- Route fields
+    routes.id AS routeId,
+    routes.routeNo AS routeNo,
+    routes.depot AS routeDepot,
+    routes.start AS routeStart,
+    routes.end AS routeEnd,
+    routes.via AS routeVia,
+    routes.routeDistance AS routeDistance,
+
     du.currentStatus AS currentStatus,
     du.noOfTrip AS noOfTrip,
     du.id AS dailyUpdateId,
-    cm.status as conductorStatus
+
+    cm.status AS conductorStatus
+
 FROM busMasters AS bus
+
 JOIN busRoutesMasters AS routes 
     ON bus.allotedRouteNo = routes.id
-  LEFT JOIN conductorMasters AS cm
+
+LEFT JOIN conductorMasters AS cm
     ON cm.id = bus.conductorId
+
 LEFT JOIN dailyUpdates AS du
     ON du.busId = bus.id
    AND du.date = ${filterDate ? "?" : "CURDATE()"}
@@ -707,25 +784,29 @@ LEFT JOIN dailyUpdates AS du
         WHERE busId = bus.id
           AND date = ${filterDate ? "?" : "CURDATE()"}
    )
+
 WHERE bus.status = 'Active'
+  AND routes.status = 'Active'
+
 ORDER BY bus.id DESC;
 `;
 
-    const replacements = filterDate ? [filterDate, filterDate] : [];
+  const replacements = filterDate ? [filterDate, filterDate] : [];
 
-    sequelize
-      .query(sql, {
-        replacements,
-        type: sequelize.QueryTypes.SELECT,
-      })
-      .then((bus) => {
-        return res.status(200).send(bus);
-      })
-      .catch((error) => {
-        console.log(error);
-        return res.status(400).send(error);
-      });
-  },
+  sequelize
+    .query(sql, {
+      replacements,
+      type: sequelize.QueryTypes.SELECT,
+    })
+    .then((bus) => {
+      return res.status(200).send(bus);
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.status(400).send(error);
+    });
+},
+
   // *****************************************
 
   // getBusData(req, res) {
@@ -768,7 +849,13 @@ ORDER BY bus.id DESC;
     busMasters.updatedAt,
     busMasters.driverId,
     busMasters.conductorId,
-    busRoutesMasters.routeName AS routeName
+    
+    busRoutesMasters.routeNo AS routeNo,
+    busRoutesMasters.start AS routeStart,
+    busRoutesMasters.end AS routeEnd,
+    busRoutesMasters.via AS routeVia,
+    busRoutesMasters.depot AS routeDepot,
+    busRoutesMasters.routeDistance AS routeDistance,
 FROM busMasters
 LEFT JOIN busRoutesMasters 
     ON busMasters.allotedRouteNo = busRoutesMasters.id
@@ -1477,6 +1564,8 @@ END AS estimated_time,
   },
 
   async getDashboardCounts(req, res) {
+    const today = new Date().toISOString().split("T")[0];
+
     try {
       const totalBus = await busMasterModel.count({
         where: {
@@ -1500,27 +1589,59 @@ END AS estimated_time,
       });
       const runningBus = await dailyUpdatesModel.count({
         where: {
+          date: today,
           currentStatus: "Running",
         },
       });
 
-      const idleBus = await dailyUpdatesModel.count({
-        where: {
-          [Op.or]: [
-            { currentStatus: "Idle" },
-            { currentStatus: null }
-          ]
+      const idleBus = await busMasterModel.findAll({
+  where: {
+    status: "Active",
+    [Op.or]: [
+
+      // No entry today
+      {
+        id: {
+          [Op.notIn]: Sequelize.literal(`
+            (SELECT busId FROM dailyUpdates WHERE date = '${today}')
+          `)
         }
-      });
+      },
+
+      // Entry today but Idle or NULL
+      {
+        id: {
+          [Op.in]: Sequelize.literal(`
+            (SELECT busId FROM dailyUpdates 
+             WHERE date = '${today}' 
+             AND (currentStatus = 'Idle' OR currentStatus IS NULL))
+          `)
+        }
+      }
+
+    ]
+  },
+  attributes: [
+    "id",
+    "busName",
+    "busNo",
+    "baseDepot",
+    "driverName",
+    "conductorName"
+  ],
+  order: [["busName", "ASC"]]
+});
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
+          date: today,
           currentStatus: "Finished",
         },
       });
 
       const stillBus = await dailyUpdatesModel.count({
         where: {
+          date: today,
           currentStatus: "Still",
         },
       });
@@ -1532,6 +1653,7 @@ END AS estimated_time,
         totalRoute,
         runningBus,
         idleBus,
+        idleBusCount: idleBus.length,
         finishedBus,
         stillBus,
       });

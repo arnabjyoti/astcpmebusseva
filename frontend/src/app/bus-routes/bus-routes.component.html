@@ -13,13 +13,10 @@
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item active"><button (click)="openNewRouteDialog()"
-              class="btn btn-default"
-              data-toggle="modal"
-              data-target="#formModal"
-            >
-            <i class="fas fa-plus"></i> New Route
-            </button></li>
+            <li class="breadcrumb-item active"><button (click)="openNewRouteDialog()" class="btn btn-default"
+                data-toggle="modal" data-target="#formModal">
+                <i class="fas fa-plus"></i> New Route
+              </button></li>
           </ol>
         </div>
       </div>
@@ -32,41 +29,51 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div>
-            
 
-            <table class="table table-bordered">
+
+            <table class="table table-bordered table-striped">
               <thead>
                 <tr>
-                  <th>Serial No.</th>
-                  <th>Route Name</th>
-                  <th>Route No.</th>
+                  <th>#</th>
+                  <th>Depot</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Via</th>
+                  <th>Route No</th>
+                  <th>Distance</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let data of busRoutesList; let i = index">
-                  <td>{{ i+1 }}</td>
-                  <td>{{ data.routeName }}</td>
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ data.depot }}</td>
+                  <td>{{ data.start }}</td>
+                  <td>{{ data.end }}</td>
+                  <td>{{ data.via }}</td>
                   <td>{{ data.routeNo }}</td>
+                  <td>{{ data.routeDistance }}</td>
                   <td>
-                    <button (click)="openEditDialog(data)"
-                      class="btn btn-default" data-toggle="modal"
-                      data-target="#formModal"
-                    >
-                    <i class="fas fa-edit"></i>
+                    <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
+                    <span class="badge badge-danger" *ngIf="data.status!='Active'">Inactive</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-default" (click)="openEditDialog(data)" data-toggle="modal"
+                      data-target="#formModal">
+                      <i class="fas fa-edit"></i>
                     </button>
-                    <button (click)="openConfirmationDialog(data)"
-                      class="btn btn-default" data-toggle="modal"
-                      data-target="#deleteModal"
-                    >
-                    <i class="fas fa-trash"></i>
+                    <button class="btn btn-sm btn-default" (click)="openConfirmationDialog(data)" data-toggle="modal"
+                      data-target="#deleteModal">
+                      <i class="fas fa-trash"></i>
                     </button>
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            
+
+
           </div>
         </div>
       </div>
@@ -83,50 +90,96 @@
           </button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-              <div class="row">
-                <div class="col-md-6 pt-3">
-                  <label>Route Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="busRoutes.routeName"
-                  />
-                </div>
-                <div class="col-md-6 pt-3">
-                  <label>Route No</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="busRoutes.routeNo"
-                  />
-                </div>
-              </div>
-            </div>
+          <div class="form-group">
+            <div class="row">
 
-            <button *ngIf="!isEdit"
-              type="button"
-              class="btn btn-primary float-sm-right"
-              (click)="handleSaveRoutes()"
-              data-dismiss="modal"
-            >
-              Save
-            </button>
-            <button *ngIf="isEdit"
-              type="button"
-              class="btn btn-primary float-sm-right"
-              (click)="handleUpdateRoutes()"
-              data-dismiss="modal"
-            >
-              Update
-            </button>
-            <button
-              type="button"
-              class="btn btn-default float-sm-right"
-              data-dismiss="modal"
-            >
-              Cancel
-            </button>
+              <div class="col-md-6 pt-2">
+                <label>Depot</label>
+                <input class="form-control" [(ngModel)]="busRoutes.depot" list="depotList">
+
+                <datalist id="depotList">
+                  <option *ngFor="let d of depotSuggestions" [value]="d"></option>
+                </datalist>
+
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Start Point</label>
+                <input class="form-control" [(ngModel)]="busRoutes.start" list="startList">
+
+                <datalist id="startList">
+                  <option *ngFor="let s of startSuggestions" [value]="s"></option>
+                </datalist>
+
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>End Point</label>
+                <input class="form-control" [(ngModel)]="busRoutes.end" list="endList">
+
+                <datalist id="endList">
+                  <option *ngFor="let e of endSuggestions" [value]="e"></option>
+                </datalist>
+
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Via</label>
+                <input class="form-control" [(ngModel)]="busRoutes.via" list="viaList">
+
+                <datalist id="viaList">
+                  <option *ngFor="let v of viaSuggestions" [value]="v"></option>
+                </datalist>
+
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Route No</label>
+                <input class="form-control" [(ngModel)]="busRoutes.routeNo" list="routeNoList">
+
+                <datalist id="routeNoList">
+                  <option *ngFor="let r of routeNoSuggestions" [value]="r"></option>
+                </datalist>
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Route Distance (KM)</label>
+                <input class="form-control" [(ngModel)]="busRoutes.routeDistance">
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Depot → Start Distance</label>
+                <input class="form-control" [(ngModel)]="busRoutes.depot_to_start_distance">
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>End → Depot Distance</label>
+                <input class="form-control" [(ngModel)]="busRoutes.end_to_depot_distance">
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Status</label>
+                <select class="form-control" [(ngModel)]="busRoutes.status">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+
+          <button *ngIf="!isEdit" type="button" class="btn btn-primary float-sm-right" (click)="handleSaveRoutes()"
+            data-dismiss="modal">
+            Save
+          </button>
+          <button *ngIf="isEdit" type="button" class="btn btn-primary float-sm-right" (click)="handleUpdateRoutes()"
+            data-dismiss="modal">
+            Update
+          </button>
+          <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -141,22 +194,14 @@
           </button>
         </div>
         <div class="modal-body">
-            <h4>Are you sure ! You want to delete route <strong><i>"{{toBeDeletedRecord.routeName}}"</i></strong> ?</h4>
-            <button
-              type="button"
-              class="btn btn-primary float-sm-right"
-              (click)="handleDeleteRoutes()"
-              data-dismiss="modal"
-            >
-              Yes
-            </button>
-            <button
-              type="button"
-              class="btn btn-default float-sm-right"
-              data-dismiss="modal"
-            >
-              No
-            </button>
+          <h4>Are you sure ! You want to delete route <strong><i>"{{toBeDeletedRecord.routeName}}"</i></strong> ?</h4>
+          <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteRoutes()"
+            data-dismiss="modal">
+            Yes
+          </button>
+          <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
+            No
+          </button>
         </div>
       </div>
     </div>
