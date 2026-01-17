@@ -104,7 +104,7 @@ export class DailyUpdateFormComponent {
         console.log('tripDetails ==>> ', response[0]);
         let data = response[0];
         data.currentStatus = 'finished';
-        console.log('data ==>> ', data);
+        console.log('getOneTripDetails ==>> ', data);
 
         this.form = data;
 
@@ -118,6 +118,7 @@ export class DailyUpdateFormComponent {
           conductor_id: data.conductor_id,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
+
         };
         this.busDetails = busDetails;
         this.routeNo = data.routeNo;
@@ -162,6 +163,8 @@ export class DailyUpdateFormComponent {
         this.form.routeEnd = response.routeEnd;
         this.form.routeVia = response.routeVia;
         this.form.routeDistance = response.routeDistance;
+        this.form.omr = response.lastCmr;
+        this.form.osoc = 100;
       },
       (error) => {
         console.log('error here ', error);

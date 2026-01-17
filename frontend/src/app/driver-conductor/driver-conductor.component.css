@@ -6,3 +6,8 @@
     background-color: red;
     color: white;
 } */
+
+.exporting .no-export {
+    display: none !important;
+  }
+  

@@ -7,7 +7,7 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
- const { Sequelize } = require("sequelize");
+const { Sequelize, fn, literal } = require("sequelize");
 const busModel = require("../models").busMaster;
 const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
@@ -76,10 +76,10 @@ module.exports = {
           busName: data?.busName,
           busNo: data?.busNo,
           driverName: data?.driverName,
-          driver_id: data?.driver_id,
+          driverId: data?.driverId,
           driverContactNo: data?.driverContactNo,
           conductorName: data?.conductorName,
-          conductor_id: data?.conductor_id,
+          conductorId: data?.conductorId,
           conductorContactNo: data?.conductorContactNo,
           baseDepot: data?.baseDepot,
           allotedRouteNo: data?.allotedRouteNo,
@@ -132,78 +132,30 @@ module.exports = {
   },
 
   async createBusRoutes(req, res) {
-  try {
-    let data = req.body.requestObject;
+    try {
+      let data = req.body.requestObject;
 
-    // Capitalize first letter utility
-    const capitalizeFirst = (str) =>
-      str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+      // Capitalize first letter utility
+      const capitalizeFirst = (str) =>
+        str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-    // Format fields
-    const depot = capitalizeFirst(data.depot);
-    const start = capitalizeFirst(data.start);
-    const end = capitalizeFirst(data.end);
-    const via = capitalizeFirst(data.via);
+      // Format fields
+      const depot = capitalizeFirst(data.depot);
+      const start = capitalizeFirst(data.start);
+      const end = capitalizeFirst(data.end);
+      const via = capitalizeFirst(data.via);
 
-    // Check duplicate routeNo
-    const exists = await busRoutesModel.findOne({
-      where: { routeNo: data.routeNo }
-    });
+      // Check duplicate routeNo
+      const exists = await busRoutesModel.findOne({
+        where: { routeNo: data.routeNo },
+      });
 
-    if (exists) {
-      return res.status(409).json({ message: "Route number already exists" });
-    }
-
-    // Create
-    await busRoutesModel.create({
-      depot,
-      start,
-      end,
-      via,
-      routeNo: data.routeNo,
-      routeDistance: data.routeDistance,
-      depot_to_start_distance: data.depot_to_start_distance,
-      end_to_depot_distance: data.end_to_depot_distance,
-      status: data.status || 'Active'
-    });
-
-    return res.status(200).json({ message: "Success" });
-
-  } catch (err) {
-    console.error("Create route error:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
-
-
-  async updateBusRoutes(req, res) {
-  try {
-    let data = req.body.requestObject;
-
-    const capitalizeFirst = (str) =>
-      str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
-
-    const depot = capitalizeFirst(data.depot);
-    const start = capitalizeFirst(data.start);
-    const end = capitalizeFirst(data.end);
-    const via = capitalizeFirst(data.via);
-
-    // Prevent duplicate routeNo on update
-    const { Op } = require('sequelize');
-
-    const exists = await busRoutesModel.findOne({
-      where: {
-        routeNo: data.routeNo,
-        id: { [Op.ne]: data.id }
+      if (exists) {
+        return res.status(409).json({ message: "Route number already exists" });
       }
-    });
 
-    if (exists) {
-      return res.status(409).json({ message: "Route number already exists" });
-    }
-
-    await busRoutesModel.update(
-      {
+      // Create
+      await busRoutesModel.create({
         depot,
         start,
         end,
@@ -212,91 +164,133 @@ module.exports = {
         routeDistance: data.routeDistance,
         depot_to_start_distance: data.depot_to_start_distance,
         end_to_depot_distance: data.end_to_depot_distance,
-        status: data.status
-      },
-      { where: { id: data.id } }
-    );
+        status: data.status || "Active",
+      });
 
-    return res.status(200).json({ message: "Success" });
+      return res.status(200).json({ message: "Success" });
+    } catch (err) {
+      console.error("Create route error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
 
-  } catch (err) {
-    console.error("Update route error:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
+  async updateBusRoutes(req, res) {
+    try {
+      let data = req.body.requestObject;
 
+      const capitalizeFirst = (str) =>
+        str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+
+      const depot = capitalizeFirst(data.depot);
+      const start = capitalizeFirst(data.start);
+      const end = capitalizeFirst(data.end);
+      const via = capitalizeFirst(data.via);
+
+      // Prevent duplicate routeNo on update
+      const { Op } = require("sequelize");
+
+      const exists = await busRoutesModel.findOne({
+        where: {
+          routeNo: data.routeNo,
+          id: { [Op.ne]: data.id },
+        },
+      });
+
+      if (exists) {
+        return res.status(409).json({ message: "Route number already exists" });
+      }
+
+      await busRoutesModel.update(
+        {
+          depot,
+          start,
+          end,
+          via,
+          routeNo: data.routeNo,
+          routeDistance: data.routeDistance,
+          depot_to_start_distance: data.depot_to_start_distance,
+          end_to_depot_distance: data.end_to_depot_distance,
+          status: data.status,
+        },
+        { where: { id: data.id } }
+      );
+
+      return res.status(200).json({ message: "Success" });
+    } catch (err) {
+      console.error("Update route error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
 
   deleteBusRoutes(req, res) {
-  try {
-    const data = req.body.requestObject;
-    console.log("Delete Route:", data);
+    try {
+      const data = req.body.requestObject;
+      console.log("Delete Route:", data);
 
-    busRoutesModel.update(
-      { status: "Inactive" },
-      { where: { id: data.id } }
-    )
-    .then(() => {
-      return res.status(200).json({ message: "Success" });
-    })
-    .catch((err) => {
-      console.error("Delete error:", err);
-      return res.status(500).json({ message: "Failed to delete route" });
-    });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
-
-
-async getRouteSuggestions(req, res) {
-  try {
-    const field = req.query.field; // depot | start | end | via | routeNo
-
-    if (!['depot', 'start', 'end', 'via', 'routeNo'].includes(field)) {
-      return res.status(400).json({ message: "Invalid field" });
+      busRoutesModel
+        .update({ status: "Inactive" }, { where: { id: data.id } })
+        .then(() => {
+          return res.status(200).json({ message: "Success" });
+        })
+        .catch((err) => {
+          console.error("Delete error:", err);
+          return res.status(500).json({ message: "Failed to delete route" });
+        });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
     }
+  },
 
-    const results = await busRoutesModel.findAll({
-      attributes: [
-        [require('sequelize').fn('DISTINCT', require('sequelize').col(field)), field]
-      ],
-      where: { status: 'Active' }
-    });
+  async getRouteSuggestions(req, res) {
+    try {
+      const field = req.query.field; // depot | start | end | via | routeNo
 
-    const suggestions = results.map(r => r[field]).filter(Boolean);
+      if (!["depot", "start", "end", "via", "routeNo"].includes(field)) {
+        return res.status(400).json({ message: "Invalid field" });
+      }
 
-    return res.status(200).json(suggestions);
+      const results = await busRoutesModel.findAll({
+        attributes: [
+          [
+            require("sequelize").fn(
+              "DISTINCT",
+              require("sequelize").col(field)
+            ),
+            field,
+          ],
+        ],
+        where: { status: "Active" },
+      });
 
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
+      const suggestions = results.map((r) => r[field]).filter(Boolean);
 
+      return res.status(200).json(suggestions);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
 
   //   const driverMasterModel = require("../models").driverMaster;
   // const conductorMasterModel = require("../models").conductorMaster;
 
   saveDriver(req, res) {
     console.log("reqqqqqqqqqqq", req.body);
-    
-  try {
-    const data = {
-      driver_id: req.body.driver_id,
-      driver_name: req.body.driver_name,
-      contact_no: req.body.contact_no,
-      aadhaar: req.body.aadhaar,
-      pan: req.body.pan,
-      voter: req.body.voter,
-      dl: req.body.dl,
-      address: req.body.address,
-      status: 'Active',
-      photo: req.file
-        ? `image/driver/${req.file.filename}`
-        : null,
-    };
+
+    try {
+      const data = {
+        driver_id: req.body.driver_id,
+        driver_name: req.body.driver_name,
+        contact_no: req.body.contact_no,
+        aadhaar: req.body.aadhaar,
+        pan: req.body.pan,
+        voter: req.body.voter,
+        dl: req.body.dl,
+        address: req.body.address,
+        status: "Active",
+        photo: req.file ? `image/driver/${req.file.filename}` : null,
+      };
       return driverMasterModel
         .create(data)
         .then((project) => {
@@ -314,71 +308,69 @@ async getRouteSuggestions(req, res) {
   },
 
   updateDriver(req, res) {
-  try {
-    const {
-      id,
-      driver_id,
-      driver_name,
-      contact_no,
-      aadhaar,
-      pan,
-      voter,
-      dl,
-      address,
-      old_photo
-    } = req.body;
+    try {
+      const {
+        id,
+        driver_id,
+        driver_name,
+        contact_no,
+        aadhaar,
+        pan,
+        voter,
+        dl,
+        address,
+        old_photo,
+      } = req.body;
 
-    if (!id) {
-      return res.status(400).send({ message: 'Driver ID is required' });
-    }
+      if (!id) {
+        return res.status(400).send({ message: "Driver ID is required" });
+      }
 
-    // keep old photo by default
-    let photoPath = old_photo;
+      // keep old photo by default
+      let photoPath = old_photo;
 
-    // if new photo uploaded
-    if (req.file) {
-      photoPath = `image/driver/${req.file.filename}`;
+      // if new photo uploaded
+      if (req.file) {
+        photoPath = `image/driver/${req.file.filename}`;
 
-      // delete old photo
-      if (old_photo) {
-        const fullOldPath = path.join(
-          config.FILE_UPLOAD_PATH,
-          old_photo
-        );
+        // delete old photo
+        if (old_photo) {
+          const fullOldPath = path.join(config.FILE_UPLOAD_PATH, old_photo);
 
-        if (fs.existsSync(fullOldPath)) {
-          fs.unlinkSync(fullOldPath);
+          if (fs.existsSync(fullOldPath)) {
+            fs.unlinkSync(fullOldPath);
+          }
         }
       }
+
+      const updateData = {
+        driver_id,
+        driver_name,
+        contact_no,
+        aadhaar,
+        pan,
+        voter,
+        dl,
+        address,
+        photo: photoPath,
+      };
+
+      driverMasterModel
+        .update(updateData, { where: { id } })
+        .then(() => {
+          return res
+            .status(200)
+            .send({ message: "Driver updated successfully" });
+        })
+        .catch((err) => {
+          console.log("DB error:", err);
+          res.status(500).send({ message: "Database error" });
+        });
+    } catch (err) {
+      console.log("Server error:", err);
+      res.status(500).send({ message: "Server error" });
     }
-
-    const updateData = {
-      driver_id,
-      driver_name,
-      contact_no,
-      aadhaar,
-      pan,
-      voter,
-      dl,
-      address,
-      photo: photoPath
-    };
-
-    driverMasterModel
-      .update(updateData, { where: { id } })
-      .then(() => {
-        return res.status(200).send({ message: 'Driver updated successfully' });
-      })
-      .catch((err) => {
-        console.log('DB error:', err);
-        res.status(500).send({ message: 'Database error' });
-      });
-
-  } catch (err) {
-    console.log('Server error:', err);
-    res.status(500).send({ message: 'Server error' });
-  }
-},
+  },
 
   deleteDriver(req, res) {
     let data = req.body.requestObject;
@@ -413,106 +405,99 @@ async getRouteSuggestions(req, res) {
 
   saveConductor(req, res) {
     console.log("reqqqqqqqqqqq", req.body);
-    
-  try {
-    const data = {
-      conductor_id: req.body.conductor_id,
-      conductor_name: req.body.conductor_name,
-      contact_no: req.body.contact_no,
-      aadhaar: req.body.aadhaar,
-      pan: req.body.pan,
-      voter: req.body.voter,
-      dl: req.body.dl,
-      address: req.body.address,
-      status: 'Active',
-      photo: req.file
-        ? `image/conductor/${req.file.filename}`
-        : null,
-    };
 
-    return conductorMasterModel
-      .create(data)
-      .then((project) => {
-        console.log("hhhhhhhhhhhhhhh",project);
-        res.status(200).send({ message: 'Success' });
-      })
-      .catch((err) => {
-        console.log('DB error:', err);
-        res.status(500).send({ message: 'Database error' });
-      });
+    try {
+      const data = {
+        conductor_id: req.body.conductor_id,
+        conductor_name: req.body.conductor_name,
+        contact_no: req.body.contact_no,
+        aadhaar: req.body.aadhaar,
+        pan: req.body.pan,
+        voter: req.body.voter,
+        dl: req.body.dl,
+        address: req.body.address,
+        status: "Active",
+        photo: req.file ? `image/conductor/${req.file.filename}` : null,
+      };
 
-  } catch (err) {
-    console.log('Server error:', err);
-    res.status(500).send({ message: 'Server error' });
-  }
-},
+      return conductorMasterModel
+        .create(data)
+        .then((project) => {
+          console.log("hhhhhhhhhhhhhhh", project);
+          res.status(200).send({ message: "Success" });
+        })
+        .catch((err) => {
+          console.log("DB error:", err);
+          res.status(500).send({ message: "Database error" });
+        });
+    } catch (err) {
+      console.log("Server error:", err);
+      res.status(500).send({ message: "Server error" });
+    }
+  },
 
   updateConductor(req, res) {
-  try {
-    const {
-      id,
-      conductor_id,
-      conductor_name,
-      contact_no,
-      aadhaar,
-      pan,
-      voter,
-      dl,
-      address,
-      old_photo
-    } = req.body;
+    try {
+      const {
+        id,
+        conductor_id,
+        conductor_name,
+        contact_no,
+        aadhaar,
+        pan,
+        voter,
+        dl,
+        address,
+        old_photo,
+      } = req.body;
 
-    if (!id) {
-      return res.status(400).send({ message: 'Conductor ID is required' });
-    }
+      if (!id) {
+        return res.status(400).send({ message: "Conductor ID is required" });
+      }
 
-    // decide photo path
-    let photoPath = old_photo;
+      // decide photo path
+      let photoPath = old_photo;
 
-    // if new photo uploaded
-    if (req.file) {
-      photoPath = `image/conductor/${req.file.filename}`;
+      // if new photo uploaded
+      if (req.file) {
+        photoPath = `image/conductor/${req.file.filename}`;
 
-      // 🔥 delete old photo from disk
-      if (old_photo) {
-        const fullOldPath = path.join(
-          config.FILE_UPLOAD_PATH,
-          old_photo
-        );
+        // 🔥 delete old photo from disk
+        if (old_photo) {
+          const fullOldPath = path.join(config.FILE_UPLOAD_PATH, old_photo);
 
-        if (fs.existsSync(fullOldPath)) {
-          fs.unlinkSync(fullOldPath);
+          if (fs.existsSync(fullOldPath)) {
+            fs.unlinkSync(fullOldPath);
+          }
         }
       }
+
+      const updateData = {
+        conductor_id,
+        conductor_name,
+        contact_no,
+        aadhaar,
+        pan,
+        voter,
+        dl,
+        address,
+        photo: photoPath,
+      };
+
+      return conductorMasterModel
+        .update(updateData, { where: { id } })
+        .then(() => {
+          res.status(200).send({ message: "Conductor updated successfully" });
+        })
+        .catch((err) => {
+          console.log("DB error:", err);
+          res.status(500).send({ message: "Database error" });
+        });
+    } catch (err) {
+      console.log("Server error:", err);
+      res.status(500).send({ message: "Server error" });
     }
-
-    const updateData = {
-      conductor_id,
-      conductor_name,
-      contact_no,
-      aadhaar,
-      pan,
-      voter,
-      dl,
-      address,
-      photo: photoPath
-    };
-
-    return conductorMasterModel
-      .update(updateData, { where: { id } })
-      .then(() => {
-        res.status(200).send({ message: 'Conductor updated successfully' });
-      })
-      .catch((err) => {
-        console.log('DB error:', err);
-        res.status(500).send({ message: 'Database error' });
-      });
-
-  } catch (err) {
-    console.log('Server error:', err);
-    res.status(500).send({ message: 'Server error' });
-  }
-},
+  },
 
   deleteConductor(req, res) {
     let data = req.body.requestObject;
@@ -539,40 +524,82 @@ async getRouteSuggestions(req, res) {
       });
   },
 
-  getConductor(req, res) {
-    console.log("here1");
-    let query = {
-      where: {
-        [Op.or]: [{ status: "Active" }, { status: "Block" }],
-      },
-      raw: true,
-      order: [["id", "DESC"]],
-    };
+  // getConductor(req, res) {
+  //   console.log("here1");
+  //   let query = {
+  //     where: {
+  //       [Op.or]: [{ status: "Active" }, { status: "Block" }],
+  //     },
+  //     raw: true,
+  //     order: [["id", "DESC"]],
+  //   };
 
-    return conductorMasterModel
-      .findAll(query)
-      .then((routes) => {
-        return res.status(200).send(routes);
-      })
-      .catch((error) => {
-        console.log(error);
-        return res.status(400).send(error);
-      });
-  },
+  //   return conductorMasterModel
+  //     .findAll(query)
+  //     .then((routes) => {
+  //       return res.status(200).send(routes);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       return res.status(400).send(error);
+  //     });
+  // },
 
+  // const { Op, fn, col, literal } = require("sequelize");
+
+
+  
+  // const { Op, literal } = require("sequelize");
+
+getConductor(req, res) {
+  let query = {
+    where: {
+      [Op.or]: [{ status: "Active" }, { status: "Block" }],
+    },
+    attributes: {
+      include: [
+        [
+          literal(`(
+            SELECT 
+              COALESCE(
+                SUM(
+                  COALESCE(du.tragetedEarning,0) 
+                  - COALESCE(du.netAmountDeposited,0)
+                ),
+                0
+              )
+            FROM dailyUpdates du
+            WHERE du.conductorId = conductorMaster.id
+          )`),
+          "amountToBeDeposited",
+        ],
+      ],
+    },
+    raw: true,
+    order: [["id", "DESC"]],
+  };
+
+  return conductorMasterModel
+    .findAll(query)
+    .then((data) => res.status(200).send(data))
+    .catch((error) => {
+      console.error(error);
+      return res.status(400).send(error);
+    });
+},
 
   // const { Op, Sequelize } = require("sequelize");
 
   getConductorAttendance(req, res) {
     try {
-      // const { month } = req.body; 
+      // const { month } = req.body;
       const month = req.query.month;
       // expected format: "2025-09-01"
-  
+
       if (!month) {
         return res.status(400).send({ message: "Month is required" });
       }
-  
+
       const sql = `
         WITH RECURSIVE calendar AS (
             SELECT DATE(:month) AS day
@@ -607,7 +634,7 @@ async getRouteSuggestions(req, res) {
         GROUP BY conductor_id, conductor_name
         ORDER BY conductor_name;
       `;
-  
+
       return sequelize
         .query(sql, {
           replacements: { month },
@@ -620,13 +647,11 @@ async getRouteSuggestions(req, res) {
           console.error(error);
           return res.status(400).send(error);
         });
-  
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
     }
   },
-  
 
   saveDailyUpdates(req, res) {
     let data = req.body.requestObject;
@@ -725,19 +750,19 @@ async getRouteSuggestions(req, res) {
 
   // *****************************************
   getBusList(req, res) {
-  const reqDate = req.query.date;
-  let filterDate;
+    const reqDate = req.query.date;
+    let filterDate;
 
-  if (reqDate) {
-    const [yyyy, mm, dd] = reqDate.split("-");
-    filterDate = `${yyyy}-${mm}-${dd}`;
-  } else {
-    filterDate = null;
-  }
+    if (reqDate) {
+      const [yyyy, mm, dd] = reqDate.split("-");
+      filterDate = `${yyyy}-${mm}-${dd}`;
+    } else {
+      filterDate = null;
+    }
 
-  console.log("filterDate", filterDate);
+    console.log("filterDate", filterDate);
 
-  const sql = `
+    const sql = `
 SELECT 
     bus.id,
     bus.busName,
@@ -791,21 +816,21 @@ WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
 
-  const replacements = filterDate ? [filterDate, filterDate] : [];
+    const replacements = filterDate ? [filterDate, filterDate] : [];
 
-  sequelize
-    .query(sql, {
-      replacements,
-      type: sequelize.QueryTypes.SELECT,
-    })
-    .then((bus) => {
-      return res.status(200).send(bus);
-    })
-    .catch((error) => {
-      console.log(error);
-      return res.status(400).send(error);
-    });
-},
+    sequelize
+      .query(sql, {
+        replacements,
+        type: sequelize.QueryTypes.SELECT,
+      })
+      .then((bus) => {
+        return res.status(200).send(bus);
+      })
+      .catch((error) => {
+        console.log(error);
+        return res.status(400).send(error);
+      });
+  },
 
   // *****************************************
 
@@ -856,6 +881,17 @@ ORDER BY bus.id DESC;
     busRoutesMasters.via AS routeVia,
     busRoutesMasters.depot AS routeDepot,
     busRoutesMasters.routeDistance AS routeDistance,
+    -- 🔹 Last CMR from dailyUpdates
+    COALESCE(
+        (
+            SELECT du.cmr
+            FROM dailyUpdates du
+            WHERE du.busId = busMasters.id
+            ORDER BY du.createdAt DESC
+            LIMIT 1
+        ),
+        0
+    ) AS lastCmr
 FROM busMasters
 LEFT JOIN busRoutesMasters 
     ON busMasters.allotedRouteNo = busRoutesMasters.id
@@ -909,7 +945,7 @@ LIMIT 1;
         SELECT du.id as duId, du.*, bm.*, br.*
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
-        INNER JOIN busRoutesMasters AS br ON br.id = du.routeNo
+        INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
         WHERE du.date BETWEEN STR_TO_DATE(?, '%Y-%m-%d') AND STR_TO_DATE(?, '%Y-%m-%d') AND br.status='Active' AND du.status='Active'
     `;
 
@@ -935,7 +971,7 @@ LIMIT 1;
         SELECT  bm.id as busId, bm.*, br.id as routeNo, br.*, du.id as id, du.*
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
-        INNER JOIN busRoutesMasters AS br ON br.id = du.routeNo
+        INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
         WHERE du.id = ?
     `;
 
@@ -1595,42 +1631,40 @@ END AS estimated_time,
       });
 
       const idleBus = await busMasterModel.findAll({
-  where: {
-    status: "Active",
-    [Op.or]: [
-
-      // No entry today
-      {
-        id: {
-          [Op.notIn]: Sequelize.literal(`
+        where: {
+          status: "Active",
+          [Op.or]: [
+            // No entry today
+            {
+              id: {
+                [Op.notIn]: Sequelize.literal(`
             (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-          `)
-        }
-      },
+          `),
+              },
+            },
 
-      // Entry today but Idle or NULL
-      {
-        id: {
-          [Op.in]: Sequelize.literal(`
+            // Entry today but Idle or NULL
+            {
+              id: {
+                [Op.in]: Sequelize.literal(`
             (SELECT busId FROM dailyUpdates 
              WHERE date = '${today}' 
              AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-          `)
-        }
-      }
-
-    ]
-  },
-  attributes: [
-    "id",
-    "busName",
-    "busNo",
-    "baseDepot",
-    "driverName",
-    "conductorName"
-  ],
-  order: [["busName", "ASC"]]
-});
+          `),
+              },
+            },
+          ],
+        },
+        attributes: [
+          "id",
+          "busName",
+          "busNo",
+          "baseDepot",
+          "driverName",
+          "conductorName",
+        ],
+        order: [["busName", "ASC"]],
+      });
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
@@ -1679,6 +1713,37 @@ END AS estimated_time,
     } catch (error) {
       console.error("Error fetching IST time:", error);
       res.status(500).send({ error: "Failed to fetch IST time" });
+    }
+  },
+
+  async getAmountToBePaidByConductor(req, res) {
+
+    const id = req.query.id; 
+
+    const sql = `SELECT 
+                  SUM(
+                      COALESCE(tragetedEarning, 0) 
+                      - COALESCE(netAmountDeposited, 0)
+                      ) AS amountToBeDeposited
+                  FROM dailyUpdates
+                  WHERE conductorId = ${id};
+                  `;
+
+    try {
+      // Execute both queries
+      const [dataResults] = await sequelize.query(sql);
+      // const [countResults] = await sequelize.query(countQuery);
+
+      const formattedResults = dataResults.map((row) => row);
+      // const totalCount = countResults[0]?.totalCount || 0;
+
+      res.send({
+        // totalCount: '',
+        data: formattedResults,
+      });
+    } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send({ error: "Failed to fetch data" });
     }
   },
 };
