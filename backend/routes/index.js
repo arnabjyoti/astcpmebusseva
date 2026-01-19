@@ -20,6 +20,7 @@ module.exports = (app) => {
 	app.post('/api/createBusRoutes', BusController.createBusRoutes);
 	app.post('/api/updateBusRoutes', BusController.updateBusRoutes);
 	app.post('/api/deleteBusRoutes', BusController.deleteBusRoutes);
+	app.get('/api/getRouteSuggestions', BusController.getRouteSuggestions);
 	app.get('/api/getBusRoutes', BusController.getBusRoutes);
 	app.post('/api/saveDailyUpdates', BusController.saveDailyUpdates);
 	app.get('/api/getBusList', BusController.getBusList);
@@ -40,6 +41,7 @@ module.exports = (app) => {
 	app.get('/api/getDriver', BusController.getDriver);
 	app.get('/api/getConductor', BusController.getConductor);
 	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
+	app.get('/api/getAmountToBePaidByConductor', BusController.getAmountToBePaidByConductor);
 
 	app.post('/api/sendOtp', sendMail.sendOtp);
 

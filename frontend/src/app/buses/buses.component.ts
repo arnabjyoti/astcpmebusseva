@@ -214,6 +214,30 @@ export class BusesComponent {
     this.newRoundTrip = parseInt(this.selectedData.noOfTrip) + 1;
   };
 
+  amountToBeDeposited: any = 0;
+  getRemainingAmountForConductor = (id: any) => {
+    this.selectedData = this.busList[id];
+    
+    const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.selectedData.conductorId}`;
+
+    this.http.get(ENDPOINT).subscribe(
+      (response:any) => {
+      console.log('response ', response.data[0].amountToBeDeposited);
+      this.amountToBeDeposited = response.data[0].amountToBeDeposited
+      
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      },
+      () => {
+        console.log('Observable is now completed.');
+      }
+    );
+
+
+  };
+
   toBeDeletedRecord: any = {};
   openConfirmationDialog = (data: any) => {
     this.toBeDeletedRecord = data;
@@ -279,7 +303,7 @@ export class BusesComponent {
       conductorName: selectedConductorDetails?.id,
       conductorContactNo: data?.conductorContactNo,
       baseDepot: data?.baseDepot,
-      allotedRouteNo: data?.allotedRouteNo,
+      allotedRouteNo: data?.routeId,
     };
   };
 

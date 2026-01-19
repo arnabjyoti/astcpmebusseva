@@ -110,6 +110,7 @@
           >
         </li>
       </ul>
+
       <div class="tab-content" id="myTabContent">
         <div
           class="tab-pane fade show active"
@@ -139,6 +140,7 @@
                 <table class="table table-bordered">
                   <thead>
                     <tr>
+                      <th>Driver ID</th>
                       <th>Driver Name</th>
                       <th>Driver Contact No</th>
                       <th>Action</th>
@@ -146,6 +148,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let data of driverList; let i = index">
+                      <td>{{ data.driver_id }}</td>
                       <td>{{ data.driver_name }}</td>
                       <td>{{ data.contact_no }}</td>
                       <td>
@@ -181,8 +184,14 @@
                 </table>
 
                 <!-- Form Modal -->
-                <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-backdrop="static"
-                  id="formModal" tabindex="-1">
+                <div
+                  class="modal fade"
+                  id="exampleModal"
+                  data-bs-backdrop="static"
+                  data-backdrop="static"
+                  id="formModal"
+                  tabindex="-1"
+                >
                   <div class="modal-dialog modal-md">
                     <div class="modal-content">
                       <div class="modal-header">
@@ -200,6 +209,17 @@
                         <form #driverForm="ngForm" novalidate>
                           <div class="form-group">
                             <div class="row">
+                              <div class="col-md-6">
+                                <label>Driver ID *</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form1.driver_id"
+                                  name="driver_id"
+                                  required
+                                />
+                              </div>
+
                               <div class="col-md-6">
                                 <label>Driver Name *</label>
                                 <input
@@ -274,22 +294,39 @@
                             <div class="row pt-3">
                               <div class="col-md-6">
                                 <label>Address *</label>
-                                <input type="text" class="form-control" [(ngModel)]="form1.address" name="address"
-                                  required />
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form1.address"
+                                  name="address"
+                                  required
+                                />
                               </div>
                             </div>
 
                             <div class="row pt-3">
                               <div class="col-md-12">
                                 <label>Driver Photo *</label>
-                                <input type="file" class="form-control" accept="image/*"
-                                  (change)="onPhotoChange($event)" />
+                                <input
+                                  type="file"
+                                  class="form-control"
+                                  accept="image/*"
+                                  (change)="onPhotoChange($event)"
+                                />
                               </div>
 
                               <div class="col-md-12" *ngIf="imagePreview">
                                 <label>Preview</label><br />
-                                <img [src]="imagePreview"
-                                  style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc; padding: 4px;" />
+                                <img
+                                  [src]="imagePreview"
+                                  style="
+                                    width: 120px;
+                                    height: 120px;
+                                    object-fit: cover;
+                                    border: 1px solid #ccc;
+                                    padding: 4px;
+                                  "
+                                />
                               </div>
                             </div>
                           </div>
@@ -315,8 +352,12 @@
                             Update
                           </button>
 
-                          <button type="button" (click)="closeForm()" class="btn btn-default float-right mr-2"
-                            data-dismiss="modal">
+                          <button
+                            type="button"
+                            (click)="closeForm()"
+                            class="btn btn-default float-right mr-2"
+                            data-dismiss="modal"
+                          >
                             Cancel
                           </button>
                         </form>
@@ -342,15 +383,17 @@
                       <div class="modal-body" *ngIf="selectedData">
                         <div class="container-fluid">
                           <div class="row">
-
                             <!-- LEFT: DETAILS -->
                             <div class="col-md-8">
-                              <table class="table table-borderless table-sm mb-0">
+                              <table
+                                class="table table-borderless table-sm mb-0"
+                              >
                                 <tbody>
                                   <tr>
-                                    <th class="text-muted w-50">Driver Name</th>
-                                    <td>{{ selectedData.driver_name }}</td>
+                                    <th class="text-muted w-50">Driver ID</th>
+                                    <td>{{ selectedData.driver_id }}</td>
                                   </tr>
+
                                   <tr>
                                     <th class="text-muted">Contact No</th>
                                     <td>{{ selectedData.contact_no }}</td>
@@ -381,17 +424,24 @@
 
                             <!-- RIGHT: PHOTO -->
                             <div class="col-md-4 text-center">
-                              <label class="text-muted d-block mb-2">Driver Photo</label>
+                              <label class="text-muted d-block mb-2"
+                                >Driver Photo</label
+                              >
 
-                              <img [src]="endpoint + '/docs/' + selectedData.photo" class="img-thumbnail shadow-sm"
-                                style="width: 150px; height: 180px; object-fit: cover;" alt="Driver Photo" />
-
+                              <img
+                                [src]="endpoint + '/docs/' + selectedData.photo"
+                                class="img-thumbnail shadow-sm"
+                                style="
+                                  width: 150px;
+                                  height: 180px;
+                                  object-fit: cover;
+                                "
+                                alt="Driver Photo"
+                              />
                             </div>
-
                           </div>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -466,67 +516,127 @@
             </div>
           </div> -->
 
+          <!-- <div class="d-flex p-2">
+            <button (click)="downloadPDF()" *ngIf="isExportingPDF">Download PDF</button>
+            <button (click)="downloadExcel()" *ngIf="isExportingExcel">Download Excel</button>
+          </div> -->
+
+          <div class="d-flex p-2 gap-2">
+            <!-- PDF -->
+            <button
+              class="btn btn-primary"
+              (click)="downloadPDF()"
+              [disabled]="isExportingPDF"
+            >
+              <ng-container *ngIf="!isExportingPDF; else pdfLoading">
+                Download PDF
+              </ng-container>
+          
+              <ng-template #pdfLoading>
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Generating PDF...
+              </ng-template>
+            </button>
+          
+            <!-- Excel -->
+            <button
+              class="btn btn-success"
+              (click)="downloadExcel()"
+              [disabled]="isExportingExcel"
+            >
+              <ng-container *ngIf="!isExportingExcel; else excelLoading">
+                Download Excel
+              </ng-container>
+          
+              <ng-template #excelLoading>
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Generating Excel...
+              </ng-template>
+            </button>
+          </div>
+          
+
           <div class="row">
             <div class="col-lg-12 col-12">
               <div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Conductor Name</th>
-                      <th>Conductor Contact No</th>
-                      <th>Status</th>
-                      <th>View</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      *ngFor="let data of conductorList; let i = index"
-                      [ngClass]="{
-                        'bg-danger': data.status === 'Block'
-                      }"
-                    >
-                      <td>{{ data.conductor_name }}</td>
-                      <td>{{ data.contact_no }}</td>
-                      <td>{{ data.status }}</td>
-                      <td>
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#viewConductorModal"
-                          (click)="viewConductorData(i)"
-                        >
-                          <i class="fas fa-eye"></i>
-                        </button>
-                        <!-- (click)="openEditDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#conductorModal"
-                          (click)="openEditConductorDialog(data)"
-                        >
-                          <i class="fas fa-edit"></i>
-                        </button>
-                        <!-- (click)="openConfirmationDialog(data)" -->
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#deleteConductorModal"
-                          (click)="openDeleteConfirmationDialog(data)"
-                        >
-                          <i class="fas fa-trash"></i>
-                        </button>
-                        <button
-                          class="btn btn-default"
-                          data-toggle="modal"
-                          data-target="#blockConductorModal"
-                          (click)="openDeleteConfirmationDialog(data)"
-                        >
-                          <i class="fas fa-ban"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div #reportSection id="reportSection">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Conductor ID</th>
+                        <th>Conductor Name</th>
+                        <th>Conductor Contact No</th>
+                        <th>Pending Amount</th>
+                        <th>Status</th>
+                        <th class="no-export">View</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="let data of conductorList; let i = index"
+                        [ngClass]="{
+                          'bg-danger': data.status === 'Block'
+                        }"
+                      >
+                        <td>{{ data.conductor_id }}</td>
+                        <td>{{ data.conductor_name }}</td>
+                        <td>{{ data.contact_no }}</td>
+                        <td>
+                          {{
+                            data.amountToBeDeposited > 0
+                              ? data.amountToBeDeposited
+                              : 0
+                          }}
+                        </td>
+                        <td>{{ data.status }}</td>
+                        <td class="no-export">
+                          <button
+                            class="btn btn-default"
+                            data-toggle="modal"
+                            data-target="#viewConductorModal"
+                            (click)="viewConductorData(i)"
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <!-- (click)="openEditDialog(data)" -->
+                          <button
+                            class="btn btn-default"
+                            data-toggle="modal"
+                            data-target="#conductorModal"
+                            (click)="openEditConductorDialog(data)"
+                          >
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <!-- (click)="openConfirmationDialog(data)" -->
+                          <button
+                            class="btn btn-default"
+                            data-toggle="modal"
+                            data-target="#deleteConductorModal"
+                            (click)="openDeleteConfirmationDialog(data)"
+                          >
+                            <i class="fas fa-trash"></i>
+                          </button>
+                          <button
+                            class="btn btn-default"
+                            data-toggle="modal"
+                            data-target="#blockConductorModal"
+                            (click)="openDeleteConfirmationDialog(data)"
+                          >
+                            <i class="fas fa-ban"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
                 <!-- conductor Modal -->
                 <div class="modal fade" id="conductorModal" tabindex="-1">
@@ -547,6 +657,16 @@
                           <div class="form-group">
                             <div class="row">
                               <div class="col-md-6">
+                                <label>Conductor ID</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form2.conductor_id"
+                                  name="conductor_id"
+                                />
+                              </div>
+
+                              <div class="col-md-6">
                                 <label>Conductor Name</label>
                                 <input
                                   type="text"
@@ -558,56 +678,100 @@
 
                               <div class="col-md-6">
                                 <label>Conductor Contact No *</label>
-                                <input type="number" class="form-control" [(ngModel)]="form2.contact_no"
-                                  name="contact_no" required />
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  [(ngModel)]="form2.contact_no"
+                                  name="contact_no"
+                                  required
+                                />
                               </div>
                             </div>
 
                             <div class="row pt-3">
                               <div class="col-md-6">
                                 <label>AADHAAR *</label>
-                                <input type="number" class="form-control" [(ngModel)]="form2.aadhaar" name="aadhaar"
-                                  required />
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  [(ngModel)]="form2.aadhaar"
+                                  name="aadhaar"
+                                  required
+                                />
                               </div>
 
                               <div class="col-md-6">
                                 <label>PAN No *</label>
-                                <input type="text" class="form-control" [(ngModel)]="form2.pan" name="pan" required />
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form2.pan"
+                                  name="pan"
+                                  required
+                                />
                               </div>
                             </div>
 
                             <div class="row pt-3">
                               <div class="col-md-6">
                                 <label>Voter ID *</label>
-                                <input type="text" class="form-control" [(ngModel)]="form2.voter" name="voter"
-                                  required />
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form2.voter"
+                                  name="voter"
+                                  required
+                                />
                               </div>
                             </div>
                             <div class="row pt-3">
                               <div class="col-md-6">
                                 <label>Address *</label>
-                                <input type="text" class="form-control" [(ngModel)]="form2.address" name="address"
-                                  required />
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [(ngModel)]="form2.address"
+                                  name="address"
+                                  required
+                                />
                               </div>
                             </div>
 
                             <div class="row pt-3">
                               <div class="col-md-12">
                                 <label>Conductor Photo *</label>
-                                <input type="file" class="form-control" accept="image/*"
-                                  (change)="onPhotoChange($event)" />
+                                <input
+                                  type="file"
+                                  class="form-control"
+                                  accept="image/*"
+                                  (change)="onPhotoChange($event)"
+                                />
                               </div>
 
                               <div class="col-md-12" *ngIf="imagePreview">
                                 <label>Preview</label><br />
-                                <img [src]="imagePreview"
-                                  style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc; padding: 4px;" />
+                                <img
+                                  [src]="imagePreview"
+                                  style="
+                                    width: 120px;
+                                    height: 120px;
+                                    object-fit: cover;
+                                    border: 1px solid #ccc;
+                                    padding: 4px;
+                                  "
+                                />
                               </div>
                             </div>
                           </div>
 
-                          <button *ngIf="!isConductorEdit" style="float: right" type="button" class="btn btn-info"
-                            (click)="saveDataConductor(conductorForm)" data-dismiss="modal">
+                          <button
+                            *ngIf="!isConductorEdit"
+                            style="float: right"
+                            type="button"
+                            class="btn btn-info"
+                            (click)="saveDataConductor(conductorForm)"
+                            data-dismiss="modal"
+                          >
                             Save
                           </button>
                           <button
@@ -651,18 +815,33 @@
                       <div class="modal-body" *ngIf="selectedDataConductor">
                         <div class="container-fluid">
                           <div class="row">
-
                             <!-- LEFT: DETAILS -->
                             <div class="col-md-8">
-                              <table class="table table-borderless table-sm mb-0">
+                              <table
+                                class="table table-borderless table-sm mb-0"
+                              >
                                 <tbody>
                                   <tr>
-                                    <th class="text-muted w-50">Conductor Name</th>
-                                    <td>{{ selectedDataConductor.conductor_name }}</td>
+                                    <th class="text-muted w-50">
+                                      Conductor ID
+                                    </th>
+                                    <td>
+                                      {{ selectedDataConductor.conductor_id }}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted w-50">
+                                      Conductor Name
+                                    </th>
+                                    <td>
+                                      {{ selectedDataConductor.conductor_name }}
+                                    </td>
                                   </tr>
                                   <tr>
                                     <th class="text-muted">Contact No</th>
-                                    <td>{{ selectedDataConductor.contact_no }}</td>
+                                    <td>
+                                      {{ selectedDataConductor.contact_no }}
+                                    </td>
                                   </tr>
                                   <tr>
                                     <th class="text-muted">AADHAAR</th>
@@ -686,18 +865,28 @@
 
                             <!-- RIGHT: PHOTO -->
                             <div class="col-md-4 text-center">
-                              <label class="text-muted d-block mb-2">Conductor Photo</label>
+                              <label class="text-muted d-block mb-2"
+                                >Conductor Photo</label
+                              >
 
-                              <img [src]="endpoint + '/docs/' + selectedDataConductor.photo"
-                                class="img-thumbnail shadow-sm" style="width: 150px; height: 180px; object-fit: cover;"
-                                alt="Conductor Photo" />
-
+                              <img
+                                [src]="
+                                  endpoint +
+                                  '/docs/' +
+                                  selectedDataConductor.photo
+                                "
+                                class="img-thumbnail shadow-sm"
+                                style="
+                                  width: 150px;
+                                  height: 180px;
+                                  object-fit: cover;
+                                "
+                                alt="Conductor Photo"
+                              />
                             </div>
-
                           </div>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -825,6 +1014,8 @@
                 >
                   Get Attendance
                 </button>
+                &nbsp;
+                <button class="btn btn-success">Download Report</button>
               </div>
               <div>
                 <div class="table-responsive attendance-table">
@@ -856,12 +1047,12 @@
                       </tr>
                     </tbody>
 
-
-                    <div class="text-center" *ngIf="!conductorAttendance.length">
+                    <div
+                      class="text-center"
+                      *ngIf="!conductorAttendance.length"
+                    >
                       <div class="text-center p-3">
-                        <h2>
-                          Select a month to get data 
-                        </h2>
+                        <h2>Select a month to get data</h2>
                       </div>
                     </div>
                   </table>

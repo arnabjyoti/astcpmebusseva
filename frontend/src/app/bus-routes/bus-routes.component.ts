@@ -14,52 +14,59 @@ import { Router } from '@angular/router';
 })
 export class BusRoutesComponent {
   constructor(
-    private appService: AppService, 
+    private appService: AppService,
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router
-    ) {}
+  ) { }
 
-  busRoutesList : any;
-  busRoutes:any={
-    routeName:'',
-    routeNo:'',
-    status:'Active'
-  }
+  busRoutesList: any;
+  busRoutes: any = {
+    id: '',
+    depot: '',
+    start: '',
+    end: '',
+    via: '',
+    routeNo: '',
+    routeDistance: '',
+    depot_to_start_distance: '',
+    end_to_depot_distance: '',
+    status: 'Active'
+  };
+
+  depotSuggestions: string[] = [];
+  startSuggestions: string[] = [];
+  endSuggestions: string[] = [];
+  viaSuggestions: string[] = [];
+  routeNoSuggestions: string[] = [];
+
+
   ngOnInit(): void {
     this.getBusRoutes();
   }
 
- 
-  handleSaveRoutes=()=>{
-    if(this.busRoutes.routeName!='' && this.busRoutes.routeNo!=''){
-      const ENDPOINT = `${environment.BASE_URL}/api/createBusRoutes`;
-      const requestOptions = {
-        requestObject: this.busRoutes,
-      };
-      this.http.post(ENDPOINT, requestOptions).subscribe(
-        (response) => {
-          this.getBusRoutes();
-          this.toastr.success("Bus route added successfully", "Success Message");
-        },
-        (error) => {
-          console.log("error here ", error);
-          this.toastr.error("Something went wrong !", "Warning");
-          
-        },
-        () => {
-          console.log('Observable is now completed.');
-        }
-      );
-    }else{
-      this.toastr.warning("Please enter data properly before proceed", "Warning Message");
+
+  handleSaveRoutes = () => {
+    if (!this.busRoutes.routeNo || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance) {
+      this.toastr.warning("Please fill required fields", "Warning");
+      return;
     }
-  }
+
+    const ENDPOINT = `${environment.BASE_URL}/api/createBusRoutes`;
+    this.http.post(ENDPOINT, { requestObject: this.busRoutes }).subscribe(
+      () => {
+        this.getBusRoutes();
+        this.toastr.success("Bus route added successfully");
+      },
+      () => this.toastr.error("Something went wrong")
+    );
+  };
 
 
-  getBusRoutes=()=>{
+
+  getBusRoutes = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusRoutes`;
-    
+
     this.http.get(ENDPOINT).subscribe(
       (response) => {
         console.log("response ", response);
@@ -69,67 +76,84 @@ export class BusRoutesComponent {
       (error) => {
         console.log("error here ", error);
         this.toastr.error("Something went wrong !", "Warning");
-        
+
       },
       () => {
         console.log('Observable is now completed.');
       }
     );
   }
-  
 
-  isEdit:boolean = false;
-  openNewRouteDialog=()=>{
+  getSuggestions(field: string) {
+    const ENDPOINT = `${environment.BASE_URL}/api/getRouteSuggestions?field=${field}`;
+
+    this.http.get<string[]>(ENDPOINT).subscribe(res => {
+      if (field === 'depot') this.depotSuggestions = res;
+      if (field === 'start') this.startSuggestions = res;
+      if (field === 'end') this.endSuggestions = res;
+      if (field === 'via') this.viaSuggestions = res;
+      if (field === 'routeNo') this.routeNoSuggestions = res;
+    });
+  }
+
+
+  isEdit: boolean = false;
+  openNewRouteDialog = () => {
     this.isEdit = false;
-    this.busRoutes={
-      routeName: '',
+
+    this.busRoutes = {
+      id: '',
+      depot: '',
+      start: '',
+      end: '',
+      via: '',
       routeNo: '',
-      status:'Active'
-    }
+      routeDistance: '',
+      depot_to_start_distance: '',
+      end_to_depot_distance: '',
+      status: 'Active'
+    };
+
+    this.loadAllSuggestions();
+  };
+
+
+  loadAllSuggestions() {
+    this.getSuggestions('depot');
+    this.getSuggestions('start');
+    this.getSuggestions('end');
+    this.getSuggestions('via');
+    this.getSuggestions('routeNo');
   }
 
-  openEditDialog=(data:any)=>{
+
+
+  openEditDialog = (data: any) => {
     this.isEdit = true;
-    this.busRoutes={
-      id: data.id,
-      routeName: data.routeName,
-      routeNo: data.routeNo,
-      status:'Active'
-    }
-  }
+    this.busRoutes = { ...data };
+  };
 
-  handleUpdateRoutes =()=>{
-    if(this.busRoutes.routeName!='' && this.busRoutes.routeNo!=''){
-      const ENDPOINT = `${environment.BASE_URL}/api/updateBusRoutes`;
-      const requestOptions = {
-        requestObject: this.busRoutes,
-      };
-      this.http.post(ENDPOINT, requestOptions).subscribe(
-        (response) => {
-          this.getBusRoutes();
-          this.toastr.success("Bus route updated successfully", "Success Message");
-        },
-        (error) => {
-          console.log("error here ", error);
-          this.toastr.error("Something went wrong !", "Warning");
-          
-        },
-        () => {
-          console.log('Observable is now completed.');
-        }
-      );
-    }else{
-      this.toastr.warning("Please enter data properly before proceed", "Warning Message");
-    }
-  }
 
-  toBeDeletedRecord:any = {};
-  openConfirmationDialog=(data:any)=>{
+  handleUpdateRoutes = () => {
+    const ENDPOINT = `${environment.BASE_URL}/api/updateBusRoutes`;
+
+    this.http.post(ENDPOINT, { requestObject: this.busRoutes }).subscribe(
+      () => {
+        this.getBusRoutes();
+        this.toastr.success("Bus route updated successfully");
+      },
+      () => this.toastr.error("Something went wrong")
+    );
+  };
+
+
+  toBeDeletedRecord: any = {};
+  openConfirmationDialog = (data: any) => {
     this.toBeDeletedRecord = data;
   }
 
-  handleDeleteRoutes =()=>{
-    if(this.toBeDeletedRecord.id!='' && this.toBeDeletedRecord.routeName!='' && this.toBeDeletedRecord.routeNo!=''){
+  handleDeleteRoutes = () => {
+    if (this.toBeDeletedRecord.id != '' && this.toBeDeletedRecord.routeName != '' && this.toBeDeletedRecord.routeNo != '') {
       const ENDPOINT = `${environment.BASE_URL}/api/deleteBusRoutes`;
       const requestOptions = {
         requestObject: this.toBeDeletedRecord,
@@ -142,27 +166,27 @@ export class BusRoutesComponent {
         (error) => {
           console.log("error here ", error);
           this.toastr.error("Something went wrong !", "Warning");
-          
+
         },
         () => {
           console.log('Observable is now completed.');
         }
       );
-    }else{
+    } else {
       this.toastr.warning("Please enter data properly before proceed", "Warning Message");
     }
   }
 
-  selectedData:any;
-  viewData=(id:any)=>{
-    this.selectedData =this.busRoutesList[id];
+  selectedData: any;
+  viewData = (id: any) => {
+    this.selectedData = this.busRoutesList[id];
     console.log(this.busRoutesList[id]);
-    
+
   }
 
 
 
-  selectedDate:any;
+  selectedDate: any;
   redirectToAddForm() {
     const dateInput = document.querySelector('input[name="date"]') as HTMLInputElement;
     if (dateInput) {

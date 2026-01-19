@@ -23,7 +23,8 @@ export class HomeComponent implements OnInit {
   totalRoute = 0;
 
   runningBus = 0;
-  idleBus = 0;
+  idleBus: any[] = [];
+  idleBusCount = 0;
   finishedBus = 0;
   stillBus = 0;
 
@@ -119,11 +120,15 @@ export class HomeComponent implements OnInit {
 
       this.runningBus = res.runningBus;
       this.idleBus = res.idleBus;
+      this.idleBusCount = res.idleBusCount;
       this.finishedBus = res.finishedBus;
       this.stillBus = res.stillBus;
 
       this.todayEarning = 0
       this.yesterdayEarning = 0
+
+      console.log("idle",this.idleBus);
+      
 
       // this.totalBus = res.totalBus;
       // this.totalDriver = res.totalDriver;
@@ -171,7 +176,7 @@ export class HomeComponent implements OnInit {
         {
           data: [
             this.runningBus,
-            this.idleBus,
+            this.idleBusCount,
             this.finishedBus,
             this.stillBus
           ],

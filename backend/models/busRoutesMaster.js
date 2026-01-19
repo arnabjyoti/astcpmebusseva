@@ -1,4 +1,7 @@
 'use strict';
+
+const { route } = require("../app");
+
 module.exports = (sequelize, type) => {
     const busRoutesMaster = sequelize.define('busRoutesMaster', {
         id: {
@@ -6,8 +9,14 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: true
         },
-        routeName: type.STRING,
+        depot: type.STRING,
+        start: type.STRING,
+        end: type.STRING,
+        via: type.STRING,
         routeNo: type.STRING,
+        routeDistance: type.STRING,
+        depot_to_start_distance: type.STRING,
+        end_to_depot_distance: type.STRING,
         status: type.STRING
     }, {timestamps:true});
     busRoutesMaster.associate = function(models) {

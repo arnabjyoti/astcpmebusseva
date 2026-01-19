@@ -1,17 +1,25 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppService } from '../app.service';
 import { environment } from 'src/environments/environment';
-import { add } from 'lodash';
+import { add, cond } from 'lodash';
+
+import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-driver-conductor',
   templateUrl: './driver-conductor.component.html',
   styleUrls: ['./driver-conductor.component.css'],
 })
+
+
+
 export class DriverConductorComponent {
+  
   public endpoint: string;
   constructor(
     private appService: AppService,
@@ -25,6 +33,7 @@ export class DriverConductorComponent {
   imagePreview: string | ArrayBuffer | null = null;
 
   form1: any = {
+    driver_id: '',
     driver_name: '',
     contact_no: '',
     aadhaar: '',
@@ -36,6 +45,7 @@ export class DriverConductorComponent {
   };
 
   form2: any = {
+    conductor_id: '',
     conductor_name: '',
     contact_no: '',
     aadhaar: '',
@@ -52,6 +62,62 @@ export class DriverConductorComponent {
   busConductorList: any;
   conductorList: any;
 
+  @ViewChild('reportSection') reportSection!: ElementRef;
+
+  isExportingExcel = false;
+  isExportingPDF = false;
+
+  downloadExcel() {
+    this.isExportingExcel = true;
+    const element = this.reportSection.nativeElement;
+    element.classList.add('exporting');
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Report');
+    XLSX.writeFile(wb, 'report.xlsx');
+    element.classList.remove('exporting');
+    this.isExportingExcel = false;
+  }
+
+  downloadPDF() {
+    this.isExportingPDF = true;
+    const element = this.reportSection.nativeElement;
+    element.classList.add('exporting');
+  
+    html2canvas(element, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+  
+      const pdf = new jsPDF('p', 'mm', 'a4');
+  
+      const pageWidth = 210;
+      const pageHeight = 297;
+  
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      let heightLeft = imgHeight;
+      let position = margin;
+  
+      // First page
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+  
+      // Additional pages
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+  
+      pdf.save('report.pdf');
+      element.classList.remove('exporting');
+      this.isExportingPDF = false;
+    });
+  }
+  
+
   ngOnInit(): void {
     this.getDrivers();
     this.getConductors();
@@ -61,6 +127,7 @@ export class DriverConductorComponent {
   openNewDriverDialog = () => {
     this.isEdit = false;
     this.form1 = {
+      driver_id: '',
       driver_name: '',
       contact_no: '',
       aadhaar: '',
@@ -109,6 +176,7 @@ export class DriverConductorComponent {
   }
 
   const formData = new FormData();
+  formData.append('driver_id', this.form1.driver_id);
   formData.append('driver_name', this.form1.driver_name);
   formData.append('contact_no', this.form1.contact_no);
   formData.append('aadhaar', this.form1.aadhaar);
@@ -146,6 +214,7 @@ closeForm() {
 
   this.form1 = {
     id: data?.id,
+    driver_id: data?.driver_id,
     driver_name: data?.driver_name,
     contact_no: data?.contact_no,
     aadhaar: data?.aadhaar,
@@ -177,6 +246,7 @@ closeForm() {
 
   const formData = new FormData();
   formData.append('id', this.form1.id);
+  formData.append('driver_id', this.form1.driver_id);
   formData.append('driver_name', this.form1.driver_name);
   formData.append('contact_no', this.form1.contact_no);
   formData.append('aadhaar', this.form1.aadhaar || '');
@@ -274,6 +344,7 @@ closeForm() {
   openNewConductorDialog = () => {
     this.isConductorEdit = false;
     this.form2 = {
+      conductor_id: '',
       conductor_name: '',
       contact_no: '',
       aadhaar: '',
@@ -297,6 +368,7 @@ closeForm() {
   }
 
   const formData = new FormData();
+  formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
@@ -325,6 +397,7 @@ closeForm() {
   this.isConductorEdit = true;
 
   this.form2 = {
+    conductor_id: data?.conductor_id,
     id: data?.id,
     conductor_name: data?.conductor_name,
     contact_no: data?.contact_no,
@@ -354,7 +427,9 @@ closeForm() {
   }
 
   const formData = new FormData();
+  
   formData.append('id', this.form2.id);
+  formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
