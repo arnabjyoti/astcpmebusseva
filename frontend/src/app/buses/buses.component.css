@@ -1,15 +1,4 @@
 .running-bg{
-<<<<<<< HEAD
-    background-color: rgb(220, 215, 215);
-    color: green;
-}
-
-.add-vehicle-btn {
-    display: flex;
-    gap: .5rem;
-    padding: 8px 16px;
-}
-=======
     background-color: rgb(96 204 89);
     color: rgb(15 14 14);
 }
@@ -25,4 +14,3 @@
     color: rgb(249 247 247);
     background-color: #747474;
 }
->>>>>>> 5d14d565cd7434471173be0cea660f08ab340942

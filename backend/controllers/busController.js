@@ -174,19 +174,21 @@ module.exports = {
 
   saveDriver(req, res) {
     console.log("reqqqqqqqqqqq", req.body);
-
-    try {
-      const data = {
-        driver_name: req.body.driver_name,
-        contact_no: req.body.contact_no,
-        aadhaar: req.body.aadhaar,
-        pan: req.body.pan,
-        voter: req.body.voter,
-        dl: req.body.dl,
-        status: "Active",
-        photo: req.file ? `image/driver/${req.file.filename}` : null,
-      };
-
+    
+  try {
+    const data = {
+      driver_name: req.body.driver_name,
+      contact_no: req.body.contact_no,
+      aadhaar: req.body.aadhaar,
+      pan: req.body.pan,
+      voter: req.body.voter,
+      dl: req.body.dl,
+      address: req.body.address,
+      status: 'Active',
+      photo: req.file
+        ? `image/driver/${req.file.filename}`
+        : null,
+    };
       return driverMasterModel
         .create(data)
         .then((project) => {
@@ -204,19 +206,69 @@ module.exports = {
   },
 
   updateDriver(req, res) {
-    let data = req.body.requestObject;
+  try {
+    const {
+      id,
+      driver_name,
+      contact_no,
+      aadhaar,
+      pan,
+      voter,
+      dl,
+      address,
+      old_photo
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).send({ message: 'Driver ID is required' });
+    }
+
+    // keep old photo by default
+    let photoPath = old_photo;
+
+    // if new photo uploaded
+    if (req.file) {
+      photoPath = `image/driver/${req.file.filename}`;
+
+      // delete old photo
+      if (old_photo) {
+        const fullOldPath = path.join(
+          config.FILE_UPLOAD_PATH,
+          old_photo
+        );
+
+        if (fs.existsSync(fullOldPath)) {
+          fs.unlinkSync(fullOldPath);
+        }
+      }
+    }
+
+    const updateData = {
+      driver_name,
+      contact_no,
+      aadhaar,
+      pan,
+      voter,
+      dl,
+      address,
+      photo: photoPath
+    };
+
     driverMasterModel
-      .update(
-        { driver_name: data.driver_name, contact_no: data.contact_no },
-        { where: { id: data.id } }
-      )
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
+      .update(updateData, { where: { id } })
+      .then(() => {
+        return res.status(200).send({ message: 'Driver updated successfully' });
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log('DB error:', err);
+        res.status(500).send({ message: 'Database error' });
       });
-  },
+
+  } catch (err) {
+    console.log('Server error:', err);
+    res.status(500).send({ message: 'Server error' });
+  }
+},
 
   deleteDriver(req, res) {
     let data = req.body.requestObject;
@@ -250,32 +302,104 @@ module.exports = {
   },
 
   saveConductor(req, res) {
-    let data = req.body.requestObject;
-    data.status = "Active";
-    conductorMasterModel
+    console.log("reqqqqqqqqqqq", req.body);
+    
+  try {
+    const data = {
+      conductor_name: req.body.conductor_name,
+      contact_no: req.body.contact_no,
+      aadhaar: req.body.aadhaar,
+      pan: req.body.pan,
+      voter: req.body.voter,
+      dl: req.body.dl,
+      address: req.body.address,
+      status: 'Active',
+      photo: req.file
+        ? `image/conductor/${req.file.filename}`
+        : null,
+    };
+
+    return conductorMasterModel
       .create(data)
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
+      .then((project) => {
+        console.log("hhhhhhhhhhhhhhh",project);
+        res.status(200).send({ message: 'Success' });
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log('DB error:', err);
+        res.status(500).send({ message: 'Database error' });
       });
-  },
+
+  } catch (err) {
+    console.log('Server error:', err);
+    res.status(500).send({ message: 'Server error' });
+  }
+},
 
   updateConductor(req, res) {
-    let data = req.body.requestObject;
-    conductorMasterModel
-      .update(
-        { conductor_name: data.conductor_name, contact_no: data.contact_no },
-        { where: { id: data.id } }
-      )
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
+  try {
+    const {
+      id,
+      conductor_name,
+      contact_no,
+      aadhaar,
+      pan,
+      voter,
+      dl,
+      address,
+      old_photo
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).send({ message: 'Conductor ID is required' });
+    }
+
+    // decide photo path
+    let photoPath = old_photo;
+
+    // if new photo uploaded
+    if (req.file) {
+      photoPath = `image/conductor/${req.file.filename}`;
+
+      // 🔥 delete old photo from disk
+      if (old_photo) {
+        const fullOldPath = path.join(
+          config.FILE_UPLOAD_PATH,
+          old_photo
+        );
+
+        if (fs.existsSync(fullOldPath)) {
+          fs.unlinkSync(fullOldPath);
+        }
+      }
+    }
+
+    const updateData = {
+      conductor_name,
+      contact_no,
+      aadhaar,
+      pan,
+      voter,
+      dl,
+      address,
+      photo: photoPath
+    };
+
+    return conductorMasterModel
+      .update(updateData, { where: { id } })
+      .then(() => {
+        res.status(200).send({ message: 'Conductor updated successfully' });
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log('DB error:', err);
+        res.status(500).send({ message: 'Database error' });
       });
-  },
+
+  } catch (err) {
+    console.log('Server error:', err);
+    res.status(500).send({ message: 'Server error' });
+  }
+},
 
   deleteConductor(req, res) {
     let data = req.body.requestObject;
@@ -1374,12 +1498,42 @@ END AS estimated_time,
           status: "Active",
         },
       });
+      const runningBus = await dailyUpdatesModel.count({
+        where: {
+          currentStatus: "Running",
+        },
+      });
+
+      const idleBus = await dailyUpdatesModel.count({
+        where: {
+          [Op.or]: [
+            { currentStatus: "Idle" },
+            { currentStatus: null }
+          ]
+        }
+      });
+
+      const finishedBus = await dailyUpdatesModel.count({
+        where: {
+          currentStatus: "Finished",
+        },
+      });
+
+      const stillBus = await dailyUpdatesModel.count({
+        where: {
+          currentStatus: "Still",
+        },
+      });
 
       res.status(200).send({
         totalBus,
         totalDriver,
         totalConductor,
         totalRoute,
+        runningBus,
+        idleBus,
+        finishedBus,
+        stillBus,
       });
     } catch (error) {
       console.error("Error fetching dashboard counts:", error);

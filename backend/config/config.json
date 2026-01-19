@@ -11,7 +11,7 @@
         "logging": false,
         "timezone": "+05:30",
         "operatorsAliases": false,
-        "FILE_UPLOAD_PATH":"image",
+        "FILE_UPLOAD_PATH": "D:\\Skaplink\\astcpmebusseva.com\\backend\\files",
         "cert": {
 			"key": "./cert/temp/key.pem",
 			"crt": "./cert/temp/cert.pem"
@@ -47,7 +47,7 @@
         "logging": false,
         "timezone": "+05:30",
         "operatorsAliases": false,
-        "FILE_UPLOAD_PATH": "/home/ec2-user/dohua/files",
+        "FILE_UPLOAD_PATH": "D:\\Skaplink\\astcpmebusseva.com\\backend\\files",
         "cert": {
 			"key": "./cert/temp/key.pem",
 			"crt": "./cert/temp/cert.pem"

@@ -181,14 +181,8 @@
                 </table>
 
                 <!-- Form Modal -->
-                <div
-                  class="modal fade"
-                  id="exampleModal"
-                  data-bs-backdrop="static"
-                  data-backdrop="static"
-                  id="formModal"
-                  tabindex="-1"
-                >
+                <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-backdrop="static"
+                  id="formModal" tabindex="-1">
                   <div class="modal-dialog modal-md">
                     <div class="modal-content">
                       <div class="modal-header">
@@ -277,29 +271,25 @@
                               </div>
                             </div>
 
-                            <div class="row p-3">
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>Address *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form1.address" name="address"
+                                  required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
                               <div class="col-md-12">
                                 <label>Driver Photo *</label>
-                                <input
-                                  type="file"
-                                  class="form-control"
-                                  accept="image/*"
-                                  (change)="onPhotoChange($event)"
-                                />
+                                <input type="file" class="form-control" accept="image/*"
+                                  (change)="onPhotoChange($event)" />
                               </div>
 
                               <div class="col-md-12" *ngIf="imagePreview">
                                 <label>Preview</label><br />
-                                <img
-                                  [src]="imagePreview"
-                                  style="
-                                    width: 120px;
-                                    height: 120px;
-                                    object-fit: cover;
-                                    border: 1px solid #ccc;
-                                    padding: 4px;
-                                  "
-                                />
+                                <img [src]="imagePreview"
+                                  style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc; padding: 4px;" />
                               </div>
                             </div>
                           </div>
@@ -325,12 +315,8 @@
                             Update
                           </button>
 
-                          <button
-                            type="button"
-                            (click)="closeForm()"
-                            class="btn btn-default float-right mr-2"
-                            data-dismiss="modal"
-                          >
+                          <button type="button" (click)="closeForm()" class="btn btn-default float-right mr-2"
+                            data-dismiss="modal">
                             Cancel
                           </button>
                         </form>
@@ -354,16 +340,58 @@
                         </button>
                       </div>
                       <div class="modal-body" *ngIf="selectedData">
-                        <p>
-                          <strong>Driver Name:</strong>
-                          {{ selectedData.driver_name }}
-                        </p>
-                        <p>
-                          <strong>Driver Contact No:</strong>
-                          {{ selectedData.contact_no }}
-                        </p>
-                        <p></p>
+                        <div class="container-fluid">
+                          <div class="row">
+
+                            <!-- LEFT: DETAILS -->
+                            <div class="col-md-8">
+                              <table class="table table-borderless table-sm mb-0">
+                                <tbody>
+                                  <tr>
+                                    <th class="text-muted w-50">Driver Name</th>
+                                    <td>{{ selectedData.driver_name }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Contact No</th>
+                                    <td>{{ selectedData.contact_no }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">AADHAAR</th>
+                                    <td>{{ selectedData.aadhaar }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">PAN No</th>
+                                    <td>{{ selectedData.pan }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Voter ID</th>
+                                    <td>{{ selectedData.voter }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Driving License</th>
+                                    <td>{{ selectedData.dl }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Address</th>
+                                    <td>{{ selectedData.address }}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- RIGHT: PHOTO -->
+                            <div class="col-md-4 text-center">
+                              <label class="text-muted d-block mb-2">Driver Photo</label>
+
+                              <img [src]="endpoint + '/docs/' + selectedData.photo" class="img-thumbnail shadow-sm"
+                                style="width: 150px; height: 180px; object-fit: cover;" alt="Driver Photo" />
+
+                            </div>
+
+                          </div>
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -502,7 +530,7 @@
 
                 <!-- conductor Modal -->
                 <div class="modal fade" id="conductorModal" tabindex="-1">
-                  <div class="modal-dialog modal-sm">
+                  <div class="modal-dialog modal-md">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h2 class="modal-title">Conductor Details</h2>
@@ -515,10 +543,10 @@
                         </button>
                       </div>
                       <div class="modal-body">
-                        <form>
+                        <form #conductorForm="ngForm" novalidate>
                           <div class="form-group">
                             <div class="row">
-                              <div class="col-md-12">
+                              <div class="col-md-6">
                                 <label>Conductor Name</label>
                                 <input
                                   type="text"
@@ -528,26 +556,58 @@
                                 />
                               </div>
 
-                              <div class="col-md-12 pt-3">
-                                <label>Conductor Contact No</label>
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  [(ngModel)]="form2.contact_no"
-                                  name="contact_no"
-                                />
+                              <div class="col-md-6">
+                                <label>Conductor Contact No *</label>
+                                <input type="number" class="form-control" [(ngModel)]="form2.contact_no"
+                                  name="contact_no" required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>AADHAAR *</label>
+                                <input type="number" class="form-control" [(ngModel)]="form2.aadhaar" name="aadhaar"
+                                  required />
+                              </div>
+
+                              <div class="col-md-6">
+                                <label>PAN No *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form2.pan" name="pan" required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>Voter ID *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form2.voter" name="voter"
+                                  required />
+                              </div>
+                            </div>
+                            <div class="row pt-3">
+                              <div class="col-md-6">
+                                <label>Address *</label>
+                                <input type="text" class="form-control" [(ngModel)]="form2.address" name="address"
+                                  required />
+                              </div>
+                            </div>
+
+                            <div class="row pt-3">
+                              <div class="col-md-12">
+                                <label>Conductor Photo *</label>
+                                <input type="file" class="form-control" accept="image/*"
+                                  (change)="onPhotoChange($event)" />
+                              </div>
+
+                              <div class="col-md-12" *ngIf="imagePreview">
+                                <label>Preview</label><br />
+                                <img [src]="imagePreview"
+                                  style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc; padding: 4px;" />
                               </div>
                             </div>
                           </div>
 
-                          <button
-                            *ngIf="!isConductorEdit"
-                            style="float: right"
-                            type="button"
-                            class="btn btn-info"
-                            (click)="saveDataConductor()"
-                            data-dismiss="modal"
-                          >
+                          <button *ngIf="!isConductorEdit" style="float: right" type="button" class="btn btn-info"
+                            (click)="saveDataConductor(conductorForm)" data-dismiss="modal">
                             Save
                           </button>
                           <button
@@ -589,16 +649,55 @@
                         </button>
                       </div>
                       <div class="modal-body" *ngIf="selectedDataConductor">
-                        <p>
-                          <strong>Conductor Name:</strong>
-                          {{ selectedDataConductor.conductor_name }}
-                        </p>
-                        <p>
-                          <strong>Conductor Contact No:</strong>
-                          {{ selectedDataConductor.contact_no }}
-                        </p>
-                        <p></p>
+                        <div class="container-fluid">
+                          <div class="row">
+
+                            <!-- LEFT: DETAILS -->
+                            <div class="col-md-8">
+                              <table class="table table-borderless table-sm mb-0">
+                                <tbody>
+                                  <tr>
+                                    <th class="text-muted w-50">Conductor Name</th>
+                                    <td>{{ selectedDataConductor.conductor_name }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Contact No</th>
+                                    <td>{{ selectedDataConductor.contact_no }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">AADHAAR</th>
+                                    <td>{{ selectedDataConductor.aadhaar }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">PAN No</th>
+                                    <td>{{ selectedDataConductor.pan }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Voter ID</th>
+                                    <td>{{ selectedDataConductor.voter }}</td>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-muted">Address</th>
+                                    <td>{{ selectedDataConductor.address }}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- RIGHT: PHOTO -->
+                            <div class="col-md-4 text-center">
+                              <label class="text-muted d-block mb-2">Conductor Photo</label>
+
+                              <img [src]="endpoint + '/docs/' + selectedDataConductor.photo"
+                                class="img-thumbnail shadow-sm" style="width: 150px; height: 180px; object-fit: cover;"
+                                alt="Conductor Photo" />
+
+                            </div>
+
+                          </div>
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -813,7 +912,7 @@
                             style="float: right"
                             type="button"
                             class="btn btn-info"
-                            (click)="saveDataConductor()"
+                            (click)="saveDataConductor(conductorForm)"
                             data-dismiss="modal"
                           >
                             Save
