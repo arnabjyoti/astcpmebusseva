@@ -1,38 +1,110 @@
-::placeholder{
-        padding-left:30px;
-        padding-top:15px;
-        font-size:14px;
-    }
-    .custom-search input{
-        background-color: #ffffffad;
-        color:white !important;
-        
-    }
+::placeholder {
+  padding-left: 30px;
+  padding-top: 15px;
+  font-size: 14px;
+}
+.custom-search input {
+  background-color: #ffffffad;
+  color: white !important;
+}
 
-    .navbar-light-black{
-        background-color: #343a40;
-        color: aliceblue;
-    }
+.navbar-light-black {
+  background-color: #343a40;
+  color: aliceblue;
+}
 
-    .header-icons-alignment {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-size: 16px;
-    }
+.header-icons-alignment {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 16px;
+}
 
-    .header-height {
-        height: 3.2rem;
-    }
+.header-component {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+  width: auto;
+}
 
-    .navbar-text {
-        color: white !important;
-    }
+.navbar-first-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 
-    .navbar-icon-text {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+.navbar-second-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.search-bar-input {
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  padding-left: 2.5rem;
+  padding-right: 10px;
+  font-size: 14px;
+  line-height: 40px;
+  outline: none;
+  outline-offset: 2px;
+}
+
+.search-bar-logo {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-bar-close {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.search-bar-close:hover {
+  fill: red;
+}
+
+.navbar-third-row {
+  display: flex;
+}
+
+.navbar-text {
+  color: white !important;
+}
+
+.navbar-icon-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.autosearch-container {
+  max-width: 100px;
+  max-height: 150px;
+  background-color: violet;
+  padding: 10px;
+  display: block;
+  
+}
+
+.aside-h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}

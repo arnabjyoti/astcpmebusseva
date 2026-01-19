@@ -16,3 +16,7 @@
 .bottom-text {
     gap: 0.3rem;
 }
+
+.last-bottom-text {
+    font-size: 0.85rem;
+}

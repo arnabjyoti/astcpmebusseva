@@ -140,6 +140,7 @@
                 <table class="table table-bordered">
                   <thead>
                     <tr>
+                      <th>#</th>
                       <th>Driver ID</th>
                       <th>Driver Name</th>
                       <th>Driver Contact No</th>
@@ -148,6 +149,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let data of driverList; let i = index">
+                      <td>{{ i + 1 }}</td>
                       <td>{{ data.driver_id }}</td>
                       <td>{{ data.driver_name }}</td>
                       <td>{{ data.contact_no }}</td>
@@ -571,6 +573,7 @@
                   <table class="table table-bordered">
                     <thead>
                       <tr>
+                        <th>#</th>
                         <th>Conductor ID</th>
                         <th>Conductor Name</th>
                         <th>Conductor Contact No</th>
@@ -586,6 +589,7 @@
                           'bg-danger': data.status === 'Block'
                         }"
                       >
+                        <td>{{ i + 1 }}</td>
                         <td>{{ data.conductor_id }}</td>
                         <td>{{ data.conductor_name }}</td>
                         <td>{{ data.contact_no }}</td>

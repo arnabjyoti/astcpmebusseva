@@ -59,7 +59,8 @@
 
             <table class="table table-bordered">
               <thead>
-                <tr style="background-color: #546cc0; color: rgb(57, 52, 52);">
+                <tr>
+                  <th>#</th>
                   <th>Bus Name</th>
                   <th>Veh No</th>
                   <th>Driver Name</th>
@@ -82,6 +83,7 @@
                   
                    }"
                 >
+                  <td>{{ i + 1 }}</td>
                   <td>{{ data.busName }}</td>
                   <td>{{ data.busNo }}</td>
                   <td>{{ data.driverName }}</td>

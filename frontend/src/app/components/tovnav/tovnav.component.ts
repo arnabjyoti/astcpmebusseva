@@ -45,6 +45,11 @@ export class TovnavComponent implements OnInit {
     // console.log("I AM CITIZEN",this.user);
   };
 
+  clearSearch = () => {
+    alert('clear search');
+  };
+
+
   signout = () => {
     localStorage.removeItem('token');
     const token = localStorage.getItem('token');
@@ -67,17 +72,17 @@ export class TovnavComponent implements OnInit {
           routerLink: '/home',
         },
         {
-          label: 'Bus Master',
+          label: 'Vehicle Master',
           icon: 'fas fa-bus',
           routerLink: '/buses',
         },
         {
-          label: 'Bus Routes',
+          label: 'Vehicle Routes',
           icon: 'fas fa-route',
           routerLink: '/bus-routes',
         },
         {
-          label: 'Bus Staff',
+          label: 'Vehicle Staff',
           icon: 'fas fa-users',
           routerLink: '/driver-conductor',
         },
