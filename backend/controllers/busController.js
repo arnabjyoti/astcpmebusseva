@@ -144,6 +144,7 @@ module.exports = {
     const start = capitalizeFirst(data.start);
     const end = capitalizeFirst(data.end);
     const via = capitalizeFirst(data.via);
+    const routeName = capitalizeFirst(data.routeName);
 
     // Check duplicate routeNo
     const exists = await busRoutesModel.findOne({
@@ -161,6 +162,7 @@ module.exports = {
       end,
       via,
       routeNo: data.routeNo,
+      routeName,
       routeDistance: data.routeDistance,
       depot_to_start_distance: data.depot_to_start_distance,
       end_to_depot_distance: data.end_to_depot_distance,
@@ -187,6 +189,7 @@ module.exports = {
     const start = capitalizeFirst(data.start);
     const end = capitalizeFirst(data.end);
     const via = capitalizeFirst(data.via);
+    const routeName = capitalizeFirst(data.routeName);
 
     // Prevent duplicate routeNo on update
     const { Op } = require('sequelize');
@@ -209,6 +212,7 @@ module.exports = {
         end,
         via,
         routeNo: data.routeNo,
+        routeName,
         routeDistance: data.routeDistance,
         depot_to_start_distance: data.depot_to_start_distance,
         end_to_depot_distance: data.end_to_depot_distance,
@@ -252,9 +256,9 @@ module.exports = {
 
 async getRouteSuggestions(req, res) {
   try {
-    const field = req.query.field; // depot | start | end | via | routeNo
+    const field = req.query.field; // depot | start | end | via | routeNo | routeName
 
-    if (!['depot', 'start', 'end', 'via', 'routeNo'].includes(field)) {
+    if (!['depot', 'start', 'end', 'via', 'routeNo', 'routeName'].includes(field)) {
       return res.status(400).json({ message: "Invalid field" });
     }
 

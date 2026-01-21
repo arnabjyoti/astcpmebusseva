@@ -14,6 +14,7 @@ module.exports = (sequelize, type) => {
         end: type.STRING,
         via: type.STRING,
         routeNo: type.STRING,
+        routeName: type.STRING,
         routeDistance: type.STRING,
         depot_to_start_distance: type.STRING,
         end_to_depot_distance: type.STRING,

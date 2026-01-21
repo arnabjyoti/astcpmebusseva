@@ -40,6 +40,7 @@
                   <th>End</th>
                   <th>Via</th>
                   <th>Route No</th>
+                  <th>Route Name</th>
                   <th>Distance</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -53,6 +54,7 @@
                   <td>{{ data.end }}</td>
                   <td>{{ data.via }}</td>
                   <td>{{ data.routeNo }}</td>
+                  <td>{{ data.routeName }}</td>
                   <td>{{ data.routeDistance }}</td>
                   <td>
                     <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
@@ -141,6 +143,16 @@
                   <option *ngFor="let r of routeNoSuggestions" [value]="r"></option>
                 </datalist>
               </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Route Name</label>
+                <input class="form-control" [(ngModel)]="busRoutes.routeName">
+
+                <datalist id="routeNameList">
+                  <option *ngFor="let rn of routeNameSuggestions" [value]="rn"></option>
+                </datalist>
+              </div>
+              
 
               <div class="col-md-6 pt-2">
                 <label>Route Distance (KM)</label>

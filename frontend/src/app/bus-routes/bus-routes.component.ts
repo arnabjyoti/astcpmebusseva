@@ -28,6 +28,7 @@ export class BusRoutesComponent {
     end: '',
     via: '',
     routeNo: '',
+    routeName: '',
     routeDistance: '',
     depot_to_start_distance: '',
     end_to_depot_distance: '',
@@ -39,6 +40,7 @@ export class BusRoutesComponent {
   endSuggestions: string[] = [];
   viaSuggestions: string[] = [];
   routeNoSuggestions: string[] = [];
+  routeNameSuggestions: string[] = [];
 
 
   ngOnInit(): void {
@@ -47,7 +49,7 @@ export class BusRoutesComponent {
 
 
   handleSaveRoutes = () => {
-    if (!this.busRoutes.routeNo || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance) {
+    if (!this.busRoutes.routeNo || !this.busRoutes.routeName || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance) {
       this.toastr.warning("Please fill required fields", "Warning");
       return;
     }
@@ -93,6 +95,7 @@ export class BusRoutesComponent {
       if (field === 'end') this.endSuggestions = res;
       if (field === 'via') this.viaSuggestions = res;
       if (field === 'routeNo') this.routeNoSuggestions = res;
+      if (field === 'routeName') this.routeNoSuggestions = res;
     });
   }
 
@@ -108,6 +111,7 @@ export class BusRoutesComponent {
       end: '',
       via: '',
       routeNo: '',
+      routeName: '',
       routeDistance: '',
       depot_to_start_distance: '',
       end_to_depot_distance: '',
@@ -124,6 +128,7 @@ export class BusRoutesComponent {
     this.getSuggestions('end');
     this.getSuggestions('via');
     this.getSuggestions('routeNo');
+    this.getSuggestions('routeName');
   }
 
 
