@@ -20,6 +20,7 @@ module.exports = (app) => {
 	app.post('/api/createBusRoutes', BusController.createBusRoutes);
 	app.post('/api/updateBusRoutes', BusController.updateBusRoutes);
 	app.post('/api/deleteBusRoutes', BusController.deleteBusRoutes);
+	app.get('/api/getRouteSuggestions', BusController.getRouteSuggestions);
 	app.get('/api/getBusRoutes', BusController.getBusRoutes);
 	app.post('/api/saveDailyUpdates', BusController.saveDailyUpdates);
 	app.get('/api/getBusList', BusController.getBusList);
@@ -31,15 +32,16 @@ module.exports = (app) => {
 
 
 	app.post('/api/saveDriver', BusController.upload_driver_image.single("photo"), BusController.saveDriver);
-	app.post('/api/updateDriver', BusController.updateDriver);
+	app.post('/api/updateDriver', BusController.upload_driver_image.single("photo"), BusController.updateDriver);
 	app.post('/api/deleteDriver', BusController.deleteDriver);
 	app.post('/api/saveConductor', BusController.upload_conductor_image.single("photo"), BusController.saveConductor);
-	app.post('/api/updateConductor', BusController.updateConductor);
+	app.post('/api/updateConductor', BusController.upload_conductor_image.single('photo'), BusController.updateConductor);
 	app.post('/api/deleteConductor', BusController.deleteConductor);
 	app.post('/api/blockConductor', BusController.blockConductor);
 	app.get('/api/getDriver', BusController.getDriver);
 	app.get('/api/getConductor', BusController.getConductor);
 	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
+	app.get('/api/getAmountToBePaidByConductor', BusController.getAmountToBePaidByConductor);
 
 	app.post('/api/sendOtp', sendMail.sendOtp);
 

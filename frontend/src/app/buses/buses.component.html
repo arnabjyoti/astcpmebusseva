@@ -41,7 +41,6 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div>
-
             <div class="d-flex align-items-end gap-2 mb-3 filter-bar">
               <div class="form-group mb-0">
                 <label class="form-label fw-semibold">Select Date</label>
@@ -52,12 +51,11 @@
                   name="dataForDate"
                 />
               </div>
-            
+
               <button class="btn btn-success premium-btn" (click)="getBuses()">
                 <i class="fas fa-search me-1"></i> Get
               </button>
             </div>
-            
 
             <table class="table table-bordered">
               <thead>
@@ -87,16 +85,37 @@
                   <td>{{ data.busName }}</td>
                   <td>{{ data.busNo }}</td>
                   <td>{{ data.driverName }}</td>
-                  <td>{{ data.driverContactNo }}</td>
-                  <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">{{ data.conductorName }}</td>
-                  <td>{{ data.conductorContactNo }}</td>
-                  <td>{{ data.baseDepot }}</td>
-                  <td>{{ data.routeName }}</td>
                   <td>
-                    {{ data.currentStatus || 'idle' | titlecase }}
-                    {{ data.currentStatus == 'running' ? ' (' + data.noOfTrip + ')' : '' }}
+                    {{ data.driverContactNo }}
                   </td>
-                  <td style="text-align: center; width: 15%;">
+                  <td
+                    [ngClass]="{
+                      'text-danger': data.conductorStatus === 'Block'
+                    }"
+                  >
+                    <div>
+                      {{ data.conductorName }}
+                   <button
+                      class="btn btn-default"
+                      data-toggle="modal"
+                      data-target="#conductorRemainModal"
+                      (click)="getRemainingAmountForConductor(i)"
+                    >
+                      <i class="fa fa-eye"></i>
+                    </button></div>
+                  </td>
+                  <td>{{ data.conductorContactNo }}</td>
+                  <td>{{ data.routeDepot }}</td>
+                  <td>{{ data.routeNo }}</td>
+                  <td>
+                    {{ data.currentStatus || "idle" | titlecase }}
+                    {{
+                      data.currentStatus == "running"
+                        ? " (" + data.noOfTrip + ")"
+                        : ""
+                    }}
+                  </td>
+                  <td style="text-align: center; width: 15%">
                     <button
                       class="btn btn-default"
                       data-toggle="modal"
@@ -130,21 +149,23 @@
                           data-target="#updateRoute"
                           (click)="viewData(i)"
                         >
-                        <i class="fas fa-recycle"></i> Update Rounds
+                          <i class="fas fa-recycle"></i> Update Rounds
                         </button>
                       </div>
-                      <div class="pb-2" *ngIf="data.currentStatus == 'running' ">
+                      <div class="pb-2" *ngIf="data.currentStatus == 'running'">
                         <button
                           class="btn btn-danger btn-sm"
                           data-toggle="modal"
                           (click)="redirectToUpdateForm(data)"
-                          
-                          >
+                        >
                           <i class="fas fa-stop"></i> Stop Trip
                         </button>
                       </div>
 
-                      <div class="pb-2" *ngIf="data.currentStatus !== 'running' ">
+                      <div
+                        class="pb-2"
+                        *ngIf="data.currentStatus !== 'running'"
+                      >
                         <button
                           class="btn btn-info btn-sm"
                           data-toggle="modal"
@@ -264,15 +285,10 @@
                             />
                           </div>
 
-                          <div class="col-md-6 pt-3">
+                          <!-- <div class="col-md-6 pt-3">
                             <label>Base Depot</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.baseDepot"
-                              name="baseDepot"
-                            />
-                          </div>
+                            <input type="text" class="form-control" [(ngModel)]="form.baseDepot" name="baseDepot" />
+                          </div> -->
 
                           <!-- routeList  -->
 
@@ -295,7 +311,7 @@
                                 *ngFor="let route of routeList"
                                 [value]="route.id"
                               >
-                                {{ route.routeName }}
+                                {{ route.routeNo }}
                               </option>
                             </select>
                           </div>
@@ -376,11 +392,11 @@
                     </p>
                     <p>
                       <strong>Conductor Base Depot:</strong>
-                      {{ selectedData.baseDepot }}
+                      {{ selectedData.routeDepot }}
                     </p>
                     <p>
                       <strong>Alloted Route No:</strong>
-                      {{ selectedData.allotedRouteNo }}
+                      {{ selectedData.routeNo }}
                     </p>
                     <p>
                       <strong>Remarks:</strong>
@@ -426,7 +442,6 @@
               </div>
             </div>
 
-
             <!-- Update route -->
             <div class="modal fade" id="updateRoute" tabindex="-1">
               <div class="modal-dialog">
@@ -440,11 +455,19 @@
                   <div class="modal-body" *ngIf="selectedData">
                     <p><strong>Bus Name:</strong> {{ selectedData.busName }}</p>
                     <p><strong>Bus No:</strong> {{ selectedData.busNo }}</p>
-                    <p><strong>Current Round:</strong> {{ selectedData.noOfTrip }}</p>
+                    <p>
+                      <strong>Current Round:</strong>
+                      {{ selectedData.noOfTrip }}
+                    </p>
 
                     <p>
                       <label for="">Update Trip:</label>
-                      <input type="text" name="newRoundTrip" [(ngModel)]="newRoundTrip" class="form-control col-md-4" />
+                      <input
+                        type="text"
+                        name="newRoundTrip"
+                        [(ngModel)]="newRoundTrip"
+                        class="form-control col-md-4"
+                      />
                     </p>
 
                     <div class="text-center">
@@ -456,14 +479,10 @@
                         Update Trip
                       </button>
                     </div>
-
                   </div>
                 </div>
               </div>
             </div>
-
-
-
 
             <div class="modal fade" id="deleteModal" tabindex="-1">
               <div class="modal-dialog modal-sm">
@@ -501,6 +520,56 @@
                     >
                       No
                     </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+             <!-- conductors remaining amount Modal -->
+             <div class="modal fade" id="conductorRemainModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">View Details</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                      &times;
+                    </button>
+                  </div>
+                  <div class="modal-body" *ngIf="selectedData">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <strong>Bus Name:</strong> {{ selectedData.busName }}
+                      </div>
+                      <div class="col-md-6">
+                        <strong>Bus No:</strong> {{ selectedData.busNo }}
+                      </div>
+
+                      <div class="col-md-6">
+                        <strong>Conductor Name:</strong>
+                        {{ selectedData.conductorName }}
+                      </div>
+
+                      <div class="col-md-6">
+                        <strong>Contact No:</strong>
+                        {{ selectedData.conductorContactNo }}
+                      </div>
+
+
+
+                      <div class="col-md-12 pt-4">
+                        <div class="text-center">
+
+                          <h2>Remaining Amount:
+                          {{ amountToBeDeposited > 0 ? amountToBeDeposited : 0 }}
+                        </h2>
+                        </div>
+                      </div>
+
+
+                    </div>
+                
                   </div>
                 </div>
               </div>
