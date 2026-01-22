@@ -41,6 +41,7 @@ module.exports = (app) => {
 	app.get('/api/getDriver', BusController.getDriver);
 	app.get('/api/getConductor', BusController.getConductor);
 	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
+	app.get('/api/getAmountToBePaidByConductor', BusController.getAmountToBePaidByConductor);
 
 	app.post('/api/sendOtp', sendMail.sendOtp);
 
