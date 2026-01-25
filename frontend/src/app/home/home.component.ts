@@ -16,7 +16,6 @@ import { Chart } from 'chart.js/auto';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-
   totalBus = 0;
   totalDriver = 0;
   totalConductor = 0;
@@ -31,8 +30,16 @@ export class HomeComponent implements OnInit {
   todayEarning = 0;
   yesterdayEarning = 0;
 
-  barChart!: Chart;
+  paginatedBuses: any[] = []; // Data to display on current page
 
+  // Pagination variables
+  currentPage: number = 1;
+  itemsPerPage: number = 10; // Show 10 items per page
+  totalItems: number = 0;
+  totalPages: number = 0;
+  Math = Math; // To use Math.min in template
+
+  barChart!: Chart;
 
   public user: any;
   public tokenData: any;
@@ -58,7 +65,7 @@ export class HomeComponent implements OnInit {
     private spinner: NgxSpinnerService,
     private homeService: HomeService,
     private loginService: LoginService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {
     this.endpoint = environment.BASE_URL;
     this.init();
@@ -78,10 +85,9 @@ export class HomeComponent implements OnInit {
     }
   };
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     this.getDashboardData();
   }
-
 
   // private getCurrentTime(): string {
   //   const now = new Date();
@@ -89,8 +95,6 @@ export class HomeComponent implements OnInit {
   //   const minutes = now.getMinutes().toString().padStart(2, '0'); // Pad with leading zero
   //   return `${hours}:${minutes}`;
   // }
-
- 
 
   spiner() {
     this.spinner.show();
@@ -103,7 +107,6 @@ export class HomeComponent implements OnInit {
     const newCache = await caches.open('new-cache');
     const response = await newCache.match('yes');
   };
-
 
   getDashboardData() {
     this.homeService.getDashboardCounts((err: any, res: any) => {
@@ -124,11 +127,13 @@ export class HomeComponent implements OnInit {
       this.finishedBus = res.finishedBus;
       this.stillBus = res.stillBus;
 
-      this.todayEarning = 0
-      this.yesterdayEarning = 0
+      this.todayEarning = 0;
+      this.yesterdayEarning = 0;
 
-      console.log("idle",this.idleBus);
-      
+      console.log('idle', this.idleBus);
+
+      // **ADDED THIS LINE - Initialize pagination after data is loaded**
+      this.updatePagination();
 
       // this.totalBus = res.totalBus;
       // this.totalDriver = res.totalDriver;
@@ -143,65 +148,143 @@ export class HomeComponent implements OnInit {
     });
   }
 
-   loadBarChart() {
+  loadBarChart() {
     new Chart('transportBarChart', {
       type: 'bar',
       data: {
         labels: ['Buses', 'Drivers', 'Conductors', 'Routes'],
-        datasets: [{
-          label: 'Count',
-          data: [this.totalBus, this.totalDriver, this.totalConductor, this.totalRoute],
-          backgroundColor: [
-            '#4e73df',
-            '#1cc88a',
-            '#f6c23e',
-            '#e74a3b'
-          ]
-        }]
+        datasets: [
+          {
+            label: 'Count',
+            data: [
+              this.totalBus,
+              this.totalDriver,
+              this.totalConductor,
+              this.totalRoute,
+            ],
+            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+          },
+        ],
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false
-      }
+        maintainAspectRatio: false,
+      },
+    });
+  }
+
+  loadPieChart() {
+    new Chart('transportPieChart', {
+      type: 'pie',
+      data: {
+        labels: [
+          'Running Today',
+          'Idle Today',
+          'Finished Today',
+          'Not Started',
+        ],
+        datasets: [
+          {
+            data: [
+              this.runningBus,
+              this.idleBusCount,
+              this.finishedBus,
+              this.stillBus,
+            ],
+            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+        },
+      },
     });
   }
 
 
-  loadPieChart() {
-  new Chart('transportPieChart', {
-    type: 'pie',
-    data: {
-      labels: ['Running Today', 'Idle Today', 'Finished Today', 'Not Started'],
-      datasets: [
-        {
-          data: [
-            this.runningBus,
-            this.idleBusCount,
-            this.finishedBus,
-            this.stillBus
-          ],
-          backgroundColor: [
-            '#4e73df',
-            '#1cc88a',
-            '#f6c23e',
-            '#e74a3b'
-          ],
-          borderWidth: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
+  // Update pagination when data changes
+  updatePagination() {
+    this.totalItems = this.idleBus.length;
+    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+    this.updatePaginatedData();
+  }
+
+  // Update the data shown on current page
+  updatePaginatedData() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedBuses = this.idleBus.slice(startIndex, endIndex);
+  }
+
+  // Navigate to specific page
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedData();
+    }
+  }
+
+  // Generate page numbers for pagination
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+
+    if (this.totalPages <= maxPagesToShow) {
+      // Show all pages if total is less than max
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show subset of pages with current page in middle
+      let startPage = Math.max(1, this.currentPage - 2);
+      let endPage = Math.min(this.totalPages, this.currentPage + 2);
+
+      if (this.currentPage <= 3) {
+        endPage = maxPagesToShow;
+      }
+      if (this.currentPage >= this.totalPages - 2) {
+        startPage = this.totalPages - maxPagesToShow + 1;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
       }
     }
-  });
+
+    return pages;
+  }
+
+  // Download report function
+  downloadReport() {
+    // Prepare CSV content
+    let csvContent =
+      'Sl No.,Vehicle Number,Route Number,Driver ID,Conductor ID,Trip Completed,Kilometres Driven,Place of Breakdown,Time of Breakdown\n';
+
+    this.idleBus.forEach((bus, index) => {
+      csvContent += `${index + 1},${bus.busNo},${bus.busName},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo}\n`;
+    });
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute(
+      'download',
+      `breakdown-vehicles-${new Date().getTime()}.csv`,
+    );
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
-
-}
-
-
