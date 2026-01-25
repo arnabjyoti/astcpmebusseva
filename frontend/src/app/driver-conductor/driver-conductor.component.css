@@ -1,3 +1,4 @@
+/* Existing CSS - keep as is */
 .present{
     background-color: green;
     color: white;
@@ -9,5 +10,14 @@
 
 .exporting .no-export {
     display: none !important;
-  }
-  
+}
+
+/* NEW CSS for sorting */
+th[style*="cursor: pointer"]:hover {
+  background-color: #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+th[style*="cursor: pointer"] {
+  user-select: none;
+}
