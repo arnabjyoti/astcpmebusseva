@@ -21,6 +21,9 @@ import { BusRoutesComponent } from './bus-routes/bus-routes.component';
 import { DailyUpdateFormComponent } from './daily-update-form/daily-update-form.component';
 import { DriverConductorComponent } from './driver-conductor/driver-conductor.component';
 import { TripLogComponent } from './trip-log/trip-log.component';
+import { DriverComponent } from './staff/driver/driver.component';
+import { ConductorComponent } from './staff/conductor/conductor.component';
+import { AttendanceComponent } from './attendance/attendance.component';
 
 
 @NgModule({
@@ -36,6 +39,9 @@ import { TripLogComponent } from './trip-log/trip-log.component';
     DailyUpdateFormComponent,
     DriverConductorComponent,
     TripLogComponent,
+    DriverComponent,
+    ConductorComponent,
+    AttendanceComponent,
   ],
   imports: [
     FormsModule,

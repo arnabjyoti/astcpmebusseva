@@ -8,6 +8,9 @@ import { Router } from '@angular/router';
 import html2pdf from 'html2pdf.js';
 import { NgxSpinnerService } from 'ngx-spinner';
 
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 @Component({
   selector: 'app-daily-update-form',
   templateUrl: './daily-update-form.component.html',
@@ -32,6 +35,7 @@ export class DailyUpdateFormComponent {
   busDetails: any = {};
   selectedDate: string | null = null;
   form: any = {
+    timesheetNo: '',
     omr: 0,
     cmr: 0,
     totalOperated: 0,
@@ -150,6 +154,7 @@ export class DailyUpdateFormComponent {
       (response: any) => {
         console.log('response ==>> ', response);
         // this.busList = response;
+        this.form.timesheetNo = response.timesheetNo;
         this.busDetails = response;
         this.form.busId = this.busId;
         this.form.date = this.selectedDate;
@@ -164,6 +169,7 @@ export class DailyUpdateFormComponent {
         this.form.routeVia = response.routeVia;
         this.form.routeDistance = response.routeDistance;
         this.form.omr = response.lastCmr;
+        this.form.routeName = response.routeName;
         this.form.osoc = 100;
       },
       (error) => {
@@ -177,30 +183,59 @@ export class DailyUpdateFormComponent {
   };
 
   saveData = () => {
-    const ENDPOINT = `${environment.BASE_URL}/api/saveDailyUpdates`;
-    const requestOptions = {
-      requestObject: this.form,
-    };
-    console.log('mmmmmmmmmmm', requestOptions);
-    this.http.post(ENDPOINT, requestOptions).subscribe(
-      (response) => {
-        console.log('response ', response);
-        // this.getBuses();
-        // this.form = { ...this.originalForm };
+  const ENDPOINT = `${environment.BASE_URL}/api/saveDailyUpdates`;
 
-        this.router.navigate(['/buses']);
-
-        this.toastr.success('Added Successfully', 'Success');
-      },
-      (error) => {
-        console.log('error here ', error);
-        this.toastr.error('Something went wrong !', 'Warning');
-      },
-      () => {
-        console.log('Observable is now completed.');
-      }
-    );
+  const requestOptions = {
+    requestObject: this.form,
   };
+
+  this.http.post<any>(ENDPOINT, requestOptions).subscribe(
+  async (response) => {
+    this.form.timesheetNo = response.timesheetNo; // get from backend
+
+
+
+    // ✅ show the hidden print area
+      this.showPreview = true;
+
+      // ✅ wait for Angular to render
+      await this.waitForElement('printA4');
+
+      // ✅ download pdf
+      await this.downloadPdf();
+
+      // ✅ hide again if you want
+      this.showPreview = false;
+
+
+
+    // await this.downloadPdfFull(timesheetNo);  // download PDF after save
+
+    this.router.navigate(['/buses']);
+    this.toastr.success('Added Successfully', 'Success');
+  },
+  (error) => {
+    this.toastr.error('Something went wrong!', 'Warning');
+  }
+);
+
+};
+
+waitForElement(id: string): Promise<HTMLElement> {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        clearInterval(interval);
+        resolve(el);
+      }
+    }, 50);
+  });
+}
+
+
+
+
 
   updateData = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
@@ -277,42 +312,49 @@ export class DailyUpdateFormComponent {
     this.isLodaing = false;
   }
 
-  downloadPdf() {
-    if (!this.form.omr || this.form.omr === 0 || !this.form.osoc || this.form.osoc === 0) {
-      this.toastr.warning('OMR and SOC values must be greater than 0', 'Warning');
-      return;
+  downloadPdf(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const element: any = document.getElementById('printA4');
+
+      console.log('Element found:', element);
+
+      html2pdf()
+        .set({
+          margin: [4, 4, 4, 4],
+          filename:
+            'Bus Earning Log ' +
+            this.busDetails.busNo +
+            ' / ' +
+            this.selectedDate +
+            '.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 1.2,
+            dpi: 144,
+            scrollY: 0,
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait',
+          },
+        })
+        .from(element)
+        .save()
+        .then(() => {
+          resolve();   // ✅ PDF finished downloading
+        })
+        .catch((err: any) => {
+          reject(err);
+        });
+
+    } catch (err) {
+      reject(err);
     }
+  });
+}
 
-    const element: any = document.getElementById('printA4');
-
-    html2pdf()
-      .set({
-        margin: [4, 4, 4, 4],
-        filename:
-          'Bus Earning Log ' +
-          this.busDetails.busNo +
-          ' / ' +
-          this.selectedDate +
-          '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 1.2,   
-          dpi: 144,
-          scrollY: 0,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-        },
-      })
-      .from(element)
-      .save();
-  }
-
-  get currentTime() {
-    return new Date().toLocaleTimeString();
-  }
 
   getCurrentISTTime = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getCurrentISTTime`;
@@ -332,4 +374,333 @@ export class DailyUpdateFormComponent {
       }
     );
   };
+
+
+
+
+
+
+
+
+
+
+
+  downloadPdfText(timesheetNo: string) {
+  const doc = new jsPDF('p', 'mm', 'a4');
+
+  let y = 10;
+
+  // ===== Logos =====
+  const logoLeft = new Image();
+  logoLeft.src = '../../../assets/image/login/astc.png'; // left logo
+
+  const logoRight = new Image();
+  logoRight.src = '../../../assets/image/logo.png'; // right logo
+
+  // wait for images to load
+  logoLeft.onload = () => {
+    doc.addImage(logoLeft, 'PNG', 10, y, 30, 30); // left
+
+    logoRight.onload = () => {
+      doc.addImage(logoRight, 'PNG', 170, y, 30, 30); // right
+      addHeaderAndTables();
+    };
+  };
+
+  // ===== Function to continue PDF after logos loaded =====
+  const addHeaderAndTables = () => {
+    y += 10;
+
+    // Header title
+    doc.setFontSize(14);
+    doc.text('VEHICLE LOG SHEET', 105, y, { align: 'center' });
+
+    // Timesheet No
+    doc.setFontSize(10);
+    doc.text(`Timesheet No: ${timesheetNo}`, 105, y + 6, { align: 'center' });
+
+    y += 14;
+
+    // Depot and Date
+    doc.setFontSize(10);
+    doc.text(`Depot: ${this.form.routeDepot}`, 10, y);
+    doc.text(`Date: ${this.selectedDate}`, 150, y);
+    y += 6;
+
+    // Bus and Route
+    doc.text(`Bus No: ${this.busDetails.busNo}`, 10, y);
+    doc.text(`Route No: ${this.form.routeNo}`, 150, y);
+    y += 8;
+
+    // ===== Driver / Conductor =====
+    autoTable(doc, {
+      startY: y,
+      head: [[
+        'Driver ID', 'Driver Name', 'Driver Phone',
+        'Conductor ID', 'Conductor Name', 'Conductor Phone'
+      ]],
+      body: [[
+        this.busDetails.driverId,
+        this.busDetails.driverName,
+        this.busDetails.driverContactNo,
+        this.busDetails.conductorId,
+        this.busDetails.conductorName,
+        this.busDetails.conductorContactNo
+      ]]
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 6;
+
+    // ===== SOC & Meter =====
+    autoTable(doc, {
+      startY: y,
+      head: [[
+        'Place', 'Opening SOC', 'Closing SOC', 'Consumed SOC',
+        'Opening KM', 'Closing KM', 'Covered KM'
+      ]],
+      body: [[
+        this.form.routeDepot,
+        this.form.osoc,
+        '',
+        '',
+        this.form.omr,
+        '',
+        ''
+      ]]
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 6;
+
+    // ===== Route Trip =====
+    autoTable(doc, {
+      startY: y,
+      head: [['Route No', 'Trip', 'From', 'To']],
+      body: [
+        [this.form.routeNo, '1', this.form.routeDepot, this.form.routeStart],
+        [this.form.routeNo, '2', this.form.routeStart, this.form.routeEnd],
+        [this.form.routeNo, '3', this.form.routeEnd, this.form.routeStart],
+        [this.form.routeNo, '4', this.form.routeStart, this.form.routeEnd],
+      ]
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 6;
+
+    // ===== Earnings =====
+    autoTable(doc, {
+      startY: y,
+      head: [[
+        'Way Bill', 'Ticket Count', 'Pass Count',
+        'Ticket Amt', 'PhonePe', 'Cash', 'Wallet'
+      ]],
+      body: [['', '', '', '', '', '', '']]
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 10;
+
+    // ===== Signatures =====
+    doc.text('Cashier Signature', 20, y);
+    doc.text('Auditor Signature', 90, y);
+    doc.text('Operation Manager Signature', 150, y);
+
+    // ===== Save PDF =====
+    doc.save(`Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`);
+  };
+}
+
+
+
+
+
+
+
+
+
+// later will use it
+
+
+// Helper function to load image and return a Promise
+loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(`Image not found: ${src}`);
+  });
+}
+
+async downloadPdfFull(timesheetNo: string) {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  let y = 10;
+
+  // ===== Load logos =====
+  const loadImage = (src: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(`Image not found: ${src}`);
+    });
+
+  try {
+    const logoLeft = await loadImage('../../../assets/image/login/astc.png');
+    const logoRight = await loadImage('../../../assets/image/logo.png');
+
+    doc.addImage(logoLeft, 'PNG', 10, y, 30, 30);
+    doc.addImage(logoRight, 'PNG', 170, y, 30, 30);
+  } catch (err) {
+    console.warn(err);
+  }
+
+  y += 10;
+
+  // ===== Header =====
+  doc.setFontSize(14);
+  doc.text('VEHICLE LOG SHEET', 105, y, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text(`Timesheet No: ${timesheetNo}`, 105, y + 6, { align: 'center' });
+  y += 14;
+
+  // ===== Log Sheet Info =====
+  autoTable(doc, {
+    startY: y,
+    head: [['LOG SHEET NO', timesheetNo]],
+    theme: 'grid',
+    styles: { fontSize: 9, halign: 'center' },
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      'Depot Name', 'Date', 'Veh No', 'Alloted Route No', 'Alloted Route Name', 'Time of Departure from Depot'
+    ]],
+    body: [[
+      this.form.routeDepot,
+      this.selectedDate,
+      this.busDetails.busNo,
+      this.form.routeNo,
+      this.form.routeName,
+      ''
+    ]],
+    theme: 'grid',
+    styles: { fontSize: 9 }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== Driver / Conductor =====
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      'Driver ID', 'Driver Name', 'Driver Ph No', 'Conductor ID', 'Conductor Name', 'Conductor Ph No'
+    ]],
+    body: [[
+      this.busDetails.driverId,
+      this.busDetails.driverName,
+      this.busDetails.driverContactNo,
+      this.busDetails.conductorId,
+      this.busDetails.conductorName,
+      this.busDetails.conductorContactNo
+    ]],
+    theme: 'grid',
+    styles: { fontSize: 9 }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== State of Charge & Meter Reading =====
+  autoTable(doc, {
+    startY: y,
+    head: [['Place','Opening SOC','Closing SOC','Consumed SOC','Opening KM','Closing KM','Covered KM']],
+    body: [[
+      this.form.routeDepot,
+      this.form.osoc,
+      '',
+      '',
+      this.form.omr,
+      '',
+      ''
+    ]],
+    theme: 'grid',
+    styles: { fontSize: 9, halign: 'center' }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== Route Trip Particulars (8 trips) =====
+  const routeBody = [];
+  for (let i = 1; i <= 8; i++) {
+    let from = i % 2 === 0 ? this.form.routeStart : this.form.routeEnd;
+    let to = i % 2 === 0 ? this.form.routeEnd : this.form.routeStart;
+    if (i === 8) { from = this.form.routeStart; to = this.form.routeDepot; }
+
+    routeBody.push([this.form.routeNo, i, from, to, '', '', '']);
+  }
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Route No','Trip','From','To','Arrival Time','Departure Time','Booking Asst Signature']],
+    body: routeBody,
+    theme: 'grid',
+    styles: { fontSize: 9 }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== Earnings Table =====
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      'Chalo Way Bill No', 'Chalo Ticket Count', 'Total Pass Count', 'Chalo Ticket Amount',
+      'Phone Pe', 'Cash Collection', 'Wallet Card', 'Card Recharge', 'Mobile Pass',
+      'Additional Amount Deposited', 'Total Amount Deposited'
+    ]],
+    body: [['','','','','','','','','','','']],
+    theme: 'grid',
+    styles: { fontSize: 9 }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== Total Deductions =====
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      'Trip Allowance','GMC Parking','Total Deduction','Net Amount Deposited After Deductions','Fixed Target','Balance'
+    ]],
+    body: [['','','','',7000,'']],
+    theme: 'grid',
+    styles: { fontSize: 9 }
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 2;
+
+  // ===== Remarks =====
+  autoTable(doc, {
+  startY: y,
+  head: [['REMARKS']],
+  body: [['']],
+  theme: 'grid',
+  styles: { fontSize: 9, minCellHeight: 15 }
+});
+
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  // ===== Signatures =====
+  doc.setFontSize(9);
+  doc.text('SIGNATURE OF THE CASHIER\nPM e-bus sewa\nRupnagar, Guwahati-32', 10, y);
+  doc.text('SIGNATURE OF THE AUDITOR\nPM e-bus sewa\nRupnagar, Guwahati-32', 70, y);
+  doc.text('SIGNATURE OF THE OPERATION MANAGER\nPM e-bus sewa\nRupnagar, Guwahati-32', 140, y);
+
+  // ===== Save PDF =====
+  doc.save(`Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`);
+}
+
+
+
+
+
+
 }

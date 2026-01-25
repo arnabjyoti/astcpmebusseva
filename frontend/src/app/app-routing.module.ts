@@ -9,6 +9,9 @@ import { BusRoutesComponent } from './bus-routes/bus-routes.component';
 import { DailyUpdateFormComponent } from './daily-update-form/daily-update-form.component';
 import { DriverConductorComponent } from './driver-conductor/driver-conductor.component';
 import { TripLogComponent } from './trip-log/trip-log.component';
+import { DriverComponent } from './staff/driver/driver.component';
+import { ConductorComponent } from './staff/conductor/conductor.component';
+import { AttendanceComponent } from './attendance/attendance.component';
 
 const routes: Routes = [
   {
@@ -31,6 +34,24 @@ const routes: Routes = [
   {
     path: "driver-conductor",
     component: DriverConductorComponent,
+    data: { showTopNav: true },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "attendance",
+    component: AttendanceComponent,
+    data: { showTopNav: true },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "driver",
+    component: DriverComponent,
+    data: { showTopNav: true },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "conductor",
+    component: ConductorComponent,
     data: { showTopNav: true },
     canActivate: [AuthGuard]
   },
