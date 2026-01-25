@@ -768,14 +768,23 @@ SELECT
     bus.busName,
     bus.busNo,
     bus.baseDepot,
-    bus.conductorName,
-    bus.conductorContactNo,
-    bus.conductorId,
-    bus.driverName,
-    bus.driverContactNo,
+    -- bus.conductorName,
+    -- bus.conductorContactNo,
+    -- bus.conductorId,
+    -- bus.driverName,
+    -- bus.driverContactNo,
     bus.status,
     bus.createdAt,
     bus.updatedAt,
+
+
+    cm.conductor_name as conductorName,
+    cm.conductor_id as conductorId,
+    cm.contact_no as conductorContactNo,
+    
+    dm.driver_name as driverName,
+    dm.contact_no as driverContactNo,
+    dm.driver_id as driverId,
 
     -- Route fields
     routes.id AS routeId,
@@ -799,6 +808,10 @@ JOIN busRoutesMasters AS routes
 
 LEFT JOIN conductorMasters AS cm
     ON cm.id = bus.conductorId
+
+
+LEFT JOIN driverMasters as dm
+    ON bus.driverId = dm.id
 
 LEFT JOIN dailyUpdates AS du
     ON du.busId = bus.id
@@ -865,15 +878,23 @@ ORDER BY bus.id DESC;
     busMasters.allotedRouteNo,
     busMasters.busNo,
     busMasters.baseDepot,
-    busMasters.conductorName,
-    busMasters.conductorContactNo,
-    busMasters.driverName,
-    busMasters.driverContactNo,
+    -- busMasters.conductorName,
+    -- busMasters.conductorContactNo,
+    -- busMasters.driverName,
+    -- busMasters.driverContactNo,
     busMasters.status,
     busMasters.createdAt,
     busMasters.updatedAt,
-    busMasters.driverId,
-    busMasters.conductorId,
+    -- busMasters.driverId,
+    --busMasters.conductorId,
+
+    conductorMasters.conductor_name as conductorName,
+    conductorMasters.conductor_id as conductorId,
+    conductorMasters.contact_no as conductorContactNo,
+    
+    driverMasters.driver_name as driverName,
+    driverMasters.contact_no as driverContactNo,
+    driverMasters.driver_id as driverId,
     
     busRoutesMasters.routeNo AS routeNo,
     busRoutesMasters.start AS routeStart,
@@ -894,7 +915,14 @@ ORDER BY bus.id DESC;
     ) AS lastCmr
 FROM busMasters
 LEFT JOIN busRoutesMasters 
-    ON busMasters.allotedRouteNo = busRoutesMasters.id
+  ON busMasters.allotedRouteNo = busRoutesMasters.id
+
+LEFT JOIN conductorMasters 
+  ON busMasters.conductorId = conductorMasters.id
+
+  LEFT JOIN driverMasters 
+  ON busMasters.driverId = driverMasters.id
+
 WHERE busMasters.id = :busId 
 AND busMasters.status = 'Active'
 LIMIT 1;

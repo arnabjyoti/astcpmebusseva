@@ -36,12 +36,21 @@
             </div>
 
             <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-              aria-hidden="true">
+            <div
+              class="modal fade"
+              id="exampleModal"
+              tabindex="-1"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
               <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                   <div class="modal-body">
-                    <button class="btn btn-danger" (click)="downloadPdf()" *ngIf="showPreview">
+                    <button
+                      class="btn btn-danger"
+                      (click)="downloadPdf()"
+                      *ngIf="showPreview"
+                    >
                       Download PDF
                     </button>
                     <!-- PRINT AREA -->
@@ -51,274 +60,295 @@
                       <div id="printA4" class="pdf-page">
                         <!-- <h2 class="text-center">Vehicle Log Sheet (Opening)</h2> -->
 
-                        
-
                         <div class="row">
-                        <div class="sheet">
-
-                          <!-- Header -->
-                          <div class="pdf-header py-3">
-                          <div class="logo-left">
-                            <img src="../../../assets/image/login/astc.png" alt="Left Logo" />
-                          </div>
-                          <!-- 
+                          <div class="sheet">
+                            <!-- Header -->
+                            <div class="pdf-header py-3">
+                              <div class="logo-left">
+                                <img
+                                  src="../../../assets/image/login/astc.png"
+                                  alt="Left Logo"
+                                />
+                              </div>
+                              <!-- 
                         <div class="header-title">
                           <h3>Vehicle Log Sheet (Opening)</h3>
                         </div> -->
 
-                          <div class="logo-right">
-                            <img src="../../../assets/image/logo.png" alt="Right Logo" />
+                              <div class="logo-right">
+                                <img
+                                  src="../../../assets/image/logo.png"
+                                  alt="Right Logo"
+                                />
+                              </div>
+                            </div>
+
+                            <table class="tbl">
+                              <tr>
+                                <td style="width: 17%">LOG SHEET NO</td>
+                                <td colspan="5"></td>
+                              </tr>
+                              <tr>
+                                <th colspan="6" class="center">
+                                  VEHICLE LOG SHEET
+                                </th>
+                              </tr>
+
+                              <tr>
+                                <th>Depot Name</th>
+                                <th>Date</th>
+                                <th>Veh No</th>
+                                <th>Alloted Route No</th>
+                                <th>Alloted Route Name</th>
+                                <th>Time of Departure from Depot</th>
+                              </tr>
+                              <tr>
+                                <td>{{ form.routeDepot }}</td>
+                                <td>
+                                  {{ selectedDate | date : "dd/MM/yyyy" }} -
+                                  {{ currentTinme | date : "hh:mm:ss a" }}
+                                </td>
+                                <td>{{ busDetails.busNo }}</td>
+                                <td>{{ form.routeNo }}</td>
+                                <td>
+                                  {{ form.routeStart }} - {{ form.routeEnd }}
+                                </td>
+                                <td>
+                                  
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>Driver ID</th>
+                                <th>Driver Name</th>
+                                <th>Driver Ph No</th>
+                                <th>Conductor ID</th>
+                                <th>Conductor Name</th>
+                                <th>Conductor Ph No</th>
+                              </tr>
+                              <tr>
+                                <td>{{ busDetails.driverId }}</td>
+                                <td>{{ busDetails.driverName }}</td>
+                                <td>{{ busDetails.driverContactNo }}</td>
+                                <td>{{ busDetails.conductorId }}</td>
+                                <td>{{ busDetails.conductorName }}</td>
+                                <td>{{ busDetails.conductorContactNo }}</td>
+                              </tr>
+                            </table>
+
+                            <!-- SOC & Meter -->
+                            <table class="tbl">
+                              <tr>
+                                <th rowspan="2">Place</th>
+                                <th colspan="3">State of Charge</th>
+                                <th colspan="3">Meter Reading</th>
+                              </tr>
+                              <tr>
+                                <th>Opening SOC</th>
+                                <th>Closing SOC</th>
+                                <th>Consumed SOC</th>
+                                <th>Opening KM</th>
+                                <th>Closing KM</th>
+                                <th>Covered KM</th>
+                              </tr>
+                              <tr>
+                                <td>{{ form.routeDepot }}</td>
+                                <td>{{ form.osoc }}</td>
+                                <td></td>
+                                <td></td>
+                                <td>{{ form.omr }}</td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                            </table>
+
+                            <!-- Route Trip Particulars -->
+                            <table class="tbl">
+                              <tr>
+                                <th colspan="7">ROUTE TRIP PARTICULARS</th>
+                              </tr>
+                              <tr>
+                                <th>Route No</th>
+                                <th>Trip</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Arrival Time</th>
+                                <th>Departure Time</th>
+                                <th>Booking Asst Signature</th>
+                              </tr>
+
+                              <!-- 8 empty rows -->
+                              <tr>
+                                <td rowspan="8">{{ form.routeNo }}</td>
+                                <td>1</td>
+                                <td>{{ form.routeDepot }}</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>2</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>3</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>4</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>5</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>6</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>7</td>
+                                <td>{{ form.routeEnd }}</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td>8</td>
+                                <td>{{ form.routeStart }}</td>
+                                <td>{{ form.routeDepot }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                            </table>
+
+                            <!-- Earnings -->
+                            <table class="tbl">
+                              <tr>
+                                <th colspan="11">EARNING PARTICULARS</th>
+                              </tr>
+                              <tr>
+                                <th>Chalo Way Bill No</th>
+                                <th>Chalo Ticket Count</th>
+                                <th>Total Pass Count</th>
+                                <th>Chalo Ticket Amount</th>
+                                <th>Phone Pe</th>
+                                <th>Cash Collection</th>
+                                <th>Wallet Card</th>
+                                <th>Card Recharge</th>
+                                <th>Mobile Pass</th>
+                                <th>Additional Amount Deposited</th>
+                                <th>Total Amount Deposited</th>
+                              </tr>
+                              <tr>
+                                <td style="height: 18px"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                            </table>
+
+                            <!-- Deductions -->
+                            <table class="tbl">
+                              <tr>
+                                <th colspan="6">TOTAL DEDUCTIONS</th>
+                              </tr>
+                              <tr>
+                                <th>Trip Allowance</th>
+                                <th>GMC Parking</th>
+                                <th>Total Deduction</th>
+                                <th>Net Amount Deposited After Deductions</th>
+                                <th>Fixed Target</th>
+                                <th>Balance</th>
+                              </tr>
+                              <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>7000</td>
+                                <td></td>
+                              </tr>
+                            </table>
+
+                            <!-- Remarks -->
+                            <table class="tbl">
+                              <tr>
+                                <th>REMARKS</th>
+                              </tr>
+                              <tr>
+                                <td style="height: 42px"></td>
+                              </tr>
+                            </table>
+
+                            <br />
+                            <br /><br />
+                            <br />
+                            <!-- Signatures -->
+                            <table class="tbl no-border">
+                              <tr>
+                                <td
+                                  class="center"
+                                  style="width: 33%"
+                                  style="font-size: 11px"
+                                >
+                                  SIGNATURE OF THE CASHIER<br />
+                                  PM e-bus sewa<br />
+                                  Rupnagar, Guwahati-32
+                                </td>
+                                <td
+                                  class="center"
+                                  style="width: 33%"
+                                  style="font-size: 11px"
+                                >
+                                  SIGNATURE OF THE AUDITOR<br />
+                                  PM e-bus sewa<br />
+                                  Rupnagar, Guwahati-32
+                                </td>
+                                <td
+                                  class="center"
+                                  style="width: 33%"
+                                  style="font-size: 11px"
+                                >
+                                  SIGNATURE OF THE OPERATION MANAGER<br />
+                                  PM e-bus sewa<br />
+                                  Rupnagar, Guwahati-32
+                                </td>
+                              </tr>
+                            </table>
                           </div>
                         </div>
 
-                          <table class="tbl">
-                            <tr>
-                              <td style="width:17%">LOG SHEET NO</td>
-                              <td colspan="5"></td>
-                            </tr>
-                            <tr>
-                              <th colspan="6" class="center">VEHICLE LOG SHEET</th>
-                            </tr>
-
-                            <tr>
-                              <th>Depot Name</th>
-                              <th>Date</th>
-                              <th>Veh No</th>
-                              <th>Alloted Route No</th>
-                              <th>Alloted Route Name</th>
-                              <th>Time of Departure from Depot</th>
-                            </tr>
-                            <tr>
-                              <td>{{ form.routeDepot }}</td>
-                              <td>{{ selectedDate | date : "dd/MM/yyyy" }} - {{ currentTinme | date : "hh:mm:ss a" }}</td>
-                              <td>{{ busDetails.busNo }}</td>
-                              <td>{{ form.routeNo }}</td>
-                              <td>{{ form.routeStart }} - {{ form.routeEnd }}</td>
-                              <td></td>
-                            </tr>
-
-                            <tr>
-                              <th>Driver ID</th>
-                              <th>Driver Name</th>
-                              <th>Driver Ph No</th>
-                              <th>Conductor ID</th>
-                              <th>Conductor Name</th>
-                              <th>Conductor Ph No</th>
-                            </tr>
-                            <tr>
-                              <td>{{ busDetails.driver_id }}</td>
-                              <td>{{ busDetails.driverName }}</td>
-                              <td>{{ busDetails.driverContactNo }}</td>
-                              <td>{{ busDetails.conductor_id }}</td>
-                              <td>{{ busDetails.conductorName }}</td>
-                              <td>{{ busDetails.conductorContactNo }}</td>
-                            </tr>
-                          </table>
-
-                          <!-- SOC & Meter -->
-                          <table class="tbl">
-                            <tr>
-                              <th rowspan="2">Place</th>
-                              <th colspan="3">State of Charge</th>
-                              <th colspan="3">Meter Reading</th>
-                            </tr>
-                            <tr>
-                              <th>Opening SOC</th>
-                              <th>Closing SOC</th>
-                              <th>Consumed SOC</th>
-                              <th>Opening KM</th>
-                              <th>Closing KM</th>
-                              <th>Covered KM</th>
-                            </tr>
-                            <tr>
-                              <td>{{ form.routeDepot }}</td>
-                              <td>{{ form.osoc }}</td>
-                              <td></td>
-                              <td></td>
-                              <td>{{ form.omr }}</td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                          </table>
-
-                          <!-- Route Trip Particulars -->
-                          <table class="tbl">
-                            <tr>
-                              <th colspan="7">ROUTE TRIP PARTICULARS</th>
-                            </tr>
-                            <tr>
-                              <th>Route No</th>
-                              <th>Trip</th>
-                              <th>From</th>
-                              <th>To</th>
-                              <th>Arrival Time</th>
-                              <th>Departure Time</th>
-                              <th>Booking Asst Signature</th>
-                            </tr>
-
-                            <!-- 8 empty rows -->
-                            <tr>
-                              <td rowspan="8">{{ form.routeNo }}</td>
-                              <td>1</td>
-                              <td>{{ form.routeDepot }}</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>2</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>3</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>4</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>5</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>6</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>7</td>
-                              <td>{{ form.routeEnd }}</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>8</td>
-                              <td>{{ form.routeStart }}</td>
-                              <td>{{ form.routeDepot }}</td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                          </table>
-
-                          <!-- Earnings -->
-                          <table class="tbl">
-                            <tr>
-                              <th colspan="11">EARNING PARTICULARS</th>
-                            </tr>
-                            <tr>
-                              <th>Chalo Way Bill No</th>
-                              <th>Chalo Ticket Count</th>
-                              <th>Total Pass Count</th>
-                              <th>Chalo Ticket Amount</th>
-                              <th>Phone Pe</th>
-                              <th>Cash Collection</th>
-                              <th>Wallet Card</th>
-                              <th>Card Recharge</th>
-                              <th>Mobile Pass</th>
-                              <th>Additional Amount Deposited</th>
-                              <th>Total Amount Deposited</th>
-                            </tr>
-                            <tr>
-                              <td style="height:18px"></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                          </table>
-
-                          <!-- Deductions -->
-                          <table class="tbl">
-                            <tr>
-                              <th colspan="6">TOTAL DEDUCTIONS</th>
-                            </tr>
-                            <tr>
-                              <th>Trip Allowance</th>
-                              <th>GMC Parking</th>
-                              <th>Total Deduction</th>
-                              <th>Net Amount Deposited After Deductions</th>
-                              <th>Fixed Target</th>
-                              <th>Balance</th>
-                            </tr>
-                            <tr>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td>7000</td>
-                              <td></td>
-                            </tr>
-                          </table>
-
-                          <!-- Remarks -->
-                          <table class="tbl">
-                            <tr>
-                              <th>REMARKS</th>
-                            </tr>
-                            <tr>
-                              <td style="height:42px"></td>
-                            </tr>
-                          </table>
-
-                          <br />
-                        <br /><br />
-                        <br />
-                          <!-- Signatures -->
-                          <table class="tbl no-border">
-                            <tr>
-                              <td class="center" style="width: 33%" style="font-size: 11px;">
-                                SIGNATURE OF THE CASHIER<br>
-                                PM e-bus sewa<br>
-                                Rupnagar, Guwahati-32
-                              </td>
-                              <td class="center" style="width: 33%" style="font-size: 11px;">
-                                SIGNATURE OF THE AUDITOR<br>
-                                PM e-bus sewa<br>
-                                Rupnagar, Guwahati-32
-                              </td>
-                              <td class="center" style="width: 33%" style="font-size: 11px;">
-                                SIGNATURE OF THE OPERATION MANAGER<br>
-                                PM e-bus sewa<br>
-                                Rupnagar, Guwahati-32
-                              </td>
-                            </tr>
-                          </table>
-
-                        </div>
-                        </div>
-
-
-                        
                         <!-- <div class="pdf-header py-3">
                           <div class="sign-left">
                             Outsider Skaplink technologies Pvt Ltd
@@ -359,162 +389,305 @@
             <div class="row">
               <div class="col-md-6 pt-3">
                 <label>Bus Name</label>
-                <input type="text" class="form-control" [(ngModel)]="busDetails.busName" name="busName" readonly />
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="busDetails.busName"
+                  name="busName"
+                  readonly
+                />
               </div>
 
-
-
-
               <div class="col-md-6 pt-3">
-                <label>Route No.
-                </label>
-                <input type="text" class="form-control" [(ngModel)]="form.routeNo" readonly />
+                <label>Route No. </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="form.routeNo"
+                  readonly
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Conductor Name</label>
-                <input type="text" class="form-control" [(ngModel)]="busDetails.conductorName" name="conductorName"
-                  readonly />
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="busDetails.conductorName"
+                  name="conductorName"
+                  readonly
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Timesheet No. </label>
-                <input type="number" class="form-control" [(ngModel)]="form.timesheetNo" name="timesheetNo" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.timesheetNo"
+                  name="timesheetNo"
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Start time. </label>
-                <input type="time" class="form-control" [(ngModel)]="form.startTime" name="startTime" />
+                <input
+                  type="time"
+                  class="form-control"
+                  [(ngModel)]="form.startTime"
+                  name="startTime"
+                />
               </div>
-
-
 
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
-                <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
-                  name="omr" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.omr"
+                  (change)="calculateTotalOperated()"
+                  name="omr"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>CMR Closing Km</label>
-                <input type="number" class="form-control" [(ngModel)]="form.cmr" (change)="calculateTotalOperated()"
-                  name="cmr" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.cmr"
+                  (change)="calculateTotalOperated()"
+                  name="cmr"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Total Km Operated </label>
-                <input type="number" class="form-control" [(ngModel)]="form.totalOperated" name="totalOperated"
-                  readonly />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.totalOperated"
+                  name="totalOperated"
+                  readonly
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Opening SOC %</label>
-                <input type="number" class="form-control" [(ngModel)]="form.osoc" (change)="calculateTotalCosumed()"
-                  name="osoc" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.osoc"
+                  (change)="calculateTotalCosumed()"
+                  name="osoc"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Closing SOC %</label>
-                <input type="number" class="form-control" [(ngModel)]="form.csoc" (change)="calculateTotalCosumed()"
-                  name="csoc" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.csoc"
+                  (change)="calculateTotalCosumed()"
+                  name="csoc"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Consumed SOC %</label>
-                <input type="number" class="form-control" [(ngModel)]="form.consumedSOC" name="consumedSOC" readonly />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.consumedSOC"
+                  name="consumedSOC"
+                  readonly
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Targeted Trip Round</label>
-                <input type="number" class="form-control" [(ngModel)]="form.targetedTrip" name="targetedTrip" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.targetedTrip"
+                  name="targetedTrip"
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>No Of Trip</label>
-                <input type="number" class="form-control" [(ngModel)]="form.noOfTrip" name="noOfTrip" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.noOfTrip"
+                  name="noOfTrip"
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Chalo Machine No.</label>
-                <input type="text" class="form-control" [(ngModel)]="form.chaloMachineNo" name="chaloMachineNo" />
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="form.chaloMachineNo"
+                  name="chaloMachineNo"
+                />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Way Bill no. </label>
-                <input type="text" class="form-control" [(ngModel)]="form.wayBillNo" name="wayBillNo" />
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="form.wayBillNo"
+                  name="wayBillNo"
+                />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Challan Deposited (in Rs.) </label>
-                <input type="number" class="form-control" [(ngModel)]="form.challanDeposited"
-                  (change)="calculateAmount()" name="challanDeposited" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.challanDeposited"
+                  (change)="calculateAmount()"
+                  name="challanDeposited"
+                />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Wallet Card </label>
-                <input type="number" class="form-control" [(ngModel)]="form.walletCard" (change)="calculateAmount()"
-                  name="walletCard" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.walletCard"
+                  (change)="calculateAmount()"
+                  name="walletCard"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Mobile Pass </label>
-                <input type="number" class="form-control" [(ngModel)]="form.mobilePass" (change)="calculateAmount()"
-                  name="mobilePass" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.mobilePass"
+                  (change)="calculateAmount()"
+                  name="mobilePass"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Student Mpass </label>
-                <input type="number" class="form-control" [(ngModel)]="form.studentMpass" (change)="calculateAmount()"
-                  name="studentMpass" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.studentMpass"
+                  (change)="calculateAmount()"
+                  name="studentMpass"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Scan & Pay </label>
-                <input type="number" class="form-control" [(ngModel)]="form.scanPay" (change)="calculateAmount()"
-                  name="scanPay" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.scanPay"
+                  (change)="calculateAmount()"
+                  name="scanPay"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Unprinted Ticiket</label>
-                <input type="number" class="form-control" [(ngModel)]="form.unprintedTiciket"
-                  (change)="calculateAmount()" name="unprintedTiciket" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.unprintedTiciket"
+                  (change)="calculateAmount()"
+                  name="unprintedTiciket"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Card Recharge</label>
-                <input type="number" class="form-control" [(ngModel)]="form.cardRecharge" (change)="calculateAmount()"
-                  name="cardRecharge" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.cardRecharge"
+                  (change)="calculateAmount()"
+                  name="cardRecharge"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Phone Pe</label>
-                <input type="number" class="form-control" [(ngModel)]="form.phonePe" (change)="calculateAmount()"
-                  name="phonePe" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.phonePe"
+                  (change)="calculateAmount()"
+                  name="phonePe"
+                />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Basistha Parking (GMC)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.basisthaParking"
-                  (change)="calculateAmount()" name="basisthaParking" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.basisthaParking"
+                  (change)="calculateAmount()"
+                  name="basisthaParking"
+                />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Trip Allowance ( in Rs)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.tripAllowance" (change)="calculateAmount()"
-                  name="tripAllowance" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.tripAllowance"
+                  (change)="calculateAmount()"
+                  name="tripAllowance"
+                />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Net Amt deposited in WaySide Cahier</label>
-                <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
-                  name="netAmountDeposited" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.netAmountDeposited"
+                  name="netAmountDeposited"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Trageted Earning</label>
-                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.tragetedEarning"
+                  name="tragetedEarning"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Amount to be deposited</label>
-                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited"
-                  name="amountToBeDeposited" />
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.amountToBeDeposited"
+                  name="amountToBeDeposited"
+                />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
-                <input type="time" class="form-control" [(ngModel)]="form.stopTime" name="stopTime" />
+                <input
+                  type="time"
+                  class="form-control"
+                  [(ngModel)]="form.stopTime"
+                  name="stopTime"
+                />
               </div>
               <div class="col-md-4 pt-3">
                 <label>Status</label>
-                <select class="form-control" [(ngModel)]="form.currentStatus" name="status">
+                <select
+                  class="form-control"
+                  [(ngModel)]="form.currentStatus"
+                  name="status"
+                >
                   <option value="running">Running</option>
                   <option value="still">Still</option>
                   <option value="idle">Idle</option>
@@ -523,27 +696,42 @@
               </div>
               <div class="col-md-8 pt-3">
                 <label>Remarks</label>
-                <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="form.remarks"
+                  name="remarks"
+                />
               </div>
               <div class="col-md-12 pt-3">
-
-
-
                 <div class="text-center p-3">
-                  <button class="btn btn-info mr-2" (click)="openPreview()" data-toggle="modal"
-                    data-target="#exampleModal">
+                  <button
+                    class="btn btn-info mr-2"
+                    (click)="openPreview()"
+                    data-toggle="modal"
+                    data-target="#exampleModal"
+                  >
                     Print Opening Log Sheet
                   </button>
-                  <button type="button" class="btn btn-success text-center" (click)="saveData()" data-dismiss="modal"
-                    *ngIf="formtype !== 'update'">
+                  <button
+                    type="button"
+                    class="btn btn-success text-center"
+                    (click)="saveData()"
+                    data-dismiss="modal"
+                    *ngIf="formtype !== 'update'"
+                  >
                     Save
                   </button>
-                  <button type="button" class="btn btn-success text-center" (click)="updateData()" data-dismiss="modal"
-                    *ngIf="formtype == 'update'">
+                  <button
+                    type="button"
+                    class="btn btn-success text-center"
+                    (click)="updateData()"
+                    data-dismiss="modal"
+                    *ngIf="formtype == 'update'"
+                  >
                     Update and Fininsh Trip
                   </button>
                 </div>
-
               </div>
             </div>
           </div>
