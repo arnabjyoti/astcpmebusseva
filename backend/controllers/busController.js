@@ -659,18 +659,51 @@ getConductor(req, res) {
     }
   },
 
-  saveDailyUpdates(req, res) {
+  async saveDailyUpdates(req, res) {
+  try {
     let data = req.body.requestObject;
     data.status = "Active";
-    dailyUpdatesModel
-      .create(data)
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  },
+
+    // 1️⃣ Get last timesheetNo
+    const lastRecord = await dailyUpdatesModel.findOne({
+      where: {
+        timesheetNo: { [require('sequelize').Op.ne]: null }
+      },
+      order: [['id', 'DESC']],
+      attributes: ['timesheetNo']
+    });
+
+    let nextNumber = 1;
+    const prefix = 'ASTC-SKAP-';
+
+    if (lastRecord && lastRecord.timesheetNo) {
+      const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
+      const parts = lastNo.split('-');
+      const num = parseInt(parts[parts.length - 1], 10);
+
+      if (!isNaN(num)) {
+        nextNumber = num + 1;
+      }
+    }
+
+    // 2️⃣ Set new timesheet number
+    data.timesheetNo = prefix + nextNumber;
+
+    // 3️⃣ Insert record
+    const response = await dailyUpdatesModel.create(data);
+
+    return res.status(200).send({
+      message: "Success",
+      id: response.id,
+      timesheetNo: data.timesheetNo
+    });
+
+  } catch (err) {
+    console.log("err", err);
+    return res.status(500).send({ message: "Error saving data" });
+  }
+},
+
 
   updateDailyUpdates(req, res) {
     let { requestObject, id } = req.body;
@@ -774,14 +807,23 @@ SELECT
     bus.busName,
     bus.busNo,
     bus.baseDepot,
-    bus.conductorName,
-    bus.conductorContactNo,
-    bus.conductorId,
-    bus.driverName,
-    bus.driverContactNo,
+    -- bus.conductorName,
+    -- bus.conductorContactNo,
+    -- bus.conductorId,
+    -- bus.driverName,
+    -- bus.driverContactNo,
     bus.status,
     bus.createdAt,
     bus.updatedAt,
+
+
+    cm.conductor_name as conductorName,
+    cm.conductor_id as conductorId,
+    cm.contact_no as conductorContactNo,
+    
+    dm.driver_name as driverName,
+    dm.contact_no as driverContactNo,
+    dm.driver_id as driverId,
 
     -- Route fields
     routes.id AS routeId,
@@ -805,6 +847,10 @@ JOIN busRoutesMasters AS routes
 
 LEFT JOIN conductorMasters AS cm
     ON cm.id = bus.conductorId
+
+
+LEFT JOIN driverMasters as dm
+    ON bus.driverId = dm.id
 
 LEFT JOIN dailyUpdates AS du
     ON du.busId = bus.id
@@ -868,11 +914,26 @@ ORDER BY bus.id DESC;
     SELECT 
     busMasters.id,
     busMasters.busName,
+    busMasters.allotedRouteNo,
+    busMasters.busNo,
+    busMasters.baseDepot,
+    -- busMasters.conductorName,
+    -- busMasters.conductorContactNo,
+    -- busMasters.driverName,
+    -- busMasters.driverContactNo,
     busMasters.status,
     busMasters.createdAt,
     busMasters.updatedAt,
-    busMasters.driverId,
-    busMasters.conductorId,
+    -- busMasters.driverId,
+    --busMasters.conductorId,
+
+    conductorMasters.conductor_name as conductorName,
+    conductorMasters.conductor_id as conductorId,
+    conductorMasters.contact_no as conductorContactNo,
+    
+    driverMasters.driver_name as driverName,
+    driverMasters.contact_no as driverContactNo,
+    driverMasters.driver_id as driverId,
     
     busRoutesMasters.routeNo AS routeNo,
     busRoutesMasters.start AS routeStart,
@@ -894,7 +955,14 @@ ORDER BY bus.id DESC;
     ) AS lastCmr
 FROM busMasters
 LEFT JOIN busRoutesMasters 
-    ON busMasters.allotedRouteNo = busRoutesMasters.id
+  ON busMasters.allotedRouteNo = busRoutesMasters.id
+
+LEFT JOIN conductorMasters 
+  ON busMasters.conductorId = conductorMasters.id
+
+  LEFT JOIN driverMasters 
+  ON busMasters.driverId = driverMasters.id
+
 WHERE busMasters.id = :busId 
 AND busMasters.status = 'Active'
 LIMIT 1;

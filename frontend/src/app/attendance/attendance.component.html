@@ -1,0 +1,104 @@
+<!-- Loading starts -->
+<!-- <div id="loading-wrapper" *ngIf="isLodaing">
+  <ngx-spinner bdColor="rgba(0,0,0,0.9)" type="ball-clip-rotate"></ngx-spinner>
+</div> -->
+
+<!-- Loading ends -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Attendance</h1>
+        </div>
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content card p-2">
+    <div class="container-fluid">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        
+
+        
+      </ul>
+
+      <div class="tab-content" id="myTabContent">
+
+
+        <div>
+          <div class="row">
+            <div class="col-lg-12 col-12">
+              <div class="d-flex gap-2 p-2 justify-content-end">
+                <input
+                  class="form-control col-md-3"
+                  type="month"
+                  name="attendanceMonth"
+                  [(ngModel)]="attendanceMonth"
+                  id=""
+                />
+
+                <button
+                  class="btn btn-primary"
+                  (click)="getConductorAttendance()"
+                >
+                  Get Attendance
+                </button>
+                &nbsp;
+                <button class="btn btn-success">Download Report</button>
+              </div>
+              <div>
+                <div class="table-responsive attendance-table">
+                  <table class="table table-bordered table-sm text-center">
+                    <thead>
+                      <tr>
+                        <th class="sticky-col">Conductor Name</th>
+                        <th *ngFor="let day of daysInMonth">
+                          {{ day | date : "dd" }}
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr *ngFor="let data of conductorAttendance">
+                        <td class="sticky-col fw-semibold text-start">
+                          {{ data.conductor }}
+                        </td>
+
+                        <td
+                          *ngFor="let day of daysInMonth"
+                          [ngClass]="{
+                            present: data.attendance[day] === 'P',
+                            absent: data.attendance[day] === 'A'
+                          }"
+                        >
+                          {{ data.attendance[day] || "A" }}
+                        </td>
+                      </tr>
+                    </tbody>
+
+                    <div
+                      class="text-center"
+                      *ngIf="!conductorAttendance.length"
+                    >
+                      <div class="text-center p-3">
+                        <h2>Select a month to get data</h2>
+                      </div>
+                    </div>
+                  </table>
+                </div>
+
+              
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

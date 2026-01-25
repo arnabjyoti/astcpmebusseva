@@ -4,9 +4,7 @@
   <!-- Left navbar links -->
   <ul class="navbar-nav">
     <li class="nav-item">
-      <a class="nav-link" data-widget="pushmenu" href="#" role="button"
-        ><i class="fas fa-stream"></i
-      ></a>
+      <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-stream"></i></a>
     </li>
     <li class="nav-item d-none d-sm-inline-block">
       <a routerLink="/home" class="nav-link">Home</a>
@@ -14,8 +12,7 @@
     <li class="nav-item d-none d-sm-inline-block">
       <a routerLink="/profile" class="nav-link">
         <i class="nav-icon fas fa-user-circle"> </i>
-        {{ user.f_name | titlecase }} {{ user.l_name | titlecase }}</a
-      >
+        {{ user.f_name | titlecase }} {{ user.l_name | titlecase }}</a>
     </li>
   </ul>
 
@@ -27,9 +24,7 @@
     <!-- Profile Dropdown Menu -->
     <li class="nav-item dropdown" style="color:aliceblue">
       <!-- <a href="#" class="dropdown-item"> -->
-      <a class="dropdown-item" (click)="signout()"
-        ><i class="fas fa-power-off" style="color:aliceblue"></i
-      ></a>
+      <a class="dropdown-item" (click)="signout()"><i class="fas fa-power-off" style="color:aliceblue"></i></a>
     </li>
   </ul>
 </nav>
@@ -40,13 +35,9 @@
 <aside class="main-sidebar elevation-4 sidebar-dark-teal">
   <!-- Brand Logo -->
   <h3><a href="#" class="brand-link">
-    <img
-      src="../../../assets/image/login/astc.png"
-      alt="lakhimi Logo"
-      class="brand-image"
-    />
-    <span class="brand-text font-weight-light">ASTC PMe BUS SEVA</span>
-  </a>
+      <img src="../../../assets/image/login/astc.png" alt="lakhimi Logo" class="brand-image" />
+      <span class="brand-text font-weight-light">ASTC PMe BUS SEVA</span>
+    </a>
   </h3>
   <!-- Sidebar -->
   <div class="sidebar os-theme-dark">
@@ -54,29 +45,42 @@
 
     <!-- Sidebar Menu -->
     <nav class="mt-2">
-      <ul
-        class="nav nav-pills nav-sidebar flex-column text-sm"
-        data-widget="treeview"
-        role="menu"
-        data-accordion="true"
-      >
+      <ul class="nav nav-pills nav-sidebar flex-column text-sm" data-widget="treeview" role="menu"
+        data-accordion="true">
         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
 
-        <li class="nav-item" *ngFor="let item of menuItems">
-          <a
-            [routerLink]="item.routerLink"
-            class="nav-link"
-            routerLinkActive="active"
-          >
+        <li class="nav-item" *ngFor="let item of menuItems"
+          [ngClass]="{ 'has-treeview': item.children, 'menu-open': item.open }">
+          <!-- Parent menu -->
+          <a href="#" class="nav-link" [ngClass]="{ active: item.open }" 
+            *ngIf="item.children">
             <i class="nav-icon" [class]="item.icon"></i>
             <p>
               {{ item.label }}
+              <i class="right fas fa-angle-left"></i>
             </p>
           </a>
+
+          <!-- Normal single menu -->
+          <a *ngIf="!item.children" [routerLink]="item.routerLink" class="nav-link" routerLinkActive="active">
+            <i class="nav-icon" [class]="item.icon"></i>
+            <p>{{ item.label }}</p>
+          </a>
+
+          <!-- Sub menu -->
+          <ul class="nav nav-treeview" *ngIf="item.children">
+            <li class="nav-item" *ngFor="let child of item.children">
+              <a [routerLink]="child.routerLink" class="nav-link" routerLinkActive="active">
+                <i class="nav-icon" [class]="child.icon"></i>
+                <p>{{ child.label }}</p>
+              </a>
+            </li>
+          </ul>
         </li>
 
-       
+
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

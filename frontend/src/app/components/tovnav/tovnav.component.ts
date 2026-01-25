@@ -77,10 +77,34 @@ export class TovnavComponent implements OnInit {
           routerLink: '/bus-routes',
         },
         {
-          label: 'Bus Staff',
-          icon: 'fas fa-users',
-          routerLink: '/driver-conductor',
+          label: 'Attendance',
+          icon: 'fas fa-user-clock',
+          routerLink: '/attendance',
         },
+        // {
+        //   label: 'Bus Staff',
+        //   icon: 'fas fa-user-clock',
+        //   routerLink: '/driver-conductor',
+        // },
+
+
+
+        {
+    label: 'Staff Management',
+    icon: 'fas fa-user',
+    children: [
+      {
+        label: 'Drivers',
+        routerLink: '/driver',
+        icon: 'far fa-circle'
+      },
+      {
+        label: 'Conductors',
+        routerLink: '/conductor',
+        icon: 'far fa-circle'
+      },
+    ]
+  },
         // {
         //   label: 'Trips',
         //   icon: 'fas fa-suitcase',
@@ -169,5 +193,14 @@ export class TovnavComponent implements OnInit {
   };
 
 
+toggleMenu(item: any) {
+  this.menuItems.forEach((i: any) => {
+    if (i !== item) {
+      i.open = false;
+    }
+  });
+
+  item.open = !item.open;
+}
 
 }
