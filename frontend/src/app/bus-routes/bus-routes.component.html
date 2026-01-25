@@ -9,7 +9,7 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0">Bus Routes</h1>
+          <h1 class="m-0">Vehicle Routes</h1>
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
@@ -41,6 +41,7 @@
                   <th>Via</th>
                   <th>Route No</th>
                   <th>Distance</th>
+                  <th>Targeted Earnings</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -54,6 +55,7 @@
                   <td>{{ data.via }}</td>
                   <td>{{ data.routeNo }}</td>
                   <td>{{ data.routeDistance }}</td>
+                  <td>{{ 6500 }}</td>
                   <td>
                     <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
                     <span class="badge badge-danger" *ngIf="data.status!='Active'">Inactive</span>
@@ -155,6 +157,11 @@
               <div class="col-md-6 pt-2">
                 <label>End → Depot Distance</label>
                 <input class="form-control" [(ngModel)]="busRoutes.end_to_depot_distance">
+              </div>
+
+              <div class="col-md-6 pt-2">
+                <label>Estimated Collection</label>
+                <input class="form-control" [(ngModel)]="busRoutes.depot_to_start_distance">
               </div>
 
               <div class="col-md-6 pt-2">
