@@ -86,7 +86,7 @@
                             <table class="tbl">
                               <tr>
                                 <td style="width: 17%">LOG SHEET NO</td>
-                                <td colspan="5"></td>
+                                <td colspan="5" class="text-start">{{ form.timesheetNo }}</td>
                               </tr>
                               <tr>
                                 <th colspan="6" class="center">
@@ -111,7 +111,7 @@
                                 <td>{{ busDetails.busNo }}</td>
                                 <td>{{ form.routeNo }}</td>
                                 <td>
-                                  {{ form.routeStart }} - {{ form.routeEnd }}
+                                  {{ form.routeName }}
                                 </td>
                                 <td>
                                   
@@ -422,10 +422,11 @@
               <div class="col-md-4 pt-3">
                 <label>Timesheet No. </label>
                 <input
-                  type="number"
+                  type="text"
                   class="form-control"
                   [(ngModel)]="form.timesheetNo"
                   name="timesheetNo"
+                  readonly
                 />
               </div>
 

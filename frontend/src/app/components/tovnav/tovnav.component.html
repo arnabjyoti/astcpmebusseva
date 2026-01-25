@@ -112,6 +112,22 @@
             <i class="nav-icon" [class]="item.icon"></i>
             <p>{{ item.label }}</p>
           </a>
+
+          <!-- Normal single menu -->
+          <!-- <a *ngIf="!item.children" [routerLink]="item.routerLink" class="nav-link" routerLinkActive="active">
+            <i class="nav-icon" [class]="item.icon"></i>
+            <p>{{ item.label }}</p>
+          </a> -->
+
+          <!-- Sub menu -->
+          <ul class="nav nav-treeview" *ngIf="item.children">
+            <li class="nav-item" *ngFor="let child of item.children">
+              <a [routerLink]="child.routerLink" class="nav-link" routerLinkActive="active">
+                <i class="nav-icon" [class]="child.icon"></i>
+                <p>{{ child.label }}</p>
+              </a>
+            </li>
+          </ul>
         </li>
       </ul>
     </nav>

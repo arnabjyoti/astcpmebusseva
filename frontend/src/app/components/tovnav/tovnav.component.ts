@@ -167,10 +167,59 @@ export class TovnavComponent implements OnInit {
           routerLink: '/bus-routes',
         },
         {
-          label: 'Vehicle Staff',
-          icon: 'fas fa-users',
-          routerLink: '/driver-conductor',
+          label: 'Attendance',
+          icon: 'fas fa-user-clock',
+          routerLink: '/attendance',
         },
+        // {
+        //   label: 'Bus Staff',
+        //   icon: 'fas fa-user-clock',
+        //   routerLink: '/driver-conductor',
+        // },
+
+
+
+        {
+    label: 'Staff Management',
+    icon: 'fas fa-user',
+    children: [
+      {
+        label: 'Drivers',
+        routerLink: '/driver',
+        icon: 'far fa-circle'
+      },
+      {
+        label: 'Conductors',
+        routerLink: '/conductor',
+        icon: 'far fa-circle'
+      },
+    ]
+  },
+        // {
+        //   label: 'Trips',
+        //   icon: 'fas fa-suitcase',
+        //   routerLink: '/trips',
+        // },
+        // {
+        //   label: 'Arrival',
+        //   icon: 'fas fa-plane-arrival',
+        //   routerLink: '/arrival',
+        // },
+        // {
+        //   label: 'Departure',
+        //   icon: 'fas fa-plane-departure',
+        //   routerLink: '/departure',
+        // },
+        // {
+        //   label: 'Bus Info',
+        //   icon: 'fas fa-bus',
+        //   routerLink: '/businfo',
+        // },
+        // {
+        //   label: 'Report',
+        //   icon: 'fas fa-book',
+        //   routerLink: '/report',
+        // },
         {
           label: 'Earnings Book',
           icon: 'fas fa-book',
@@ -228,4 +277,16 @@ export class TovnavComponent implements OnInit {
     // Reinitialize search data after menu items are set
     this.initializeSearchData();
   };
+
+
+toggleMenu(item: any) {
+  this.menuItems.forEach((i: any) => {
+    if (i !== item) {
+      i.open = false;
+    }
+  });
+
+  item.open = !item.open;
+}
+
 }

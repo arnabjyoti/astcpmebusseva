@@ -139,11 +139,12 @@ module.exports = {
       const capitalizeFirst = (str) =>
         str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-      // Format fields
-      const depot = capitalizeFirst(data.depot);
-      const start = capitalizeFirst(data.start);
-      const end = capitalizeFirst(data.end);
-      const via = capitalizeFirst(data.via);
+    // Format fields
+    const depot = capitalizeFirst(data.depot);
+    const start = capitalizeFirst(data.start);
+    const end = capitalizeFirst(data.end);
+    const via = capitalizeFirst(data.via);
+    const routeName = capitalizeFirst(data.routeName);
 
       // Check duplicate routeNo
       const exists = await busRoutesModel.findOne({
@@ -161,6 +162,7 @@ module.exports = {
         end,
         via,
         routeNo: data.routeNo,
+        routeName,
         routeDistance: data.routeDistance,
         depot_to_start_distance: data.depot_to_start_distance,
         end_to_depot_distance: data.end_to_depot_distance,
@@ -227,20 +229,24 @@ module.exports = {
       const data = req.body.requestObject;
       console.log("Delete Route:", data);
 
-      busRoutesModel
-        .update({ status: "Inactive" }, { where: { id: data.id } })
-        .then(() => {
-          return res.status(200).json({ message: "Success" });
-        })
-        .catch((err) => {
-          console.error("Delete error:", err);
-          return res.status(500).json({ message: "Failed to delete route" });
-        });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Server error" });
-    }
-  },
+    busRoutesModel.update(
+      { status: "Inactive" },
+      { where: { id: data.id } }
+    )
+    .then(() => {
+      return res.status(200).json({ message: "Success" });
+    })
+    .catch((err) => {
+      console.error("Delete error:", err);
+      return res.status(500).json({ message: "Failed to delete route" });
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+},
+
 
   async getRouteSuggestions(req, res) {
     try {
@@ -653,18 +659,51 @@ getConductor(req, res) {
     }
   },
 
-  saveDailyUpdates(req, res) {
+  async saveDailyUpdates(req, res) {
+  try {
     let data = req.body.requestObject;
     data.status = "Active";
-    dailyUpdatesModel
-      .create(data)
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  },
+
+    // 1️⃣ Get last timesheetNo
+    const lastRecord = await dailyUpdatesModel.findOne({
+      where: {
+        timesheetNo: { [require('sequelize').Op.ne]: null }
+      },
+      order: [['id', 'DESC']],
+      attributes: ['timesheetNo']
+    });
+
+    let nextNumber = 1;
+    const prefix = 'ASTC-SKAP-';
+
+    if (lastRecord && lastRecord.timesheetNo) {
+      const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
+      const parts = lastNo.split('-');
+      const num = parseInt(parts[parts.length - 1], 10);
+
+      if (!isNaN(num)) {
+        nextNumber = num + 1;
+      }
+    }
+
+    // 2️⃣ Set new timesheet number
+    data.timesheetNo = prefix + nextNumber;
+
+    // 3️⃣ Insert record
+    const response = await dailyUpdatesModel.create(data);
+
+    return res.status(200).send({
+      message: "Success",
+      id: response.id,
+      timesheetNo: data.timesheetNo
+    });
+
+  } catch (err) {
+    console.log("err", err);
+    return res.status(500).send({ message: "Error saving data" });
+  }
+},
+
 
   updateDailyUpdates(req, res) {
     let { requestObject, id } = req.body;
@@ -901,6 +940,7 @@ ORDER BY bus.id DESC;
     busRoutesMasters.end AS routeEnd,
     busRoutesMasters.via AS routeVia,
     busRoutesMasters.depot AS routeDepot,
+    busRoutesMasters.depot AS routeName,
     busRoutesMasters.routeDistance AS routeDistance,
     -- 🔹 Last CMR from dailyUpdates
     COALESCE(

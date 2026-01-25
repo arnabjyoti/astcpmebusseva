@@ -1,0 +1,13 @@
+.present{
+    background-color: green;
+    color: white;
+}
+/* .absent{
+    background-color: red;
+    color: white;
+} */
+
+.exporting .no-export {
+    display: none !important;
+  }
+  
