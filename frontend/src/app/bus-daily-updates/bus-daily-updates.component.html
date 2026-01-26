@@ -22,149 +22,145 @@
         <div class="container-fluid mt-4">
 
             <div class="float-right">
-                <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download" style="color:aliceblue"></i
-                    > Download CSV</button> &nbsp;&nbsp;&nbsp;
-                <button class="btn btn-primary mb-3" (click)="redirectTo()"> <i class="fas fa-plus" style="color:aliceblue"></i
-                    >  Add Data</button>
+                <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
+                        style="color:aliceblue"></i> Download CSV</button> &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-primary mb-3" (click)="redirectTo()"> <i class="fas fa-plus"
+                        style="color:aliceblue"></i> Add Data</button>
                 <!-- <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#formModal">Add Data</button> -->
             </div>
 
             <div class="d-flex">
-                <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span class="px-2 d-flex align-items-center">to</span>
-                <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id=""> &nbsp;&nbsp;&nbsp;&nbsp;
-                <button class="btn btn-info" (click)="search()"> <i class="fas fa-search" style="color:aliceblue"></i
-                    >  Search</button>
+                <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span
+                    class="px-2 d-flex align-items-center">to</span>
+                <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id="">
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button class="btn btn-info" (click)="search()"> <i class="fas fa-search" style="color:aliceblue"></i>
+                    Search</button>
             </div>
-        
-           <div>
-            
-           </div>
+
+            <div>
+
+            </div>
             <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Driver Name</th>
-                        <th>Conductor Name</th>
-                        <th>Timesheet No</th>
-                        <th>Route No</th>
-                        <th>Start Time</th>
-                        <th>OMR Opening Km</th>
-                        <th>CMR Closing Km</th>
-                        <th>Total Km Operated </th>
-                        <th>Chalo Machine No</th>
-                        <th>No Of Trip</th>
-                        <th>Way Bill No</th>
-                        <th>Challan Deposited</th>
-                        <th>Wallet Card</th>
-                        <th>Mobile Pass</th>
-                        <th>Student Mpass</th>
-                        <th>Scan Pay</th>
+                <table class="table table-bordered table-striped table-hover table-sm text-nowrap" id="dataTable">
 
-                        <th>Unprinted Ticiket</th>
-                        <th>Card Recharge</th>
-                        <th>Phone Pe</th>
-                        <th>Total Earning </th>
-                        <th>Basistha Parking</th>
-                        <th>Trip Allowance</th>
-                        <th>Net Amount Deposited</th>
-                        <th>Trageted Earning</th>
-                        <th>Amount To Be Deposited</th>
-                        <th>End Time</th>
-                        <th>Status</th>
+                    <thead class="thead-dark">
+                        <tr class="text-center align-middle">
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Driver ID</th>
+                            <th>Conductor ID</th>
+                            <th>Timesheet No</th>
+                            <th>Route</th>
+                            <th>Start</th>
+                            <th>OMR</th>
+                            <th>CMR</th>
+                            <th>Total Km</th>
+                            <th>Trips</th>
+                            <th>Chalo Pax</th>
+                            <th>Chalo Tkt</th>
+                            <th>Chalo Amt (₹)</th>
+                            <th>Cash (₹)</th>
+                            <th>UPI (₹)</th>
+                            <th>Net Deposit (₹)</th>
+                            <th>Target (₹)</th>
+                            <th>To Deposit (₹)</th>
+                            <th>End</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
 
-                        <th>Remarks</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let data of dataList; let i = index">
-                        <td>{{ data.date }}</td>
-                        <td>{{ data.driverName }}</td>
-                        <td>{{ data.conductorName }}</td>
-                        <td>{{ data.timesheetNo }}</td>
-                        <td>{{ data.routeNo }}-{{ data.routeName }}</td>
-                        <td>{{ data.startTime }}</td>
-                        <td>{{ data.omr }}</td>
-                        <td>{{ data.cmr }}</td>
-                        <td>{{ data.totalOperated }}</td>
-                        <td>{{ data.chaloMachineNo }}</td>
-                        <td>{{ data.noOfTrip }}</td>
-                        <td>{{ data.wayBillNo }}</td>
-                        <td>{{ data.challanDeposited }}</td>
+                    <tbody>
+                        <tr *ngFor="let data of dataList; let i = index" class="align-middle">
 
-                        <td>{{ data.walletCard }}</td>
-                        <td>{{ data.mobilePass }}</td>
-                        <td>{{ data.studentMpass }}</td>
-                        <td>{{ data.scanPay }}</td>
+                            <td class="text-center">{{ i + 1 }}</td>
+                            <td class="text-center">{{ data.date }}</td>
 
-                        <td>{{ data.unprintedTiciket }}</td>
-                        <td>{{ data.cardRecharge }}</td>
-                        <td>{{ data.phonePe }}</td>
+                            <td>{{ data.driverName }}</td>
+                            <td>{{ data.conductorName }}</td>
 
-                        <td>
-                            {{getTotalEarn([data.challanDeposited, data.walletCard, data.mobilePass, data.studentMpass, data.scanPay, data.unprintedTiciket, data.cardRecharge, data.phonePe])}}
+                            <td class="text-center font-weight-bold">{{ data.timesheetNo }}</td>
 
-                            <!-- {{[data.challanDeposited, data.walletCard, data.mobilePass, data.studentMpass, data.scanPay, data.unprintedTiciket, data.cardRecharge, data.phonePe].map(item => Number(item)).reduce((acc, val) => acc + val, 0)}} -->
-                        </td>
+                            <td>{{ data.routeNo }} - {{ data.routeName }}</td>
 
+                            <td class="text-center">{{ data.startTime }}</td>
 
-                        <td>{{ data.basisthaParking }}</td>
-                        <td>{{ data.tripAllowance }}</td>
-                        <td>{{ data.netAmountDeposited }}</td>
-                        <td>{{ data.tragetedEarning }}</td>
-                        <td>{{ data.amountToBeDeposited }}</td>
-                        <td>{{ data.stopTime }}</td>
-                        <td>{{ data.currentStatus | titlecase }}</td>
-                        <td>{{ data.remarks }}</td>
-                        <td>
-                            <button class="btn btn-default" data-toggle="modal" data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td class="text-right">{{ data.omr }}</td>
+                            <td class="text-right">{{ data.cmr }}</td>
+                            <td class="text-right font-weight-bold">{{ data.totalOperated }}</td>
+
+                            <td class="text-center">{{ data.noOfTrip }}</td>
+                            <td class="text-center">{{ data.chaloPassengersNo }}</td>
+                            <td class="text-center">{{ data.chaloTicketNo }}</td>
+
+                            <td class="text-right">{{ data.chaloTicketAmount }}</td>
+                            <td class="text-right">{{ data.cashCollection }}</td>
+                            <td class="text-right">{{ data.upi }}</td>
+
+                            <td class="text-right font-weight-bold text-success">{{ data.netAmountDeposited }}</td>
+                            <td class="text-right">{{ data.tragetedEarning }}</td>
+                            <td class="text-right text-danger">{{ data.amountToBeDeposited }}</td>
+
+                            <td class="text-center">{{ data.stopTime }}</td>
+
+                            <td class="text-center">
+                                <span class="badge" [ngClass]="{
+                                    'badge-success': data.currentStatus === 'approved',
+                                    'badge-warning': data.currentStatus === 'pending',
+                                    'badge-danger': data.currentStatus === 'rejected'
+                                }">
+                                    {{ data.currentStatus | titlecase }}
+                                </span>
+                            </td>
+
+                            <td class="text-truncate" style="max-width:150px" title="{{data.remarks}}">
+                                {{ data.remarks }}
+                            </td>
+
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-danger" data-toggle="modal"
+                                    data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
             </div>
-        
+
 
 
             <div class="modal fade" id="deleteModal" tabindex="-1">
                 <div class="modal-dialog modal-sm">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h2 class="modal-title">Confirmation Message</h2>
-                      <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                      >
-                        &times;
-                      </button>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Confirmation Message</h2>
+                            <button type="button" class="close" data-dismiss="modal">
+                                &times;
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h4>
+                                Are you sure ! You want to delete earning details?
+                                ?
+                            </h4>
+                            <button type="button" class="btn btn-primary float-sm-right"
+                                (click)="handleDeleteEarningDetails()" data-dismiss="modal">
+                                Yes
+                            </button>
+                            <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
+                                No
+                            </button>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                      <h4>
-                        Are you sure ! You want to delete earning details?
-                        ?
-                      </h4>
-                      <button
-                        type="button"
-                        class="btn btn-primary float-sm-right"
-                        (click)="handleDeleteEarningDetails()"
-                        data-dismiss="modal"
-                      >
-                        Yes
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-default float-sm-right"
-                        data-dismiss="modal"
-                      >
-                        No
-                      </button>
-                    </div>
-                  </div>
                 </div>
-              </div>
+            </div>
         </div>
-        
-        </section>
-        </div>
+
+    </section>
+</div>
