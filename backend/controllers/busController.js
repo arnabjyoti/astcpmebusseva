@@ -26,6 +26,7 @@ const config = require(__dirname + "/../config/config.json")[env];
 const { sequelize } = require("../models");
 const { log } = require("console");
 const conductor = require("../models/conductor");
+const e = require("express");
 
 module.exports = {
   upload_driver_image: multer({
@@ -188,6 +189,7 @@ module.exports = {
       const start = capitalizeFirst(data.start);
       const end = capitalizeFirst(data.end);
       const via = capitalizeFirst(data.via);
+      const routeName = capitalizeFirst(data.routeName);
 
       // Prevent duplicate routeNo on update
       const { Op } = require("sequelize");
@@ -210,9 +212,11 @@ module.exports = {
           end,
           via,
           routeNo: data.routeNo,
+          routeName,
           routeDistance: data.routeDistance,
           depot_to_start_distance: data.depot_to_start_distance,
           end_to_depot_distance: data.end_to_depot_distance,
+          estimated_collection: data.estimated_collection,
           status: data.status,
         },
         { where: { id: data.id } }
@@ -251,9 +255,9 @@ module.exports = {
 
   async getRouteSuggestions(req, res) {
     try {
-      const field = req.query.field; // depot | start | end | via | routeNo
+      const field = req.query.field; // depot | start | end | via | routeNo | routeName
 
-      if (!["depot", "start", "end", "via", "routeNo"].includes(field)) {
+      if (!["depot", "start", "end", "via", "routeNo", "routeName"].includes(field)) {
         return res.status(400).json({ message: "Invalid field" });
       }
 
@@ -1671,6 +1675,31 @@ END AS estimated_time,
     const today = new Date().toISOString().split("T")[0];
 
     try {
+
+      const todayEarning = await dailyUpdatesModel.sum('netAmountDeposited', {
+        where: {
+          date: today,
+        },
+      });
+
+      // Create yesterday's date in YYYY-MM-DD format
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const yyyy = yesterday.getFullYear();
+      const mm = String(yesterday.getMonth() + 1).padStart(2, '0');
+      const dd = String(yesterday.getDate()).padStart(2, '0');
+
+      const yesterdayDate = `${yyyy}-${mm}-${dd}`;
+
+      // Query
+      const yesterdayEarning = await dailyUpdatesModel.sum('netAmountDeposited', {
+        where: {
+          date: yesterdayDate
+        }
+      });
+
+
       const totalBus = await busMasterModel.count({
         where: {
           status: "Active",
@@ -1785,6 +1814,8 @@ END AS estimated_time,
       });
 
       res.status(200).send({
+        todayEarning,
+        yesterdayEarning,
         totalBus,
         totalDriver,
         totalConductor,

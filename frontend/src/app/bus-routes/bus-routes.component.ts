@@ -61,7 +61,14 @@ export class BusRoutesComponent {
         this.getBusRoutes();
         this.toastr.success("Bus route added successfully");
       },
-      () => this.toastr.error("Something went wrong")
+      (error) => {
+      if (error.status === 409) {
+        // 👇 message from backend
+        this.toastr.warning(error.error.message || "Route number already exists", "Duplicate Route");
+      } else {
+        this.toastr.error("Something went wrong", "Error");
+      }
+    }
     );
   };
 
@@ -96,7 +103,7 @@ export class BusRoutesComponent {
       if (field === 'end') this.endSuggestions = res;
       if (field === 'via') this.viaSuggestions = res;
       if (field === 'routeNo') this.routeNoSuggestions = res;
-      if (field === 'routeName') this.routeNoSuggestions = res;
+      if (field === 'routeName') this.routeNameSuggestions = res;
     });
   }
 
@@ -149,7 +156,14 @@ export class BusRoutesComponent {
         this.getBusRoutes();
         this.toastr.success("Bus route updated successfully");
       },
-      () => this.toastr.error("Something went wrong")
+      (error) => {
+      if (error.status === 409) {
+        // 👇 message from backend
+        this.toastr.warning(error.error.message || "Route number already exists", "Duplicate Route");
+      } else {
+        this.toastr.error("Something went wrong", "Error");
+      }
+    }
     );
   };
 

@@ -26,20 +26,15 @@ module.exports = (sequelize, type) => {
         conductorId: type.STRING,
 
 
+        chaloTicketNo: type.STRING,
+        chaloPassengersNo: type.STRING,
+        chaloTicketAmount: type.STRING,
+        cashCollection: type.STRING,
+        upi: type.STRING,
 
         chaloMachineNo: type.STRING,
         noOfTrip: type.STRING,
-        wayBillNo: type.STRING,
-        challanDeposited: type.STRING,
-        walletCard: type.STRING,
-        mobilePass: type.STRING,
-        studentMpass: type.STRING,
-        scanPay: type.STRING,
-        unprintedTiciket: type.STRING,
-        cardRecharge: type.STRING,
-        phonePe: type.STRING,
-        basisthaParking: type.STRING,
-        tripAllowance: type.STRING,
+        
         netAmountDeposited: type.STRING,
         tragetedEarning: type.STRING,
         amountToBeDeposited: type.STRING,

@@ -36,21 +36,12 @@
             </div>
 
             <!-- Modal -->
-            <div
-              class="modal fade"
-              id="exampleModal"
-              tabindex="-1"
-              aria-labelledby="exampleModalLabel"
-              aria-hidden="true"
-            >
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                   <div class="modal-body">
-                    <button
-                      class="btn btn-danger"
-                      (click)="downloadPdf()"
-                      *ngIf="showPreview"
-                    >
+                    <button class="btn btn-danger" (click)="downloadPdf()" *ngIf="showPreview">
                       Download PDF
                     </button>
                     <!-- PRINT AREA -->
@@ -65,10 +56,7 @@
                             <!-- Header -->
                             <div class="pdf-header py-3">
                               <div class="logo-left">
-                                <img
-                                  src="../../../assets/image/login/astc.png"
-                                  alt="Left Logo"
-                                />
+                                <img src="../../../assets/image/login/astc.png" alt="Left Logo" />
                               </div>
                               <!-- 
                         <div class="header-title">
@@ -76,10 +64,7 @@
                         </div> -->
 
                               <div class="logo-right">
-                                <img
-                                  src="../../../assets/image/logo.png"
-                                  alt="Right Logo"
-                                />
+                                <img src="../../../assets/image/logo.png" alt="Right Logo" />
                               </div>
                             </div>
 
@@ -114,7 +99,7 @@
                                   {{ form.routeName }}
                                 </td>
                                 <td>
-                                  
+
                                 </td>
                               </tr>
 
@@ -317,29 +302,17 @@
                             <!-- Signatures -->
                             <table class="tbl no-border">
                               <tr>
-                                <td
-                                  class="center"
-                                  style="width: 33%"
-                                  style="font-size: 11px"
-                                >
+                                <td class="center" style="width: 33%" style="font-size: 11px">
                                   SIGNATURE OF THE CASHIER<br />
                                   PM e-bus sewa<br />
                                   Rupnagar, Guwahati-32
                                 </td>
-                                <td
-                                  class="center"
-                                  style="width: 33%"
-                                  style="font-size: 11px"
-                                >
+                                <td class="center" style="width: 33%" style="font-size: 11px">
                                   SIGNATURE OF THE AUDITOR<br />
                                   PM e-bus sewa<br />
                                   Rupnagar, Guwahati-32
                                 </td>
-                                <td
-                                  class="center"
-                                  style="width: 33%"
-                                  style="font-size: 11px"
-                                >
+                                <td class="center" style="width: 33%" style="font-size: 11px">
                                   SIGNATURE OF THE OPERATION MANAGER<br />
                                   PM e-bus sewa<br />
                                   Rupnagar, Guwahati-32
@@ -389,347 +362,146 @@
             <div class="row">
               <div class="col-md-6 pt-3">
                 <label>Bus Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="busDetails.busName"
-                  name="busName"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="busDetails.busName" name="busName" readonly />
               </div>
 
               <div class="col-md-6 pt-3">
                 <label>Route No. </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.routeNo"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="form.routeNo" readonly />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Conductor Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="busDetails.conductorName"
-                  name="conductorName"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="busDetails.conductorName" name="conductorName"
+                  readonly />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Timesheet No. </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.timesheetNo"
-                  name="timesheetNo"
-                  readonly
-                />
+                <input type="text" class="form-control" [(ngModel)]="form.timesheetNo" name="timesheetNo" readonly />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Start time. </label>
-                <input
-                  type="time"
-                  class="form-control"
-                  [(ngModel)]="form.startTime"
-                  name="startTime"
-                />
+                <input type="time" class="form-control" [(ngModel)]="form.startTime" name="startTime" [readonly]="formtype === 'update'" />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.omr"
-                  (change)="calculateTotalOperated()"
-                  name="omr"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
+                  name="omr" [readonly]="formtype === 'update'" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>CMR Closing Km</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.cmr"
-                  (change)="calculateTotalOperated()"
-                  name="cmr"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.cmr" (change)="calculateTotalOperated()"
+                  name="cmr" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Total Km Operated </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.totalOperated"
-                  name="totalOperated"
-                  readonly
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.totalOperated" name="totalOperated"
+                  readonly />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Opening SOC %</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.osoc"
-                  (change)="calculateTotalCosumed()"
-                  name="osoc"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.osoc" (change)="calculateTotalCosumed()"
+                  name="osoc" [readonly]="formtype === 'update'" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Closing SOC %</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.csoc"
-                  (change)="calculateTotalCosumed()"
-                  name="csoc"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.csoc" (change)="calculateTotalCosumed()"
+                  name="csoc" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Consumed SOC %</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.consumedSOC"
-                  name="consumedSOC"
-                  readonly
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.consumedSOC" name="consumedSOC" readonly />
               </div>
 
               <div class="col-md-4 pt-3">
                 <label>Targeted Trip Round</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.targetedTrip"
-                  name="targetedTrip"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.targetedTrip" name="targetedTrip" />
               </div>
 
-              <div class="col-md-4 pt-3">
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>No Of Trip</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.noOfTrip"
-                  name="noOfTrip"
-                />
-              </div>
-
-              <div class="col-md-4 pt-3">
-                <label>Chalo Machine No.</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.chaloMachineNo"
-                  name="chaloMachineNo"
-                />
-              </div>
-
-              <div class="col-md-4 pt-3">
-                <label>Way Bill no. </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.wayBillNo"
-                  name="wayBillNo"
-                />
+                <input type="number" class="form-control" [(ngModel)]="form.noOfTrip" name="noOfTrip" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Challan Deposited (in Rs.) </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.challanDeposited"
-                  (change)="calculateAmount()"
-                  name="challanDeposited"
-                />
+                <label>Chalo Passengers No.</label>
+                <input type="text" class="form-control" [(ngModel)]="form.chaloPassengersNo" name="chaloPassengersNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Wallet Card </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.walletCard"
-                  (change)="calculateAmount()"
-                  name="walletCard"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Mobile Pass </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.mobilePass"
-                  (change)="calculateAmount()"
-                  name="mobilePass"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Student Mpass </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.studentMpass"
-                  (change)="calculateAmount()"
-                  name="studentMpass"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Scan & Pay </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.scanPay"
-                  (change)="calculateAmount()"
-                  name="scanPay"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Unprinted Ticiket</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.unprintedTiciket"
-                  (change)="calculateAmount()"
-                  name="unprintedTiciket"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Card Recharge</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.cardRecharge"
-                  (change)="calculateAmount()"
-                  name="cardRecharge"
-                />
-              </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Phone Pe</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.phonePe"
-                  (change)="calculateAmount()"
-                  name="phonePe"
-                />
+                <label>Chalo Ticket No. </label>
+                <input type="text" class="form-control" [(ngModel)]="form.chaloTicketNo" name="chaloTicketNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Basistha Parking (GMC)</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.basisthaParking"
-                  (change)="calculateAmount()"
-                  name="basisthaParking"
-                />
+                <label>Chalo Ticket Amount (in Rs.) </label>
+                <input type="number" class="form-control" [(ngModel)]="form.chaloTicketAmount"
+                  (change)="calculateAmount()" name="chaloTicketAmount" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Trip Allowance ( in Rs)</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.tripAllowance"
-                  (change)="calculateAmount()"
-                  name="tripAllowance"
-                />
+                <label>Cash Collection (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.cashCollection" (change)="calculateAmount()"
+                  name="cashCollection" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Net Amt deposited in WaySide Cahier</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.netAmountDeposited"
-                  name="netAmountDeposited"
-                />
+                <label>UPI (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.upi" (change)="calculateAmount()"
+                  name="upi" />
+              </div>
+
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Net Amt deposited in WaySide Cahier (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
+                  name="netAmountDeposited" readonly  />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Trageted Earning</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.tragetedEarning"
-                  name="tragetedEarning"
-                />
+                <label>Trageted Earning (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.estimated_collection" name="estimated_collection" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Amount to be deposited</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="form.amountToBeDeposited"
-                  name="amountToBeDeposited"
-                />
+                <label>Amount to be deposited (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
-                <input
-                  type="time"
-                  class="form-control"
-                  [(ngModel)]="form.stopTime"
-                  name="stopTime"
-                />
+                <input type="time" class="form-control" [(ngModel)]="form.stopTime" name="stopTime" />
               </div>
               <div class="col-md-4 pt-3">
                 <label>Status</label>
-                <select
-                  class="form-control"
-                  [(ngModel)]="form.currentStatus"
-                  name="status"
-                >
+                <select class="form-control" [(ngModel)]="form.currentStatus" name="status">
                   <option value="running">Running</option>
-                  <option value="still">Still</option>
+                  <option value="still">Still (Breakdown)</option>
                   <option value="idle">Idle</option>
                   <option value="finished">Finished</option>
                 </select>
               </div>
               <div class="col-md-8 pt-3">
                 <label>Remarks</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="form.remarks"
-                  name="remarks"
-                />
+                <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />
               </div>
               <div class="col-md-12 pt-3">
                 <div class="text-center p-3">
-                  <button
-                    class="btn btn-info mr-2"
-                    (click)="openPreview()"
-                    data-toggle="modal"
-                    data-target="#exampleModal"
-                  >
+                  <button *ngIf="formtype == 'update'" class="btn btn-info mr-2" (click)="openPreview()"
+                    data-toggle="modal" data-target="#exampleModal">
                     Print Opening Log Sheet
                   </button>
-                  <button
-                    type="button"
-                    class="btn btn-success text-center"
-                    (click)="saveData()"
-                    data-dismiss="modal"
-                    *ngIf="formtype !== 'update'"
-                  >
-                    Save
+                  <button type="button" class="btn btn-success text-center" (click)="saveData()" [disabled]="isSaving"
+                    *ngIf="formtype !== 'update'">
+                    <span *ngIf="!isSaving">Save</span>
+
+                    <span *ngIf="isSaving">
+                      <i class="fa fa-spinner fa-spin mr-2"></i> Saving...
+                    </span>
                   </button>
-                  <button
-                    type="button"
-                    class="btn btn-success text-center"
-                    (click)="updateData()"
-                    data-dismiss="modal"
-                    *ngIf="formtype == 'update'"
-                  >
+
+                  <button type="button" class="btn btn-success text-center" (click)="updateData()" data-dismiss="modal"
+                    *ngIf="formtype == 'update'">
                     Update and Fininsh Trip
                   </button>
                 </div>
