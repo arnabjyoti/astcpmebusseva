@@ -16,15 +16,26 @@ export class TovnavComponent implements OnInit {
   public userId: any;
   public tokenData: any;
   public menuItems: any;
-
   public myDate: any = new Date();
-  constructor(private loginService: LoginService, private datePipe: DatePipe) {
+  
+  // Search functionality properties
+  public searchQuery: string = '';
+  public showSuggestions: boolean = false;
+  public searchSuggestions: any[] = [];
+  public allSearchableItems: any[] = [];
+
+  constructor(
+    private loginService: LoginService, 
+    private datePipe: DatePipe,
+    private router: Router
+  ) {
     this.myDate = this.datePipe.transform(this.myDate, 'EEEE, dd-MM-yyyy');
   }
 
   ngOnInit(): void {
     this.getUserDetails();
     console.log('user ', this.user);
+    this.initializeSearchData();
   }
 
   getUserDetails = () => {
@@ -42,14 +53,93 @@ export class TovnavComponent implements OnInit {
     } else {
       console.log('Token not');
     }
-    // console.log("I AM CITIZEN",this.user);
+  };
+
+  // Initialize searchable data based on menu items and other entities
+  initializeSearchData = () => {
+    // Add menu items to searchable data
+    if (this.menuItems) {
+      this.allSearchableItems = this.menuItems.map((item: any) => ({
+        type: 'menu',
+        label: item.label,
+        icon: item.icon,
+        routerLink: item.routerLink,
+        keywords: item.label.toLowerCase()
+      }));
+    }
+
+    // You can add more searchable items here
+    // For example: buses, routes, staff, etc.
+    const additionalItems = [
+      { type: 'action', label: 'Logout', icon: 'fas fa-power-off', action: 'logout', keywords: 'logout sign out exit' },
+      { type: 'action', label: 'Profile', icon: 'fas fa-user-circle', routerLink: '/profile', keywords: 'profile account user settings' },
+      { type: 'quick-link', label: 'Dashboard', icon: 'fas fa-tachometer-alt', routerLink: '/home', keywords: 'dashboard home overview' }
+    ];
+
+    this.allSearchableItems = [...this.allSearchableItems, ...additionalItems];
+  };
+
+  // Handle search input changes
+  onSearchInput = (event: any) => {
+    const query = event.target.value;
+    this.searchQuery = query;
+
+    if (query.trim().length > 0) {
+      this.filterSuggestions(query);
+      this.showSuggestions = true;
+    } else {
+      this.showSuggestions = false;
+      this.searchSuggestions = [];
+    }
+  };
+
+  // Filter suggestions based on search query
+  filterSuggestions = (query: string) => {
+    const searchTerm = query.toLowerCase().trim();
+    
+    this.searchSuggestions = this.allSearchableItems.filter(item => 
+      item.keywords.includes(searchTerm) || 
+      item.label.toLowerCase().includes(searchTerm)
+    ).slice(0, 8); // Limit to 8 suggestions
+  };
+
+  // Handle suggestion click
+  onSuggestionClick = (suggestion: any) => {
+    if (suggestion.routerLink) {
+      this.router.navigate([suggestion.routerLink]);
+    } else if (suggestion.action === 'logout') {
+      this.signout();
+    }
+    this.clearSearch();
+  };
+
+  // Clear search
+  clearSearch = () => {
+    this.searchQuery = '';
+    this.showSuggestions = false;
+    this.searchSuggestions = [];
+  };
+
+  // Handle click outside to close suggestions
+  onSearchBlur = () => {
+    // Delay to allow click on suggestion to register
+    setTimeout(() => {
+      this.showSuggestions = false;
+    }, 200);
+  };
+
+  // Handle focus to show suggestions if query exists
+  onSearchFocus = () => {
+    if (this.searchQuery.trim().length > 0) {
+      this.filterSuggestions(this.searchQuery);
+      this.showSuggestions = true;
+    }
   };
 
   signout = () => {
     localStorage.removeItem('token');
     const token = localStorage.getItem('token');
     if (!token) {
-      // this.router.navigate(['/login']);
       window.location.href = '/login';
       location.reload();
     }
@@ -67,12 +157,12 @@ export class TovnavComponent implements OnInit {
           routerLink: '/home',
         },
         {
-          label: 'Bus Master',
+          label: 'Vehicle Master',
           icon: 'fas fa-bus',
           routerLink: '/buses',
         },
         {
-          label: 'Bus Routes',
+          label: 'Vehicle Routes',
           icon: 'fas fa-route',
           routerLink: '/bus-routes',
         },
@@ -135,11 +225,6 @@ export class TovnavComponent implements OnInit {
           icon: 'fas fa-book',
           routerLink: '/bus-daily-updates',
         },
-        // {
-        //   label: 'Trip Daily data',
-        //   icon: 'fas fa-book',
-        //   routerLink: '/trip-logs',
-        // },
       ];
     }
 
@@ -189,7 +274,8 @@ export class TovnavComponent implements OnInit {
       ];
     }
 
-
+    // Reinitialize search data after menu items are set
+    this.initializeSearchData();
   };
 
 

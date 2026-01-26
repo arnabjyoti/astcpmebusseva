@@ -18,6 +18,7 @@ module.exports = (sequelize, type) => {
         routeDistance: type.STRING,
         depot_to_start_distance: type.STRING,
         end_to_depot_distance: type.STRING,
+        estimated_collection: type.STRING,
         status: type.STRING
     }, {timestamps:true});
     busRoutesMaster.associate = function(models) {

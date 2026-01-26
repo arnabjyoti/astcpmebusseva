@@ -165,6 +165,50 @@ export class DriverConductorComponent {
   reader.readAsDataURL(file);
 }
 
+// Add these properties after your existing properties
+sortColumn: string = '';
+sortDirection: 'asc' | 'desc' = 'asc';
+
+// Add this method in your component class
+sortConductorData(column: string) {
+  // Toggle direction if clicking the same column
+  if (this.sortColumn === column) {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    this.sortColumn = column;
+    this.sortDirection = 'asc';
+  }
+
+  // Sort the array
+  this.conductorList.sort((a: any, b: any) => {
+    let valueA = a[column];
+    let valueB = b[column];
+
+    // Handle null/undefined values
+    if (valueA == null) valueA = '';
+    if (valueB == null) valueB = '';
+
+    // Handle different data types
+    if (typeof valueA === 'string') {
+      valueA = valueA.toLowerCase();
+      valueB = valueB.toLowerCase();
+    }
+
+    // Handle numbers
+    if (typeof valueA === 'number' && typeof valueB === 'number') {
+      return this.sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+    }
+
+    // Compare values
+    if (valueA < valueB) {
+      return this.sortDirection === 'asc' ? -1 : 1;
+    }
+    if (valueA > valueB) {
+      return this.sortDirection === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+}
 
   saveData = (form: any) => {
   if (form.invalid || !this.form1.photo) {
