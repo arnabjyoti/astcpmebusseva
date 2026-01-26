@@ -166,6 +166,7 @@ module.exports = {
         routeDistance: data.routeDistance,
         depot_to_start_distance: data.depot_to_start_distance,
         end_to_depot_distance: data.end_to_depot_distance,
+        estimated_collection: data.estimated_collection,
         status: data.status || "Active",
       });
 

@@ -57,7 +57,7 @@
                   <td>{{ data.routeNo }}</td>
                   <td>{{ data.routeName }}</td>
                   <td>{{ data.routeDistance }}</td>
-                  <td>{{ 6500 }}</td>
+                  <td>{{ data.estimated_collection }}</td>
                   <td>
                     <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
                     <span class="badge badge-danger" *ngIf="data.status!='Active'">Inactive</span>
@@ -173,7 +173,7 @@
 
               <div class="col-md-6 pt-2">
                 <label>Estimated Collection</label>
-                <input class="form-control" [(ngModel)]="busRoutes.depot_to_start_distance">
+                <input class="form-control" [(ngModel)]="busRoutes.estimated_collection">
               </div>
 
               <div class="col-md-6 pt-2">

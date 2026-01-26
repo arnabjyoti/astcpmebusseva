@@ -32,6 +32,7 @@ export class BusRoutesComponent {
     routeDistance: '',
     depot_to_start_distance: '',
     end_to_depot_distance: '',
+    estimated_collection: '',
     status: 'Active'
   };
 
@@ -49,7 +50,7 @@ export class BusRoutesComponent {
 
 
   handleSaveRoutes = () => {
-    if (!this.busRoutes.routeNo || !this.busRoutes.routeName || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance) {
+    if (!this.busRoutes.routeNo || !this.busRoutes.routeName || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance || !this.busRoutes.estimated_collection) {
       this.toastr.warning("Please fill required fields", "Warning");
       return;
     }
@@ -115,6 +116,7 @@ export class BusRoutesComponent {
       routeDistance: '',
       depot_to_start_distance: '',
       end_to_depot_distance: '',
+      estimated_collection: '',
       status: 'Active'
     };
 
