@@ -62,8 +62,8 @@ export class DailyUpdateFormComponent {
     cashCollection: 0,
     upi: 0,
 
-    tragetedEarning: 6500,
-    amountToBeDeposited: 6500,
+    estimated_collection: 0,
+    amountToBeDeposited: 0,
     currentStatus: '',
   };
 
@@ -163,6 +163,8 @@ export class DailyUpdateFormComponent {
         this.form.driverId = response.driverId;
         this.form.conductorId = response.conductorId;
         this.form.routeNo = response.routeNo;
+        this.form.estimated_collection = response.estimated_collection;
+        this.form.amountToBeDeposited = response.estimated_collection;
         this.form.routeDepot = response.routeDepot;
         this.form.routeStart = response.routeStart;
         this.form.routeEnd = response.routeEnd;
@@ -293,7 +295,7 @@ export class DailyUpdateFormComponent {
   };
 
   calculateDiposite = () => {
-    const target = parseInt(this.form.tragetedEarning, 10) || 0;
+    const target = parseInt(this.form.estimated_collection, 10) || 0;
     const deposited = parseInt(this.form.netAmountDeposited, 10) || 0;
 
     this.form.amountToBeDeposited = Math.max(0, target - deposited);

@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
   finishedBus = 0;
   stillBus = 0;
 
+  //Earning
   todayEarning = 0;
   yesterdayEarning = 0;
 
@@ -127,8 +128,8 @@ export class HomeComponent implements OnInit {
       this.finishedBus = res.finishedBus;
       this.stillBus = res.stillBus;
 
-      this.todayEarning = 0;
-      this.yesterdayEarning = 0;
+      this.todayEarning = res.todayEarning;
+      this.yesterdayEarning = res.yesterdayEarning;
 
       console.log('idle', this.idleBus);
 

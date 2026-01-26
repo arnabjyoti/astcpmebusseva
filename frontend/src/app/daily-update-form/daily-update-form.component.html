@@ -444,30 +444,29 @@
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Cash Collection </label>
+                <label>Cash Collection (in Rs.)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.cashCollection" (change)="calculateAmount()"
                   name="cashCollection" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>UPI </label>
+                <label>UPI (in Rs.)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.upi" (change)="calculateAmount()"
                   name="upi" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Net Amt deposited in WaySide Cahier</label>
+                <label>Net Amt deposited in WaySide Cahier (in Rs.)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
                   name="netAmountDeposited" readonly  />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Trageted Earning</label>
-                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
+                <label>Trageted Earning (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.estimated_collection" name="estimated_collection" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Amount to be deposited</label>
-                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited"
-                  name="amountToBeDeposited" readonly />
+                <label>Amount to be deposited (in Rs.)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
