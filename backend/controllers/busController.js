@@ -139,12 +139,12 @@ module.exports = {
       const capitalizeFirst = (str) =>
         str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-    // Format fields
-    const depot = capitalizeFirst(data.depot);
-    const start = capitalizeFirst(data.start);
-    const end = capitalizeFirst(data.end);
-    const via = capitalizeFirst(data.via);
-    const routeName = capitalizeFirst(data.routeName);
+      // Format fields
+      const depot = capitalizeFirst(data.depot);
+      const start = capitalizeFirst(data.start);
+      const end = capitalizeFirst(data.end);
+      const via = capitalizeFirst(data.via);
+      const routeName = capitalizeFirst(data.routeName);
 
       // Check duplicate routeNo
       const exists = await busRoutesModel.findOne({
@@ -230,23 +230,23 @@ module.exports = {
       const data = req.body.requestObject;
       console.log("Delete Route:", data);
 
-    busRoutesModel.update(
-      { status: "Inactive" },
-      { where: { id: data.id } }
-    )
-    .then(() => {
-      return res.status(200).json({ message: "Success" });
-    })
-    .catch((err) => {
-      console.error("Delete error:", err);
-      return res.status(500).json({ message: "Failed to delete route" });
-    });
+      busRoutesModel.update(
+        { status: "Inactive" },
+        { where: { id: data.id } }
+      )
+        .then(() => {
+          return res.status(200).json({ message: "Success" });
+        })
+        .catch((err) => {
+          console.error("Delete error:", err);
+          return res.status(500).json({ message: "Failed to delete route" });
+        });
 
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
 
 
   async getRouteSuggestions(req, res) {
@@ -555,18 +555,18 @@ module.exports = {
   // const { Op, fn, col, literal } = require("sequelize");
 
 
-  
+
   // const { Op, literal } = require("sequelize");
 
-getConductor(req, res) {
-  let query = {
-    where: {
-      [Op.or]: [{ status: "Active" }, { status: "Block" }],
-    },
-    attributes: {
-      include: [
-        [
-          literal(`(
+  getConductor(req, res) {
+    let query = {
+      where: {
+        [Op.or]: [{ status: "Active" }, { status: "Block" }],
+      },
+      attributes: {
+        include: [
+          [
+            literal(`(
             SELECT 
               COALESCE(
                 SUM(
@@ -578,22 +578,22 @@ getConductor(req, res) {
             FROM dailyUpdates du
             WHERE du.conductorId = conductorMaster.id
           )`),
-          "amountToBeDeposited",
+            "amountToBeDeposited",
+          ],
         ],
-      ],
-    },
-    raw: true,
-    order: [["id", "DESC"]],
-  };
+      },
+      raw: true,
+      order: [["id", "DESC"]],
+    };
 
-  return conductorMasterModel
-    .findAll(query)
-    .then((data) => res.status(200).send(data))
-    .catch((error) => {
-      console.error(error);
-      return res.status(400).send(error);
-    });
-},
+    return conductorMasterModel
+      .findAll(query)
+      .then((data) => res.status(200).send(data))
+      .catch((error) => {
+        console.error(error);
+        return res.status(400).send(error);
+      });
+  },
 
   // const { Op, Sequelize } = require("sequelize");
 
@@ -661,49 +661,49 @@ getConductor(req, res) {
   },
 
   async saveDailyUpdates(req, res) {
-  try {
-    let data = req.body.requestObject;
-    data.status = "Active";
+    try {
+      let data = req.body.requestObject;
+      data.status = "Active";
 
-    // 1️⃣ Get last timesheetNo
-    const lastRecord = await dailyUpdatesModel.findOne({
-      where: {
-        timesheetNo: { [require('sequelize').Op.ne]: null }
-      },
-      order: [['id', 'DESC']],
-      attributes: ['timesheetNo']
-    });
+      // 1️⃣ Get last timesheetNo
+      const lastRecord = await dailyUpdatesModel.findOne({
+        where: {
+          timesheetNo: { [require('sequelize').Op.ne]: null }
+        },
+        order: [['id', 'DESC']],
+        attributes: ['timesheetNo']
+      });
 
-    let nextNumber = 1;
-    const prefix = 'ASTC-SKAP-';
+      let nextNumber = 1;
+      const prefix = 'ASTC-SKAP-';
 
-    if (lastRecord && lastRecord.timesheetNo) {
-      const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
-      const parts = lastNo.split('-');
-      const num = parseInt(parts[parts.length - 1], 10);
+      if (lastRecord && lastRecord.timesheetNo) {
+        const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
+        const parts = lastNo.split('-');
+        const num = parseInt(parts[parts.length - 1], 10);
 
-      if (!isNaN(num)) {
-        nextNumber = num + 1;
+        if (!isNaN(num)) {
+          nextNumber = num + 1;
+        }
       }
+
+      // 2️⃣ Set new timesheet number
+      data.timesheetNo = prefix + nextNumber;
+
+      // 3️⃣ Insert record
+      const response = await dailyUpdatesModel.create(data);
+
+      return res.status(200).send({
+        message: "Success",
+        id: response.id,
+        timesheetNo: data.timesheetNo
+      });
+
+    } catch (err) {
+      console.log("err", err);
+      return res.status(500).send({ message: "Error saving data" });
     }
-
-    // 2️⃣ Set new timesheet number
-    data.timesheetNo = prefix + nextNumber;
-
-    // 3️⃣ Insert record
-    const response = await dailyUpdatesModel.create(data);
-
-    return res.status(200).send({
-      message: "Success",
-      id: response.id,
-      timesheetNo: data.timesheetNo
-    });
-
-  } catch (err) {
-    console.log("err", err);
-    return res.status(500).send({ message: "Error saving data" });
-  }
-},
+  },
 
 
   updateDailyUpdates(req, res) {
@@ -1630,9 +1630,8 @@ END AS estimated_time,
     JOIN busMasters bm ON t.busMasterId = bm.id
     WHERE lts.rn = 1
     ${whereConditions.length ? `AND ${whereConditions.join(" AND ")}` : ""}
-    ${
-      busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
-    } ORDER BY lts.date ASC;
+    ${busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
+      } ORDER BY lts.date ASC;
   `;
 
     // let countQuery = `
@@ -1698,6 +1697,42 @@ END AS estimated_time,
           currentStatus: "Running",
         },
       });
+
+      // Running Vehicle fetch data
+      // const runningVehicle = await dailyUpdatesModel.findAll({
+      //   where: {
+      //     status: "Active",
+      //     [Op.or]: [
+      //       // No entry today
+      //       {
+      //         id: {
+      //           [Op.notIn]: Sequelize.literal(`
+      //       (SELECT busId FROM dailyUpdates WHERE date = '${today}')
+      //     `),
+      //         },
+      //       },
+
+      //       // Entry today but Idle or NULL
+      //       {
+      //         id: {
+      //           [Op.in]: Sequelize.literal(`
+      //       (SELECT busId FROM dailyUpdates 
+      //        WHERE date = '${today}' 
+      //        AND (currentStatus = 'Idle' OR currentStatus IS NULL))
+      //     `),
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   attributes: [
+      //     "id",
+      //     "busNo",
+      //     "routeNo",
+      //     "driverId",
+      //     "conductorId",
+      //   ],
+      //   order: [["busName", "ASC"]],
+      // });
 
       const idleBus = await busMasterModel.findAll({
         where: {
@@ -1787,7 +1822,7 @@ END AS estimated_time,
 
   async getAmountToBePaidByConductor(req, res) {
 
-    const id = req.query.id; 
+    const id = req.query.id;
 
     const sql = `SELECT 
                   SUM(
