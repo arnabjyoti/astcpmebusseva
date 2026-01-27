@@ -37,7 +37,7 @@ export class AttendanceComponent {
     const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Report');
-    XLSX.writeFile(wb, 'report.xlsx');
+    XLSX.writeFile(wb, `${this.attendanceFrom }To${this.attendanceTo}_report.xlsx`);
     element.classList.remove('exporting');
     this.isExportingExcel = false;
   }
@@ -74,7 +74,7 @@ export class AttendanceComponent {
         heightLeft -= pageHeight;
       }
 
-      pdf.save('report.pdf');
+      pdf.save(`${this.attendanceFrom }To${this.attendanceTo}_report.pdf`);
       element.classList.remove('exporting');
       this.isExportingPDF = false;
     });
@@ -106,13 +106,33 @@ export class AttendanceComponent {
 
 
         // 2️⃣ Parse attendance JSON string
-        this.conductorAttendance = response.map((item) => ({
-          ...item,
-          attendance:
+        // this.conductorAttendance = response.map((item) => ({
+        //   ...item,
+        //   attendance:
+        //     typeof item.attendance === 'string'
+        //       ? JSON.parse(item.attendance)
+        //       : item.attendance,
+        // }));
+
+        this.conductorAttendance = response.map((item) => {
+          const attendance =
             typeof item.attendance === 'string'
               ? JSON.parse(item.attendance)
-              : item.attendance,
-        }));
+              : item.attendance;
+        
+          const values = Object.values(attendance);
+        
+          const total_present = values.filter(v => v === 'P').length;
+          const total_absent = values.filter(v => v === 'A').length;
+        
+          return {
+            ...item,
+            attendance,
+            total_present,
+            total_absent
+          };
+        });
+        
 
         console.log(" this.conductorAttendance ==>>", this.conductorAttendance);
         

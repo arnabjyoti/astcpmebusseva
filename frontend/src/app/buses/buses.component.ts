@@ -217,13 +217,15 @@ export class BusesComponent {
   amountToBeDeposited: any = 0;
   getRemainingAmountForConductor = (id: any) => {
     this.selectedData = this.busList[id];
+    console.log(this.busList[id]);
     
-    const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.selectedData.conductorId}`;
+    
+    const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.selectedData.conductor_actual_id}`;
 
     this.http.get(ENDPOINT).subscribe(
       (response:any) => {
-      console.log('response ', response.data[0].amountToBeDeposited);
-      this.amountToBeDeposited = response.data[0].amountToBeDeposited
+      console.log('response ', response.data.amountToBeDeposited);
+      this.amountToBeDeposited = response.data.amountToBeDeposited
       
       },
       (error) => {

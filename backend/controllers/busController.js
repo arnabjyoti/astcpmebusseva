@@ -826,10 +826,12 @@ SELECT
     cm.conductor_name as conductorName,
     cm.conductor_id as conductorId,
     cm.contact_no as conductorContactNo,
+    cm.id as conductor_actual_id,
     
     dm.driver_name as driverName,
     dm.contact_no as driverContactNo,
     dm.driver_id as driverId,
+    dm.id as driver_actual_id,
 
     -- Route fields
     routes.id AS routeId,
@@ -1820,33 +1822,37 @@ END AS estimated_time,
   },
 
   async getAmountToBePaidByConductor(req, res) {
-
-    const id = req.query.id; 
-
-    const sql = `SELECT 
-                  SUM(
-                      COALESCE(tragetedEarning, 0) 
-                      - COALESCE(netAmountDeposited, 0)
-                      ) AS amountToBeDeposited
-                  FROM dailyUpdates
-                  WHERE conductorId = ${id};
-                  `;
-
     try {
-      // Execute both queries
-      const [dataResults] = await sequelize.query(sql);
-      // const [countResults] = await sequelize.query(countQuery);
-
-      const formattedResults = dataResults.map((row) => row);
-      // const totalCount = countResults[0]?.totalCount || 0;
-
-      res.send({
-        // totalCount: '',
-        data: formattedResults,
+      const { id } = req.query;
+      console.log("id", id);
+  
+      if (!id) {
+        return res.status(400).send({ message: 'Conductor id is required' });
+      }
+  
+      const sql = `
+        SELECT 
+          SUM(
+            COALESCE(tragetedEarning, 0) 
+            - COALESCE(netAmountDeposited, 0)
+          ) AS amountToBeDeposited
+        FROM dailyUpdates
+        WHERE conductorId = :id
+      `;
+  
+      const [dataResults] = await sequelize.query(sql, {
+        replacements: { id },
+        type: sequelize.QueryTypes.SELECT,
       });
+  
+      res.send({
+        data: dataResults,
+      });
+  
     } catch (error) {
-      console.error("Error executing query:", error);
-      res.status(500).send({ error: "Failed to fetch data" });
+      console.error('Error executing query:', error);
+      res.status(500).send({ error: 'Failed to fetch data' });
     }
-  },
+  }
+  
 };

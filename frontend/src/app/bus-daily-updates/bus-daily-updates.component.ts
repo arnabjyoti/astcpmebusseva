@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-bus-daily-updates',
@@ -10,6 +13,63 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class BusDailyUpdatesComponent {
   constructor(private http: HttpClient, private toastr: ToastrService) {}
+
+  @ViewChild('reportSection') reportSection!: ElementRef;
+
+  isExportingExcel = false;
+  isExportingPDF = false;
+
+  downloadExcel() {
+    this.isExportingExcel = true;
+    const element = this.reportSection.nativeElement;
+    element.classList.add('exporting');
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Report');
+    XLSX.writeFile(wb, `earning_book_${this.dateFrom }To${this.dateTo}.xlsx`);
+    element.classList.remove('exporting');
+    this.isExportingExcel = false;
+  }
+
+  downloadPDF() {
+    this.isExportingPDF = true;
+    const element = this.reportSection.nativeElement;
+    element.classList.add('exporting');
+
+    html2canvas(element, { scale: 3 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+    
+      const pdf = new jsPDF('l', 'mm', 'a4'); // landscape
+    
+      const pageWidth = pdf.internal.pageSize.getWidth();   // 297
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 210
+    
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+      let heightLeft = imgHeight;
+      let position = margin;
+    
+      // First page
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+    
+      // Additional pages
+      while (heightLeft > 0) {
+        pdf.addPage();
+        position = heightLeft - imgHeight + margin;
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - margin * 2;
+      }
+    
+      pdf.save(`earning_book_${this.dateFrom}To${this.dateTo}.pdf`);
+    
+      element.classList.remove('exporting');
+      this.isExportingPDF = false;
+    });
+    
+  }
 
   date: any= new Date().toISOString().split("T")[0];
 
