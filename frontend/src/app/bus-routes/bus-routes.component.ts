@@ -32,6 +32,7 @@ export class BusRoutesComponent {
     routeDistance: '',
     depot_to_start_distance: '',
     end_to_depot_distance: '',
+    estimated_collection: '',
     status: 'Active'
   };
 
@@ -49,7 +50,7 @@ export class BusRoutesComponent {
 
 
   handleSaveRoutes = () => {
-    if (!this.busRoutes.routeNo || !this.busRoutes.routeName || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance) {
+    if (!this.busRoutes.routeNo || !this.busRoutes.routeName || !this.busRoutes.start || !this.busRoutes.end || !this.busRoutes.depot || !this.busRoutes.via || !this.busRoutes.routeDistance || !this.busRoutes.depot_to_start_distance || !this.busRoutes.end_to_depot_distance || !this.busRoutes.estimated_collection) {
       this.toastr.warning("Please fill required fields", "Warning");
       return;
     }
@@ -60,7 +61,14 @@ export class BusRoutesComponent {
         this.getBusRoutes();
         this.toastr.success("Bus route added successfully");
       },
-      () => this.toastr.error("Something went wrong")
+      (error) => {
+      if (error.status === 409) {
+        // 👇 message from backend
+        this.toastr.warning(error.error.message || "Route number already exists", "Duplicate Route");
+      } else {
+        this.toastr.error("Something went wrong", "Error");
+      }
+    }
     );
   };
 
@@ -95,7 +103,7 @@ export class BusRoutesComponent {
       if (field === 'end') this.endSuggestions = res;
       if (field === 'via') this.viaSuggestions = res;
       if (field === 'routeNo') this.routeNoSuggestions = res;
-      if (field === 'routeName') this.routeNoSuggestions = res;
+      if (field === 'routeName') this.routeNameSuggestions = res;
     });
   }
 
@@ -115,6 +123,7 @@ export class BusRoutesComponent {
       routeDistance: '',
       depot_to_start_distance: '',
       end_to_depot_distance: '',
+      estimated_collection: '',
       status: 'Active'
     };
 
@@ -147,7 +156,14 @@ export class BusRoutesComponent {
         this.getBusRoutes();
         this.toastr.success("Bus route updated successfully");
       },
-      () => this.toastr.error("Something went wrong")
+      (error) => {
+      if (error.status === 409) {
+        // 👇 message from backend
+        this.toastr.warning(error.error.message || "Route number already exists", "Duplicate Route");
+      } else {
+        this.toastr.error("Something went wrong", "Error");
+      }
+    }
     );
   };
 
