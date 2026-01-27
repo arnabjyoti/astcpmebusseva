@@ -1720,48 +1720,33 @@ END AS estimated_time,
           status: "Active",
         },
       });
+
       const runningBus = await dailyUpdatesModel.count({
         where: {
           date: today,
-          currentStatus: "Running",
+          currentStatus: "running",
         },
       });
 
-      // Running Vehicle fetch data
-      // const runningVehicle = await dailyUpdatesModel.findAll({
-      //   where: {
-      //     status: "Active",
-      //     [Op.or]: [
-      //       // No entry today
-      //       {
-      //         id: {
-      //           [Op.notIn]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-      //     `),
-      //         },
-      //       },
-
-      //       // Entry today but Idle or NULL
-      //       {
-      //         id: {
-      //           [Op.in]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates 
-      //        WHERE date = '${today}' 
-      //        AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-      //     `),
-      //         },
-      //       },
-      //     ],
-      //   },
-      //   attributes: [
-      //     "id",
-      //     "busNo",
-      //     "routeNo",
-      //     "driverId",
-      //     "conductorId",
-      //   ],
-      //   order: [["busName", "ASC"]],
-      // });
+      const runningVehicle = await sequelize.query(
+        `
+  SELECT 
+    du.id,
+    bm.busNo,
+    br.routeNo AS routeNo,
+    du.driverId,
+    du.conductorId
+  FROM dailyUpdates AS du
+  INNER JOIN busMasters AS bm ON du.busId = bm.id
+  LEFT JOIN busRoutesMasters AS br ON bm.allotedRouteNo = br.id
+  WHERE du.date = :today 
+    AND du.currentStatus = 'Running'
+  `,
+        {
+          replacements: { today },
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
       const idleBus = await busMasterModel.findAll({
         where: {
@@ -1802,8 +1787,22 @@ END AS estimated_time,
       const finishedBus = await dailyUpdatesModel.count({
         where: {
           date: today,
-          currentStatus: "Finished",
+          currentStatus: "finished",
+        }
+      });
+
+      const finishedBusData = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "finished",
         },
+        attributes: [
+          "busId",
+          "routeNo",
+          "driverId",
+          "conductorId",
+          "netAmountDeposited"
+        ]
       });
 
       const stillBus = await dailyUpdatesModel.count({
@@ -1811,6 +1810,23 @@ END AS estimated_time,
           date: today,
           currentStatus: "Still",
         },
+      });
+
+      const stillBusData = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "still",
+        },
+        attributes: [
+          "busId",
+          "routeNo",
+          "driverId",
+          "conductorId",
+          "noOfTrip",
+          "totalOperated",
+          "remarks",
+          "stopTime"
+        ]
       });
 
       res.status(200).send({
@@ -1821,10 +1837,13 @@ END AS estimated_time,
         totalConductor,
         totalRoute,
         runningBus,
+        runningVehicle,
         idleBus,
         idleBusCount: idleBus.length,
         finishedBus,
+        finishedBusData,
         stillBus,
+        stillBusData
       });
     } catch (error) {
       console.error("Error fetching dashboard counts:", error);
