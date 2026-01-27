@@ -598,52 +598,51 @@ getConductor(req, res) {
 
   getConductorAttendance(req, res) {
     try {
-      // const { month } = req.body;
-      const month = req.query.month;
-      // expected format: "2025-09-01"
-
-      if (!month) {
-        return res.status(400).send({ message: "Month is required" });
+      const { from, to } = req.query; // ✅ correct destructuring
+  
+      // expected format: YYYY-MM-DD
+      if (!from || !to) {
+        return res.status(400).send({ message: "from and to dates are required" });
       }
-
+  
       const sql = `
         WITH RECURSIVE calendar AS (
-            SELECT DATE(:month) AS day
-            UNION ALL
-            SELECT day + INTERVAL 1 DAY
-            FROM calendar
-            WHERE day < LAST_DAY(:month)
+          SELECT DATE(:from) AS day
+          UNION ALL
+          SELECT day + INTERVAL 1 DAY
+          FROM calendar
+          WHERE day < DATE(:to)
         ),
         attendance_raw AS (
-            SELECT
-                cm.id AS conductor_id,
-                cm.conductor_name,
-                c.day,
-                CASE
-                    WHEN du.conductorId IS NOT NULL THEN 'P'
-                    ELSE 'A'
-                END AS status
-            FROM conductorMasters cm
-            CROSS JOIN calendar c
-            LEFT JOIN dailyUpdates du
-                ON du.conductorId = cm.id
-               AND DATE(du.date) = c.day
-            WHERE cm.status IN ('Active', 'Block')
+          SELECT
+            cm.id AS conductor_id,
+            cm.conductor_name,
+            c.day,
+            CASE
+              WHEN du.conductorId IS NOT NULL THEN 'P'
+              ELSE 'A'
+            END AS status
+          FROM conductorMasters cm
+          CROSS JOIN calendar c
+          LEFT JOIN dailyUpdates du
+            ON du.conductorId = cm.id
+           AND DATE(du.date) = c.day
+          WHERE cm.status IN ('Active', 'Block')
         )
         SELECT
-            conductor_name AS conductor,
-            JSON_OBJECTAGG(
-                DATE_FORMAT(day, '%Y-%m-%d'),
-                status
-            ) AS attendance
+          conductor_name AS conductor,
+          JSON_OBJECTAGG(
+            DATE_FORMAT(day, '%Y-%m-%d'),
+            status
+          ) AS attendance
         FROM attendance_raw
         GROUP BY conductor_id, conductor_name
         ORDER BY conductor_name;
       `;
-
+  
       return sequelize
         .query(sql, {
-          replacements: { month },
+          replacements: { from, to }, // ✅ pass both
           type: Sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
@@ -653,11 +652,13 @@ getConductor(req, res) {
           console.error(error);
           return res.status(400).send(error);
         });
+  
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
     }
-  },
+  }
+,  
 
   async saveDailyUpdates(req, res) {
   try {

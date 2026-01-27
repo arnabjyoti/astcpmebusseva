@@ -37,9 +37,16 @@
               <div class="d-flex gap-2 p-2 justify-content-end">
                 <input
                   class="form-control col-md-3"
-                  type="month"
-                  name="attendanceMonth"
-                  [(ngModel)]="attendanceMonth"
+                  type="date"
+                  name="attendanceFrom"
+                  [(ngModel)]="attendanceFrom"
+                  id=""
+                />
+                <input
+                  class="form-control col-md-3"
+                  type="date"
+                  name="attendanceTo"
+                  [(ngModel)]="attendanceTo"
                   id=""
                 />
 
@@ -56,7 +63,9 @@
                 <div class="table-responsive attendance-table">
                   <table class="table table-bordered table-sm text-center">
                     <thead>
+
                       <tr>
+                        <th>#</th>
                         <th class="sticky-col">Conductor Name</th>
                         <th *ngFor="let day of daysInMonth">
                           {{ day | date : "dd" }}
@@ -65,7 +74,8 @@
                     </thead>
 
                     <tbody>
-                      <tr *ngFor="let data of conductorAttendance">
+                      <tr *ngFor="let data of conductorAttendance; let i = index">
+                        <td>{{ i+1 }}</td>
                         <td class="sticky-col fw-semibold text-start">
                           {{ data.conductor }}
                         </td>
