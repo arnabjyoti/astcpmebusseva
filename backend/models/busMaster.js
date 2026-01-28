@@ -17,13 +17,18 @@ module.exports = (sequelize, type) => {
         baseDepot: type.STRING,
         allotedRouteNo: type.STRING,
         status: type.STRING
-        
-
-        
     }, {});
+
     busMaster.associate = function(models) {
         // associations can be defined here
         // busMaster.hasMany(models.trip);
+
+        // ✅ ADD THIS
+        busMaster.hasMany(models.dailyUpdates, {
+            foreignKey: "busId",
+            as: "dailyUpdates"
+        });
     };
+
     return busMaster;
 };

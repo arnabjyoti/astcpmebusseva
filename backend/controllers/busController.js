@@ -1820,8 +1820,16 @@ END AS estimated_time,
           "driverId",
           "conductorId",
           "netAmountDeposited"
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"]
+          }
         ]
       });
+
 
       const stillBus = await dailyUpdatesModel.count({
         where: {
