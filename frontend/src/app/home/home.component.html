@@ -302,10 +302,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let bus of paginatedBuses; let i = index">
+                <tr *ngFor="let bus of idleBusData; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                   <td>{{ bus.busNo }}</td>
-                  <td>{{ bus.busNo }}</td>
+                  <td>{{ bus.remarks }}</td>
                 </tr>
               </tbody>
             </table>

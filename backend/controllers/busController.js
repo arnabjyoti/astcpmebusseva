@@ -1748,40 +1748,58 @@ END AS estimated_time,
         }
       );
 
-      const idleBus = await busMasterModel.findAll({
-        where: {
-          status: "Active",
-          [Op.or]: [
-            // No entry today
-            {
-              id: {
-                [Op.notIn]: Sequelize.literal(`
-            (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-          `),
-              },
-            },
+      // const idleBus = await busMasterModel.findAll({
+      //   where: {
+      //     status: "Active",
+      //     [Op.or]: [
+      //       // No entry today
+      //       {
+      //         id: {
+      //           [Op.notIn]: Sequelize.literal(`
+      //       (SELECT busId FROM dailyUpdates WHERE date = '${today}')
+      //     `),
+      //         },
+      //       },
 
-            // Entry today but Idle or NULL
-            {
-              id: {
-                [Op.in]: Sequelize.literal(`
-            (SELECT busId FROM dailyUpdates 
-             WHERE date = '${today}' 
-             AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-          `),
-              },
-            },
-          ],
+      //       // Entry today but Idle or NULL
+      //       {
+      //         id: {
+      //           [Op.in]: Sequelize.literal(`
+      //       (SELECT busId FROM dailyUpdates 
+      //       WHERE date = '${today}' 
+      //       AND (currentStatus = 'Idle' OR currentStatus IS NULL))
+      //     `),
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   attributes: [
+      //     "id",
+      //     "busName",
+      //     "busNo",
+      //     "baseDepot",
+      //     "driverName",
+      //     "conductorName",
+      //   ],
+      //   order: [["busName", "ASC"]],
+      // });
+
+      const idleBus = await dailyUpdatesModel.count({
+        where: {
+          date: today,
+          currentStatus: "idle",
+        }
+      });
+
+      const idleBusData = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "idle",
         },
         attributes: [
-          "id",
-          "busName",
-          "busNo",
-          "baseDepot",
-          "driverName",
-          "conductorName",
-        ],
-        order: [["busName", "ASC"]],
+          "busId",
+          "remarks"
+        ]
       });
 
       const finishedBus = await dailyUpdatesModel.count({
@@ -1839,7 +1857,8 @@ END AS estimated_time,
         runningBus,
         runningVehicle,
         idleBus,
-        idleBusCount: idleBus.length,
+        // idleBusCount: idleBus.length,
+        idleBusData,
         finishedBus,
         finishedBusData,
         stillBus,

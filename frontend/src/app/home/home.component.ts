@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit {
   runningVehicle: any[] = [];
   idleBus: any[] = [];
   idleBusCount = 0;
+  idleBusData: any[] = [];
   finishedBus = 0;
   finishedBusData: any[] = [];
   stillBus = 0;
@@ -127,9 +128,10 @@ export class HomeComponent implements OnInit {
       this.totalRoute = res.totalRoute;
 
       this.runningBus = res.runningBus;
-      // this.idleBus = res.idleBus;
       this.runningVehicle = res.runningVehicle;
+      // this.idleBus = res.idleBus;
       this.idleBusCount = res.idleBusCount;
+      this.idleBusData = res.idleBusData;
       this.finishedBusData = res.finishedBusData;
       this.finishedBus = res.finishedBus;
       this.stillBus = res.stillBus;
