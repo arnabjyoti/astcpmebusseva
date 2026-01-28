@@ -381,11 +381,11 @@
               <tbody>
                 <tr *ngFor="let bus of finishedBusData; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ bus.bus?.busNo }}</td>
-                  <td>{{ bus.routeNo }}</td>
-                  <td>{{ bus.driverId }}</td>
-                  <td>{{ bus.conductorId }}</td>
-                  <td>{{ bus.netAmountDeposited }}</td>
+                  <td>{{ bus?.bus?.busNo }}</td>
+                  <td>{{ bus?.route?.routeNo }}</td>
+                  <td>{{ bus?.driver?.driver_id }}</td>
+                  <td>{{ bus?.conductor?.conductorId }}</td>
+                  <td>{{ bus?.netAmountDeposited }}</td>
                 </tr>
               </tbody>
             </table>

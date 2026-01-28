@@ -9,8 +9,8 @@ var request = require("request");
 const Op = require("sequelize").Op;
 const { Sequelize, fn, literal } = require("sequelize");
 const busModel = require("../models").busMaster;
-const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
+const busRoutesModel = require("../models").busRoutesMaster;
 const driverMasterModel = require("../models").driverMaster;
 const conductorMasterModel = require("../models").conductorMaster;
 const dailyUpdatesModel = require("../models").dailyUpdates;
@@ -1812,22 +1812,56 @@ END AS estimated_time,
       const finishedBusData = await dailyUpdatesModel.findAll({
         where: {
           date: today,
-          currentStatus: "finished",
+          currentStatus: "finished"
         },
         attributes: [
-          "busId",
-          "routeNo",
-          "driverId",
-          "conductorId",
-          "netAmountDeposited"
+          "netAmountDeposited",
         ],
         include: [
           {
             model: busMasterModel,
             as: "bus",
-            attributes: ["busNo"]
-          }
-        ]
+            attributes: ["busNo"],
+            required: true
+          },
+          {
+            model: busRoutesModel,
+            as: "route",
+            attributes: ["routeNo"],
+            required: true
+          },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+          },
+        ],
+        // include: [
+        //   {
+        //   //   model: busMasterModel,
+        //   //   as: "bus",
+        //   //   attributes: ["busNo"],
+        //   //   required: true
+        //   },
+        //   {
+        //     // model: busRoutesModel,
+        //     // as: "route",
+        //     // attributes: ["routeNo"],
+        //     // required: true
+        //   },
+        //   {
+        //     // model: driverMasterModel,
+        //     // as: "driver",
+        //     // attributes: ["driver_id"],
+        //     // required: false
+        //   },
+        //   {
+        //     // model: conductorMasterModel,
+        //     // as: "conductor",
+        //     // attributes: ["conductorId"],
+        //     // required: false
+        //   }
+        // ]
       });
 
 

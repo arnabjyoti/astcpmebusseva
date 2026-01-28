@@ -26,7 +26,7 @@ module.exports = (sequelize, type) => {
         // ✅ ADD THIS
         busMaster.hasMany(models.dailyUpdates, {
             foreignKey: "busId",
-            as: "dailyUpdates"
+            as: "busId"
         });
     };
 

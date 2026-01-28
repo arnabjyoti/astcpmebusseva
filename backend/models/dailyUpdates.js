@@ -49,6 +49,23 @@ module.exports = (sequelize, type) => {
             foreignKey: "busId",
             as: "bus"
         });
+
+        dailyUpdates.belongsTo(models.busRoutesMaster, {
+            foreignKey: "routeNo",
+            targetKey: "routeNo",
+            as: "route"
+        });
+
+        dailyUpdates.belongsTo(models.driverMaster, {
+            foreignKey: "driverId",
+            as: "driver"
+        });
+
+        dailyUpdates.belongsTo(models.conductorMaster, {
+            foreignKey: "conductorId",
+            as: "conductor"
+        });
+
     };
     return dailyUpdates;
 };
