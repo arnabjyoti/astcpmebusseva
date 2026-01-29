@@ -24,6 +24,7 @@ import { TripLogComponent } from './trip-log/trip-log.component';
 import { DriverComponent } from './staff/driver/driver.component';
 import { ConductorComponent } from './staff/conductor/conductor.component';
 import { AttendanceComponent } from './attendance/attendance.component';
+import { BreakdownVehicleComponent } from './breakdown-vehicle/breakdown-vehicle.component';
 
 
 @NgModule({
@@ -42,6 +43,7 @@ import { AttendanceComponent } from './attendance/attendance.component';
     DriverComponent,
     ConductorComponent,
     AttendanceComponent,
+    BreakdownVehicleComponent,
   ],
   imports: [
     FormsModule,

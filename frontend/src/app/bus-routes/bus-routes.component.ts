@@ -223,4 +223,13 @@ export class BusRoutesComponent {
       queryParams: { date: this.selectedDate, busId: this.selectedData.id }
     });
   }
+
+
+  distanceConvert(a:any, b:any, c:any){
+    return Number(a) + Number(b) + Number(c);
+  
+  }
 }
+
+
+

@@ -20,10 +20,16 @@ module.exports = (sequelize, type) => {
         end_to_depot_distance: type.STRING,
         estimated_collection: type.STRING,
         status: type.STRING
-    }, {timestamps:true});
-    busRoutesMaster.associate = function(models) {
+    }, { timestamps: true });
+    busRoutesMaster.associate = function (models) {
         // associations can be defined here
         // busMaster.hasMany(models.trip);
+        busRoutesMaster.hasMany(models.dailyUpdates, {
+            foreignKey: "routeNo",
+            // sourceKey: "id",
+            as: "dailyUpdates"
+        });
+
     };
     return busRoutesMaster;
 };

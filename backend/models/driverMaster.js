@@ -16,10 +16,15 @@ module.exports = (sequelize, type) => {
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING
-    }, {timestamps:true});
-    driverMaster.associate = function(models) {
+    }, { timestamps: true });
+    driverMaster.associate = function (models) {
         // associations can be defined here
         // busMaster.hasMany(models.trip);
+        driverMaster.hasMany(models.dailyUpdates, {
+            foreignKey: "driverId",
+            as: "driverId"
+        });
+
     };
     return driverMaster;
 };

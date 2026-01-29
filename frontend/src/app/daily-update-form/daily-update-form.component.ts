@@ -56,6 +56,7 @@ export class DailyUpdateFormComponent {
     routeDepot: '',
     routeDistance: '',
 
+    chaloWayBillNo: 0,
     chaloTicketNo: 0,
     chaloPassengersNo: 0,
     chaloTicketAmount: 0,
@@ -114,15 +115,22 @@ export class DailyUpdateFormComponent {
 
         this.form = data;
         this.form.tragetedEarning = data.estimated_collection;
+        this.form.routeDepot = data.depot;
+        this.form.routeStart = data.start;
+        this.form.routeEnd = data.end;
+        this.form.driverId = data.driverId;
+        this.form.conductorId = data.conductorId;
+        console.log('data ==>> ', data.driverId);
+        
 
         let busDetails = {
           busName: data.busName,
           busNo: data.busNo,
           driverName: data.driverName,
-          driver_id: data.driver_id,
+          driverId: data.driverId,
           driverContactNo: data.driverContactNo,
           conductorName: data.conductorName,
-          conductor_id: data.conductor_id,
+          conductorId: data.conductorId,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
 

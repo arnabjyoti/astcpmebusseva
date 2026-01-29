@@ -3,6 +3,7 @@ import { HomeService } from './home.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 import * as _ from 'lodash';
+import * as XLSX from 'xlsx';
 import * as moment from 'moment';
 import { LoginService } from '../login/login.service';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -22,10 +23,14 @@ export class HomeComponent implements OnInit {
   totalRoute = 0;
 
   runningBus = 0;
+  runningVehicle: any[] = [];
   idleBus: any[] = [];
   idleBusCount = 0;
+  idleBusData: any[] = [];
   finishedBus = 0;
+  finishedBusData: any[] = [];
   stillBus = 0;
+  stillBusData: any[] = [];
 
   //Earning
   todayEarning = 0;
@@ -115,6 +120,7 @@ export class HomeComponent implements OnInit {
         console.error(err);
         return;
       }
+      console.log('Dashboard Data:', res);
 
       // Assign API values
       this.totalBus = res.totalBus;
@@ -123,10 +129,13 @@ export class HomeComponent implements OnInit {
       this.totalRoute = res.totalRoute;
 
       this.runningBus = res.runningBus;
-      this.idleBus = res.idleBus;
-      this.idleBusCount = res.idleBusCount;
+      this.runningVehicle = res.runningVehicle;
+      this.idleBusCount = res.idleBusData.length;
+      this.idleBusData = res.idleBusData;
+      this.finishedBusData = res.finishedBusData;
       this.finishedBus = res.finishedBus;
       this.stillBus = res.stillBus;
+      this.stillBusData = res.stillBusData;
 
       this.todayEarning = res.todayEarning;
       this.yesterdayEarning = res.yesterdayEarning;
@@ -209,7 +218,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-
   // Update pagination when data changes
   updatePagination() {
     this.totalItems = this.idleBus.length;
@@ -262,30 +270,79 @@ export class HomeComponent implements OnInit {
     return pages;
   }
 
-  // Download report function
-  downloadReport() {
-    // Prepare CSV content
-    let csvContent =
-      'Sl No.,Vehicle Number,Route Number,Driver ID,Conductor ID,Trip Completed,Kilometres Driven,Place of Breakdown,Time of Breakdown\n';
+  // Download report for Running Buses Modal (EXCEL)
+  downloadRunningBusReport() {
+    // Prepare data as array of objects
+    const data = this.idleBus.map((bus, index) => ({
+      'Sl No.': index + 1,
+      'Vehicle Number': bus.busNo || 'N/A',
+      'Route Number': bus.route?.routeNo || 'N/A',
+      'Driver ID': bus.driver?.driver_id || 'N/A',
+      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
+    }));
 
-    this.idleBus.forEach((bus, index) => {
-      csvContent += `${index + 1},${bus.busNo},${bus.busName},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo},${bus.busNo}\n`;
-    });
+    // Create worksheet
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
 
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+    // Create workbook
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Running Buses');
 
-    link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `breakdown-vehicles-${new Date().getTime()}.csv`,
-    );
-    link.style.visibility = 'hidden';
+    // Save file
+    XLSX.writeFile(wb, `running-buses-${new Date().getTime()}.xlsx`);
+  }
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Download report for Idle Buses Modal (EXCEL)
+  downloadIdleBusReport() {
+    const data = this.idleBus.map((bus, index) => ({
+      'Sl No.': index + 1,
+      'Vehicle Number': bus.busNo || 'N/A',
+      'Idle Reason': bus.idleReason || 'Not Specified',
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Idle Buses');
+
+    XLSX.writeFile(wb, `idle-buses-${new Date().getTime()}.xlsx`);
+  }
+
+  // NOW YOU TRY! Download report for Finished Buses Modal (EXCEL)
+  downloadFinishedBusReport() {
+    const data = this.idleBus.map((bus, index) => ({
+      'Sl No.': index + 1,
+      'Vehicle Number': bus.busNo || 'N/A',
+      'Route Number': bus.busName || 'N/A',
+      'Driver ID': bus.driver?.driver_id || 'N/A',
+      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
+      Earnings: bus.earnings || '0',
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Finished Buses');
+
+    XLSX.writeFile(wb, `finished-buses-${new Date().getTime()}.xlsx`);
+  }
+
+  // Download report for Breakdown Buses Modal (EXCEL)
+  downloadBreakdownBusReport() {
+    const data = this.idleBus.map((bus, index) => ({
+      'Sl No.': index + 1,
+      'Vehicle Number': bus.busNo || 'N/A',
+      'Route Number': bus.busName || 'N/A',
+      'Driver ID': bus.driver?.driver_id || 'N/A',
+      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
+      'Trip Completed': bus.tripCompleted || 'N/A',
+      'Kilometres Driven': bus.kmDriven || 'N/A',
+      'Place of Breakdown': bus.breakdownPlace || 'N/A',
+      'Time of Breakdown': bus.breakdownTime || 'N/A',
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Breakdown Buses');
+
+    XLSX.writeFile(wb, `breakdown-buses-${new Date().getTime()}.xlsx`);
   }
 }

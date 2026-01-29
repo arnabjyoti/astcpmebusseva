@@ -7,10 +7,11 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
+const { col, where } = require('sequelize');
 const { Sequelize, fn, literal } = require("sequelize");
 const busModel = require("../models").busMaster;
-const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
+const busRoutesModel = require("../models").busRoutesMaster;
 const driverMasterModel = require("../models").driverMaster;
 const conductorMasterModel = require("../models").conductorMaster;
 const dailyUpdatesModel = require("../models").dailyUpdates;
@@ -140,12 +141,12 @@ module.exports = {
       const capitalizeFirst = (str) =>
         str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-    // Format fields
-    const depot = capitalizeFirst(data.depot);
-    const start = capitalizeFirst(data.start);
-    const end = capitalizeFirst(data.end);
-    const via = capitalizeFirst(data.via);
-    const routeName = capitalizeFirst(data.routeName);
+      // Format fields
+      const depot = capitalizeFirst(data.depot);
+      const start = capitalizeFirst(data.start);
+      const end = capitalizeFirst(data.end);
+      const via = capitalizeFirst(data.via);
+      const routeName = capitalizeFirst(data.routeName);
 
       // Check duplicate routeNo
       const exists = await busRoutesModel.findOne({
@@ -234,23 +235,23 @@ module.exports = {
       const data = req.body.requestObject;
       console.log("Delete Route:", data);
 
-    busRoutesModel.update(
-      { status: "Inactive" },
-      { where: { id: data.id } }
-    )
-    .then(() => {
-      return res.status(200).json({ message: "Success" });
-    })
-    .catch((err) => {
-      console.error("Delete error:", err);
-      return res.status(500).json({ message: "Failed to delete route" });
-    });
+      busRoutesModel.update(
+        { status: "Inactive" },
+        { where: { id: data.id } }
+      )
+        .then(() => {
+          return res.status(200).json({ message: "Success" });
+        })
+        .catch((err) => {
+          console.error("Delete error:", err);
+          return res.status(500).json({ message: "Failed to delete route" });
+        });
 
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-},
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
 
 
   async getRouteSuggestions(req, res) {
@@ -559,18 +560,18 @@ module.exports = {
   // const { Op, fn, col, literal } = require("sequelize");
 
 
-  
+
   // const { Op, literal } = require("sequelize");
 
-getConductor(req, res) {
-  let query = {
-    where: {
-      [Op.or]: [{ status: "Active" }, { status: "Block" }],
-    },
-    attributes: {
-      include: [
-        [
-          literal(`(
+  getConductor(req, res) {
+    let query = {
+      where: {
+        [Op.or]: [{ status: "Active" }, { status: "Block" }],
+      },
+      attributes: {
+        include: [
+          [
+            literal(`(
             SELECT 
               COALESCE(
                 SUM(
@@ -582,22 +583,22 @@ getConductor(req, res) {
             FROM dailyUpdates du
             WHERE du.conductorId = conductorMaster.id
           )`),
-          "amountToBeDeposited",
+            "amountToBeDeposited",
+          ],
         ],
-      ],
-    },
-    raw: true,
-    order: [["id", "DESC"]],
-  };
+      },
+      raw: true,
+      order: [["id", "DESC"]],
+    };
 
-  return conductorMasterModel
-    .findAll(query)
-    .then((data) => res.status(200).send(data))
-    .catch((error) => {
-      console.error(error);
-      return res.status(400).send(error);
-    });
-},
+    return conductorMasterModel
+      .findAll(query)
+      .then((data) => res.status(200).send(data))
+      .catch((error) => {
+        console.error(error);
+        return res.status(400).send(error);
+      });
+  },
 
   // const { Op, Sequelize } = require("sequelize");
 
@@ -666,49 +667,49 @@ getConductor(req, res) {
 ,  
 
   async saveDailyUpdates(req, res) {
-  try {
-    let data = req.body.requestObject;
-    data.status = "Active";
+    try {
+      let data = req.body.requestObject;
+      data.status = "Active";
 
-    // 1️⃣ Get last timesheetNo
-    const lastRecord = await dailyUpdatesModel.findOne({
-      where: {
-        timesheetNo: { [require('sequelize').Op.ne]: null }
-      },
-      order: [['id', 'DESC']],
-      attributes: ['timesheetNo']
-    });
+      // 1️⃣ Get last timesheetNo
+      const lastRecord = await dailyUpdatesModel.findOne({
+        where: {
+          timesheetNo: { [require('sequelize').Op.ne]: null }
+        },
+        order: [['id', 'DESC']],
+        attributes: ['timesheetNo']
+      });
 
-    let nextNumber = 1;
-    const prefix = 'ASTC-SKAP-';
+      let nextNumber = 1;
+      const prefix = 'ASTC-SKAP-';
 
-    if (lastRecord && lastRecord.timesheetNo) {
-      const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
-      const parts = lastNo.split('-');
-      const num = parseInt(parts[parts.length - 1], 10);
+      if (lastRecord && lastRecord.timesheetNo) {
+        const lastNo = lastRecord.timesheetNo;   // ASTC-SKAP-7
+        const parts = lastNo.split('-');
+        const num = parseInt(parts[parts.length - 1], 10);
 
-      if (!isNaN(num)) {
-        nextNumber = num + 1;
+        if (!isNaN(num)) {
+          nextNumber = num + 1;
+        }
       }
+
+      // 2️⃣ Set new timesheet number
+      data.timesheetNo = prefix + nextNumber;
+
+      // 3️⃣ Insert record
+      const response = await dailyUpdatesModel.create(data);
+
+      return res.status(200).send({
+        message: "Success",
+        id: response.id,
+        timesheetNo: data.timesheetNo
+      });
+
+    } catch (err) {
+      console.log("err", err);
+      return res.status(500).send({ message: "Error saving data" });
     }
-
-    // 2️⃣ Set new timesheet number
-    data.timesheetNo = prefix + nextNumber;
-
-    // 3️⃣ Insert record
-    const response = await dailyUpdatesModel.create(data);
-
-    return res.status(200).send({
-      message: "Success",
-      id: response.id,
-      timesheetNo: data.timesheetNo
-    });
-
-  } catch (err) {
-    console.log("err", err);
-    return res.status(500).send({ message: "Error saving data" });
-  }
-},
+  },
 
 
   updateDailyUpdates(req, res) {
@@ -1046,10 +1047,17 @@ LIMIT 1;
     console.log("id===>>", id);
 
     let sqlQuery = `
-        SELECT  bm.id as busId, bm.*, br.id as routeNo, br.*, du.id as id, du.*
+        SELECT  bm.id as busId, bm.driverId as driver_actual_id, bm.conductorId as conductor_actual_id, bm.*, br.id as routeNo, br.*, du.id as id, du.*, conductorMasters.conductor_id as conductorId, driverMasters.driver_id as driverId
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
         INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
+
+        LEFT JOIN conductorMasters 
+  ON bm.conductorId = conductorMasters.id
+
+  LEFT JOIN driverMasters 
+  ON bm.driverId = driverMasters.id
+
         WHERE du.id = ?
     `;
 
@@ -1639,9 +1647,8 @@ END AS estimated_time,
     JOIN busMasters bm ON t.busMasterId = bm.id
     WHERE lts.rn = 1
     ${whereConditions.length ? `AND ${whereConditions.join(" AND ")}` : ""}
-    ${
-      busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
-    } ORDER BY lts.date ASC;
+    ${busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
+      } ORDER BY lts.date ASC;
   `;
 
     // let countQuery = `
@@ -1726,14 +1733,43 @@ END AS estimated_time,
           status: "Active",
         },
       });
+
       const runningBus = await dailyUpdatesModel.count({
         where: {
           date: today,
-          currentStatus: "Running",
+          currentStatus: "running",
         },
       });
 
-      const idleBus = await sequelize.query(
+      const runningVehicle = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "running",
+        },
+        attributes: [
+          "routeNo",
+          "driverId",
+          "conductorId",
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+        ]
+      });
+
+      const idleBus = await dailyUpdatesModel.count({
+        where: {
+          date: today,
+          currentStatus: "idle",
+        }
+      });
+
+
+      const idleBusData = await sequelize.query(
         `
         SELECT b.*
         FROM busMasters b
@@ -1752,20 +1788,73 @@ END AS estimated_time,
           type: Sequelize.QueryTypes.SELECT
         }
       );
-      
+
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
           date: today,
-          currentStatus: "Finished",
-        },
+          currentStatus: "finished",
+        }
       });
+
+      const finishedBusData = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "finished"
+        },
+        attributes: [
+          "driverId",
+          "conductorId",
+          "netAmountDeposited",
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+          {
+            model: busRoutesModel,
+            as: "route",
+            attributes: ["routeNo"],
+            required: true
+          },
+        ],
+      });
+
 
       const stillBus = await dailyUpdatesModel.count({
         where: {
           date: today,
           currentStatus: "Still",
         },
+      });
+
+      const stillBusData = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "still",
+        },
+        attributes: [
+          "routeNo",
+          "noOfTrip",
+          "driverId",
+          "conductorId",
+          "totalOperated",
+          "placeOfBreakdown",
+          "causeOfBreakdown",
+          "stopTime",
+          "date"
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+        ]
       });
 
       res.status(200).send({
@@ -1776,10 +1865,13 @@ END AS estimated_time,
         totalConductor,
         totalRoute,
         runningBus,
+        runningVehicle,
         idleBus,
-        idleBusCount: idleBus.length,
+        idleBusData,
         finishedBus,
+        finishedBusData,
         stillBus,
+        stillBusData
       });
     } catch (error) {
       console.error("Error fetching dashboard counts:", error);
