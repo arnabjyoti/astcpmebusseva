@@ -12,6 +12,7 @@ import { TripLogComponent } from './trip-log/trip-log.component';
 import { DriverComponent } from './staff/driver/driver.component';
 import { ConductorComponent } from './staff/conductor/conductor.component';
 import { AttendanceComponent } from './attendance/attendance.component';
+import { BreakdownVehicleComponent } from './breakdown-vehicle/breakdown-vehicle.component';
 
 const routes: Routes = [
   {
@@ -70,6 +71,12 @@ const routes: Routes = [
   {
     path: "daily-update",
     component: DailyUpdateFormComponent,
+    data: { showTopNav: true },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "breakdown-vehicles",
+    component: BreakdownVehicleComponent,
     data: { showTopNav: true },
     canActivate: [AuthGuard]
   },

@@ -16,10 +16,15 @@ module.exports = (sequelize, type) => {
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING
-    }, {timestamps:true});
-    conductorMaster.associate = function(models) {
+    }, { timestamps: true });
+    conductorMaster.associate = function (models) {
         // associations can be defined here
         // busMaster.hasMany(models.trip);
+        conductorMaster.hasMany(models.dailyUpdates, {
+            foreignKey: "conductorId",
+            as: "dailyUpdates"
+        });
+
     };
     return conductorMaster;
 };
