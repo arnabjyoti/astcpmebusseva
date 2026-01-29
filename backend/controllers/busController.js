@@ -7,6 +7,7 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
+const { col, where } = require('sequelize');
 const { Sequelize, fn, literal } = require("sequelize");
 const busModel = require("../models").busMaster;
 const busMasterModel = require("../models").busMaster;
@@ -1728,61 +1729,25 @@ END AS estimated_time,
         },
       });
 
-      const runningVehicle = await sequelize.query(
-        `
-  SELECT 
-    du.id,
-    bm.busNo,
-    br.routeNo AS routeNo,
-    du.driverId,
-    du.conductorId
-  FROM dailyUpdates AS du
-  INNER JOIN busMasters AS bm ON du.busId = bm.id
-  LEFT JOIN busRoutesMasters AS br ON bm.allotedRouteNo = br.id
-  WHERE du.date = :today 
-    AND du.currentStatus = 'Running'
-  `,
-        {
-          replacements: { today },
-          type: sequelize.QueryTypes.SELECT,
-        }
-      );
-
-      // const idleBus = await busMasterModel.findAll({
-      //   where: {
-      //     status: "Active",
-      //     [Op.or]: [
-      //       // No entry today
-      //       {
-      //         id: {
-      //           [Op.notIn]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-      //     `),
-      //         },
-      //       },
-
-      //       // Entry today but Idle or NULL
-      //       {
-      //         id: {
-      //           [Op.in]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates 
-      //       WHERE date = '${today}' 
-      //       AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-      //     `),
-      //         },
-      //       },
-      //     ],
-      //   },
-      //   attributes: [
-      //     "id",
-      //     "busName",
-      //     "busNo",
-      //     "baseDepot",
-      //     "driverName",
-      //     "conductorName",
-      //   ],
-      //   order: [["busName", "ASC"]],
-      // });
+      const runningVehicle = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "running",
+        },
+        attributes: [
+          "routeNo",
+          "driverId",
+          "conductorId",
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+        ]
+      });
 
       const idleBus = await dailyUpdatesModel.count({
         where: {
@@ -1791,16 +1756,27 @@ END AS estimated_time,
         }
       });
 
-      const idleBusData = await dailyUpdatesModel.findAll({
-        where: {
-          date: today,
-          currentStatus: "idle",
-        },
-        attributes: [
-          "busId",
-          "remarks"
-        ]
-      });
+
+      const idleBusData = await sequelize.query(
+        `
+        SELECT b.*
+        FROM busMasters b
+        LEFT JOIN dailyUpdates d
+          ON b.id = d.busId
+         AND d.date = :today
+        WHERE b.status = 'Active'
+          AND (
+                d.currentStatus = 'Idle'
+                OR d.id IS NULL
+              )
+        ORDER BY b.busName ASC
+        `,
+        {
+          replacements: { today },
+          type: Sequelize.QueryTypes.SELECT
+        }
+      );
+
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
@@ -1815,6 +1791,8 @@ END AS estimated_time,
           currentStatus: "finished"
         },
         attributes: [
+          "driverId",
+          "conductorId",
           "netAmountDeposited",
         ],
         include: [
@@ -1830,38 +1808,7 @@ END AS estimated_time,
             attributes: ["routeNo"],
             required: true
           },
-          {
-            model: driverMasterModel,
-            as: "driver",
-            attributes: ["driver_id"],
-          },
         ],
-        // include: [
-        //   {
-        //   //   model: busMasterModel,
-        //   //   as: "bus",
-        //   //   attributes: ["busNo"],
-        //   //   required: true
-        //   },
-        //   {
-        //     // model: busRoutesModel,
-        //     // as: "route",
-        //     // attributes: ["routeNo"],
-        //     // required: true
-        //   },
-        //   {
-        //     // model: driverMasterModel,
-        //     // as: "driver",
-        //     // attributes: ["driver_id"],
-        //     // required: false
-        //   },
-        //   {
-        //     // model: conductorMasterModel,
-        //     // as: "conductor",
-        //     // attributes: ["conductorId"],
-        //     // required: false
-        //   }
-        // ]
       });
 
 
@@ -1878,14 +1825,23 @@ END AS estimated_time,
           currentStatus: "still",
         },
         attributes: [
-          "busId",
           "routeNo",
+          "noOfTrip",
           "driverId",
           "conductorId",
-          "noOfTrip",
           "totalOperated",
-          "remarks",
-          "stopTime"
+          "placeOfBreakdown",
+          "causeOfBreakdown",
+          "stopTime",
+          "date"
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
         ]
       });
 
@@ -1899,7 +1855,6 @@ END AS estimated_time,
         runningBus,
         runningVehicle,
         idleBus,
-        // idleBusCount: idleBus.length,
         idleBusData,
         finishedBus,
         finishedBusData,
@@ -1961,4 +1916,5 @@ END AS estimated_time,
       res.status(500).send({ error: "Failed to fetch data" });
     }
   },
+
 };

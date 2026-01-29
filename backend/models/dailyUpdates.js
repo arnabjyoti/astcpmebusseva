@@ -38,6 +38,8 @@ module.exports = (sequelize, type) => {
         netAmountDeposited: type.STRING,
         tragetedEarning: type.STRING,
         amountToBeDeposited: type.STRING,
+        placeOfBreakdown: type.STRING,
+        causeOfBreakdown: type.STRING,
         remarks: type.STRING,
         status: type.STRING
 
