@@ -348,7 +348,7 @@
           <div class="d-flex justify-content-between p-3">
             <div>
               <h3>
-                <strong>Bus No: {{ busDetails.busNo }}</strong>
+                <strong>Vehicle No: {{ busDetails.busNo }}</strong>
               </h3>
             </div>
             <div>
@@ -428,44 +428,44 @@
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Passengers No.</label>
+                <label>Chalo Passengers Count</label>
                 <input type="text" class="form-control" [(ngModel)]="form.chaloPassengersNo" name="chaloPassengersNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Ticket No. </label>
+                <label>Chalo Ticket Count</label>
                 <input type="text" class="form-control" [(ngModel)]="form.chaloTicketNo" name="chaloTicketNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Ticket Amount (in Rs.) </label>
+                <label>Chalo Ticket Amount (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.chaloTicketAmount"
                   (change)="calculateAmount()" name="chaloTicketAmount" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Cash Collection (in Rs.)</label>
+                <label>Cash Collection (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.cashCollection" (change)="calculateAmount()"
                   name="cashCollection" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>UPI (in Rs.)</label>
+                <label>UPI (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.upi" (change)="calculateAmount()"
                   name="upi" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Net Amt deposited in WaySide Cahier (in Rs.)</label>
+                <label>Amount Collected (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
                   name="netAmountDeposited" readonly  />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Trageted Earning (in Rs.)</label>
+                <label>Trageted Earning (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.estimated_collection" name="estimated_collection" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Amount to be deposited (in Rs.)</label>
+                <label>Pending Amount (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
@@ -502,7 +502,7 @@
 
                   <button type="button" class="btn btn-success text-center" (click)="updateData()" data-dismiss="modal"
                     *ngIf="formtype == 'update'">
-                    Update and Fininsh Trip
+                    Update and Complete Trip
                   </button>
                 </div>
               </div>

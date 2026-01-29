@@ -225,6 +225,11 @@ export class TovnavComponent implements OnInit {
           icon: 'fas fa-book',
           routerLink: '/bus-daily-updates',
         },
+        {
+          label: 'Breakdown Vehicles',
+          icon: 'fas fa-tools',
+          routerLink: '/breakdown-vehicles',
+        }
       ];
     }
 

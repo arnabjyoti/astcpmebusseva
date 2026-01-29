@@ -1,0 +1,222 @@
+<div class="breakdown-form-container">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h4 class="mb-0">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        Breakdown Vehicle Form
+      </h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="breakdownForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Vehicle Number -->
+          <div class="col-md-6 mb-3">
+            <label for="vehicleNumber" class="form-label">
+              Vehicle Number <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="vehicleNumber"
+              formControlName="vehicleNumber"
+              placeholder="Enter vehicle number"
+              [class.is-invalid]="isFieldInvalid('vehicleNumber')">
+            <div class="invalid-feedback">
+              Vehicle number is required
+            </div>
+          </div>
+
+          <!-- Route Number -->
+          <div class="col-md-6 mb-3">
+            <label for="routeNumber" class="form-label">
+              Route Number <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="routeNumber"
+              formControlName="routeNumber"
+              placeholder="Enter route number"
+              [class.is-invalid]="isFieldInvalid('routeNumber')">
+            <div class="invalid-feedback">
+              Route number is required
+            </div>
+          </div>
+
+          <!-- Driver ID -->
+          <div class="col-md-6 mb-3">
+            <label for="driverId" class="form-label">
+              Driver ID <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="driverId"
+              formControlName="driverId"
+              placeholder="Enter driver ID"
+              [class.is-invalid]="isFieldInvalid('driverId')">
+            <div class="invalid-feedback">
+              Driver ID is required
+            </div>
+          </div>
+
+          <!-- Conductor ID -->
+          <div class="col-md-6 mb-3">
+            <label for="conductorId" class="form-label">
+              Conductor ID <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="conductorId"
+              formControlName="conductorId"
+              placeholder="Enter conductor ID"
+              [class.is-invalid]="isFieldInvalid('conductorId')">
+            <div class="invalid-feedback">
+              Conductor ID is required
+            </div>
+          </div>
+
+          <!-- Trip Completed -->
+          <div class="col-md-6 mb-3">
+            <label for="tripCompleted" class="form-label">
+              Trip Completed <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="tripCompleted"
+              formControlName="tripCompleted"
+              placeholder="Enter trips completed"
+              min="0"
+              [class.is-invalid]="isFieldInvalid('tripCompleted')">
+            <div class="invalid-feedback">
+              Trip completed is required
+            </div>
+          </div>
+
+          <!-- Kilometres Driven -->
+          <div class="col-md-6 mb-3">
+            <label for="kilometresDriven" class="form-label">
+              Kilometres Driven <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="kilometresDriven"
+              formControlName="kilometresDriven"
+              placeholder="Enter km driven"
+              min="0"
+              step="0.01"
+              [class.is-invalid]="isFieldInvalid('kilometresDriven')">
+            <div class="invalid-feedback">
+              Kilometres driven is required
+            </div>
+          </div>
+
+          <!-- Place of Breakdown -->
+          <div class="col-md-6 mb-3">
+            <label for="placeOfBreakdown" class="form-label">
+              Place of Breakdown <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="placeOfBreakdown"
+              formControlName="placeOfBreakdown"
+              placeholder="Enter location"
+              [class.is-invalid]="isFieldInvalid('placeOfBreakdown')">
+            <div class="invalid-feedback">
+              Place of breakdown is required
+            </div>
+          </div>
+
+          <!-- Time of Breakdown -->
+          <div class="col-md-6 mb-3">
+            <label for="timeOfBreakdown" class="form-label">
+              Time of Breakdown <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="time" 
+              class="form-control" 
+              id="timeOfBreakdown"
+              formControlName="timeOfBreakdown"
+              [class.is-invalid]="isFieldInvalid('timeOfBreakdown')">
+            <div class="invalid-feedback">
+              Time of breakdown is required
+            </div>
+          </div>
+
+          <!-- Cause of Breakdown -->
+          <div class="col-md-6 mb-3">
+            <label for="causeOfBreakdown" class="form-label">
+              Cause of Breakdown <span class="text-danger">*</span>
+            </label>
+            <select 
+              class="form-control" 
+              id="causeOfBreakdown"
+              formControlName="causeOfBreakdown"
+              [class.is-invalid]="isFieldInvalid('causeOfBreakdown')">
+              <option value="">Select cause</option>
+              <option value="Engine Failure">Engine Failure</option>
+              <option value="Tire Puncture">Tire Puncture</option>
+              <option value="Brake Issue">Brake Issue</option>
+              <option value="Electrical Fault">Electrical Fault</option>
+              <option value="Transmission Problem">Transmission Problem</option>
+              <option value="Fuel System Issue">Fuel System Issue</option>
+              <option value="Overheating">Overheating</option>
+              <option value="Accident">Accident</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="invalid-feedback">
+              Cause of breakdown is required
+            </div>
+          </div>
+
+          <!-- Remarks -->
+          <div class="col-12 mb-3">
+            <label for="remarks" class="form-label">
+              Remarks
+            </label>
+            <textarea 
+              class="form-control" 
+              id="remarks"
+              formControlName="remarks"
+              rows="3"
+              placeholder="Enter additional details or remarks..."></textarea>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="breakdownForm.invalid || isSubmitting">
+            <i class="fas fa-save mr-2"></i>
+            <span *ngIf="!isSubmitting">Submit Report</span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+              Submitting...
+            </span>
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="onReset()"
+            [disabled]="isSubmitting">
+            <i class="fas fa-undo mr-2"></i>
+            Reset
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            (click)="onCancel()">
+            <i class="fas fa-times mr-2"></i>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
