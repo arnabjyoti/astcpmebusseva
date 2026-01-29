@@ -208,7 +208,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let record of paginatedRecords; let i = index">
+              <tr *ngFor="let record of getBreakdownRecords; let i = index">
                 <td>{{ getActualIndex(i) }}</td>
                 <td>{{ record.vehicleNumber }}</td>
                 <td>{{ record.routeNumber }}</td>

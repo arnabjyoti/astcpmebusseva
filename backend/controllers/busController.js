@@ -1831,9 +1831,9 @@ END AS estimated_time,
           "conductorId",
           "totalOperated",
           "placeOfBreakdown",
-          "causeOfBreakdown",
+          // "causeOfBreakdown",
           "stopTime",
-          "date"
+          // "date"
         ],
         include: [
           {

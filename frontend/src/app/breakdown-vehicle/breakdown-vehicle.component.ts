@@ -24,7 +24,7 @@ interface BreakdownRecord {
 })
 export class BreakdownVehicleComponent implements OnInit {
 
-  // stillBusData: any[] = [];
+  getBreakdownRecords: any[] = []
 
   breakdownRecords: BreakdownRecord[] = [];
   paginatedRecords: BreakdownRecord[] = [];
@@ -50,9 +50,10 @@ export class BreakdownVehicleComponent implements OnInit {
     this.loadBreakdownRecords();
   }
 
-    fetchBreakdownData(): void {
-      this.stillBusData = this.stillBusData;
-    }
+  getBreakdownTableData(): void {
+    this.getBreakdownRecords = res.getBreakdownRecords;
+  }
+
   // Form Methods
   createForm(): FormGroup {
     return this.formBuilder.group({
