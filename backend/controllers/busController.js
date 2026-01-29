@@ -1733,41 +1733,26 @@ END AS estimated_time,
         },
       });
 
-      const idleBus = await busMasterModel.findAll({
-        where: {
-          status: "Active",
-          [Op.or]: [
-            // No entry today
-            {
-              id: {
-                [Op.notIn]: Sequelize.literal(`
-            (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-          `),
-              },
-            },
-
-            // Entry today but Idle or NULL
-            {
-              id: {
-                [Op.in]: Sequelize.literal(`
-            (SELECT busId FROM dailyUpdates 
-             WHERE date = '${today}' 
-             AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-          `),
-              },
-            },
-          ],
-        },
-        attributes: [
-          "id",
-          "busName",
-          "busNo",
-          "baseDepot",
-          "driverName",
-          "conductorName",
-        ],
-        order: [["busName", "ASC"]],
-      });
+      const idleBus = await sequelize.query(
+        `
+        SELECT b.*
+        FROM busMasters b
+        LEFT JOIN dailyUpdates d
+          ON b.id = d.busId
+         AND d.date = :today
+        WHERE b.status = 'Active'
+          AND (
+                d.currentStatus = 'Idle'
+                OR d.id IS NULL
+              )
+        ORDER BY b.busName ASC
+        `,
+        {
+          replacements: { today },
+          type: Sequelize.QueryTypes.SELECT
+        }
+      );
+      
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
