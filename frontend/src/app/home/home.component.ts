@@ -121,6 +121,7 @@ export class HomeComponent implements OnInit {
         return;
       }
       console.log('Dashboard Data:', res);
+
       // Assign API values
       this.totalBus = res.totalBus;
       this.totalDriver = res.totalDriver;
@@ -129,8 +130,7 @@ export class HomeComponent implements OnInit {
 
       this.runningBus = res.runningBus;
       this.runningVehicle = res.runningVehicle;
-      // this.idleBus = res.idleBus;
-      this.idleBusCount = res.idleBus;
+      this.idleBusCount = res.idleBusData.length;
       this.idleBusData = res.idleBusData;
       this.finishedBusData = res.finishedBusData;
       this.finishedBus = res.finishedBus;

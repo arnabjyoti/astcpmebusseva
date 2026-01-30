@@ -219,8 +219,8 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Vehicle Number</th>
-                  <th>Route Number</th>
+                  <th>Vehicle No.</th>
+                  <th>Route No</th>
                   <th>Driver ID</th>
                   <th>Conductor ID</th>
                 </tr>
@@ -228,8 +228,8 @@
               <tbody>
                 <tr *ngFor="let bus of runningVehicle; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ bus.busNo }}</td>
-                  <td>{{ bus.allotedRouteNo }}</td>
+                  <td>{{ bus?.bus?.busNo }}</td>
+                  <td>{{ bus.routeNo }}</td>
                   <td>{{ bus.driverId }}</td>
                   <td>{{ bus?.conductorId }}</td>
                 </tr>
@@ -297,8 +297,8 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Vehicle Number</th>
-                  <th>Idle Reason</th>
+                  <th>Vehicle No.</th>
+                  <th>Reason</th>
                 </tr>
               </thead>
               <tbody>
@@ -371,8 +371,8 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Vehicle Number</th>
-                  <th>Route Number</th>
+                  <th>Vehicle No.</th>
+                  <th>Route No.</th>
                   <th>Driver ID</th>
                   <th>Conductor ID</th>
                   <th>Earnings</th>
@@ -381,11 +381,11 @@
               <tbody>
                 <tr *ngFor="let bus of finishedBusData; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ bus.busNo }}</td>
-                  <td>{{ bus.routeNo }}</td>
+                  <td>{{ bus?.bus?.busNo }}</td>
+                  <td>{{ bus?.route?.routeNo }}</td>
                   <td>{{ bus.driverId }}</td>
                   <td>{{ bus.conductorId }}</td>
-                  <td>{{ bus.netAmountDeposited }}</td>
+                  <td>{{ bus?.netAmountDeposited }}</td>
                 </tr>
               </tbody>
             </table>
@@ -451,26 +451,26 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Vehicle Number</th>
-                  <th>Route Number</th>
+                  <th>Vehicle No.</th>
+                  <th>Route No.</th>
                   <th>Driver ID</th>
                   <th>Conductor ID</th>
                   <th>Trip Completed</th>
-                  <th>Kilometres Driven</th>
-                  <th>Place of Breakdown</th>
-                  <th>Time of Breakdown</th>
+                  <th>Km Driven</th>
+                  <th>Breakdown Place</th>
+                  <th>Breakdown Time</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let bus of stillBusData; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ bus.busNo }}</td>
+                  <td>{{ bus?.bus?.busNo }}</td>
                   <td>{{ bus.routeNo }}</td>
                   <td>{{ bus.driverId }}</td>
                   <td>{{ bus.conductorId }}</td>
                   <td>{{ bus.noOfTrip }}</td>
                   <td>{{ bus.totalOperated }}</td>
-                  <td>{{ bus.remarks }}</td>
+                  <td>{{ bus.placeOfBreakdown }}</td>
                   <td>{{ bus.stopTime }}</td>
                 </tr>
               </tbody>

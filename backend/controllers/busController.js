@@ -7,10 +7,11 @@ const brunchModel = require("../models").brunch;
 const bcrypt = require("bcrypt");
 var request = require("request");
 const Op = require("sequelize").Op;
+const { col, where } = require('sequelize');
 const { Sequelize, fn, literal } = require("sequelize");
 const busModel = require("../models").busMaster;
-const busRoutesModel = require("../models").busRoutesMaster;
 const busMasterModel = require("../models").busMaster;
+const busRoutesModel = require("../models").busRoutesMaster;
 const driverMasterModel = require("../models").driverMaster;
 const conductorMasterModel = require("../models").conductorMaster;
 const dailyUpdatesModel = require("../models").dailyUpdates;
@@ -606,52 +607,51 @@ module.exports = {
 
   getConductorAttendance(req, res) {
     try {
-      // const { month } = req.body;
-      const month = req.query.month;
-      // expected format: "2025-09-01"
-
-      if (!month) {
-        return res.status(400).send({ message: "Month is required" });
+      const { from, to } = req.query; // ✅ correct destructuring
+  
+      // expected format: YYYY-MM-DD
+      if (!from || !to) {
+        return res.status(400).send({ message: "from and to dates are required" });
       }
-
+  
       const sql = `
         WITH RECURSIVE calendar AS (
-            SELECT DATE(:month) AS day
-            UNION ALL
-            SELECT day + INTERVAL 1 DAY
-            FROM calendar
-            WHERE day < LAST_DAY(:month)
+          SELECT DATE(:from) AS day
+          UNION ALL
+          SELECT day + INTERVAL 1 DAY
+          FROM calendar
+          WHERE day < DATE(:to)
         ),
         attendance_raw AS (
-            SELECT
-                cm.id AS conductor_id,
-                cm.conductor_name,
-                c.day,
-                CASE
-                    WHEN du.conductorId IS NOT NULL THEN 'P'
-                    ELSE 'A'
-                END AS status
-            FROM conductorMasters cm
-            CROSS JOIN calendar c
-            LEFT JOIN dailyUpdates du
-                ON du.conductorId = cm.id
-               AND DATE(du.date) = c.day
-            WHERE cm.status IN ('Active', 'Block')
+          SELECT
+            cm.id AS conductor_id,
+            cm.conductor_name,
+            c.day,
+            CASE
+              WHEN du.conductorId IS NOT NULL THEN 'P'
+              ELSE 'A'
+            END AS status
+          FROM conductorMasters cm
+          CROSS JOIN calendar c
+          LEFT JOIN dailyUpdates du
+            ON du.conductorId = cm.id
+           AND DATE(du.date) = c.day
+          WHERE cm.status IN ('Active', 'Block')
         )
         SELECT
-            conductor_name AS conductor,
-            JSON_OBJECTAGG(
-                DATE_FORMAT(day, '%Y-%m-%d'),
-                status
-            ) AS attendance
+          conductor_name AS conductor,
+          JSON_OBJECTAGG(
+            DATE_FORMAT(day, '%Y-%m-%d'),
+            status
+          ) AS attendance
         FROM attendance_raw
         GROUP BY conductor_id, conductor_name
         ORDER BY conductor_name;
       `;
-
+  
       return sequelize
         .query(sql, {
-          replacements: { month },
+          replacements: { from, to }, // ✅ pass both
           type: Sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
@@ -661,11 +661,13 @@ module.exports = {
           console.error(error);
           return res.status(400).send(error);
         });
+  
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
     }
-  },
+  }
+,  
 
   async saveDailyUpdates(req, res) {
     try {
@@ -822,10 +824,12 @@ SELECT
     cm.conductor_name as conductorName,
     cm.conductor_id as conductorId,
     cm.contact_no as conductorContactNo,
+    cm.id as conductor_actual_id,
     
     dm.driver_name as driverName,
     dm.contact_no as driverContactNo,
     dm.driver_id as driverId,
+    dm.id as driver_actual_id,
 
     -- Route fields
     routes.id AS routeId,
@@ -932,10 +936,12 @@ ORDER BY bus.id DESC;
     conductorMasters.conductor_name as conductorName,
     conductorMasters.conductor_id as conductorId,
     conductorMasters.contact_no as conductorContactNo,
+    conductorMasters.id as conductor_actual_id,
     
     driverMasters.driver_name as driverName,
     driverMasters.contact_no as driverContactNo,
     driverMasters.driver_id as driverId,
+    driverMasters.id as driver_actual_id,
     
     busRoutesMasters.routeNo AS routeNo,
     busRoutesMasters.start AS routeStart,
@@ -1039,11 +1045,17 @@ LIMIT 1;
     console.log("id===>>", id);
 
     let sqlQuery = `
-        SELECT  bm.id as busId, bm.*, br.id as routeNo, br.*, du.id as id, du.*
+        SELECT  bm.id as busId, bm.driverId as driver_actual_id, bm.conductorId as conductor_actual_id, bm.*, br.id as routeNo, br.*, du.id as id, du.*, conductorMasters.conductor_id as conductorId, driverMasters.driver_id as driverId
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
         INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
-        
+
+        LEFT JOIN conductorMasters 
+  ON bm.conductorId = conductorMasters.id
+
+  LEFT JOIN driverMasters 
+  ON bm.driverId = driverMasters.id
+
         WHERE du.id = ?
     `;
 
@@ -1727,61 +1739,25 @@ END AS estimated_time,
         },
       });
 
-      const runningVehicle = await sequelize.query(
-        `
-  SELECT 
-    du.id,
-    bm.busNo,
-    br.routeNo AS routeNo,
-    du.driverId,
-    du.conductorId
-  FROM dailyUpdates AS du
-  INNER JOIN busMasters AS bm ON du.busId = bm.id
-  LEFT JOIN busRoutesMasters AS br ON bm.allotedRouteNo = br.id
-  WHERE du.date = :today 
-    AND du.currentStatus = 'Running'
-  `,
-        {
-          replacements: { today },
-          type: sequelize.QueryTypes.SELECT,
-        }
-      );
-
-      // const idleBus = await busMasterModel.findAll({
-      //   where: {
-      //     status: "Active",
-      //     [Op.or]: [
-      //       // No entry today
-      //       {
-      //         id: {
-      //           [Op.notIn]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates WHERE date = '${today}')
-      //     `),
-      //         },
-      //       },
-
-      //       // Entry today but Idle or NULL
-      //       {
-      //         id: {
-      //           [Op.in]: Sequelize.literal(`
-      //       (SELECT busId FROM dailyUpdates 
-      //       WHERE date = '${today}' 
-      //       AND (currentStatus = 'Idle' OR currentStatus IS NULL))
-      //     `),
-      //         },
-      //       },
-      //     ],
-      //   },
-      //   attributes: [
-      //     "id",
-      //     "busName",
-      //     "busNo",
-      //     "baseDepot",
-      //     "driverName",
-      //     "conductorName",
-      //   ],
-      //   order: [["busName", "ASC"]],
-      // });
+      const runningVehicle = await dailyUpdatesModel.findAll({
+        where: {
+          date: today,
+          currentStatus: "running",
+        },
+        attributes: [
+          "routeNo",
+          "driverId",
+          "conductorId",
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+        ]
+      });
 
       const idleBus = await dailyUpdatesModel.count({
         where: {
@@ -1790,16 +1766,27 @@ END AS estimated_time,
         }
       });
 
-      const idleBusData = await dailyUpdatesModel.findAll({
-        where: {
-          date: today,
-          currentStatus: "idle",
-        },
-        attributes: [
-          "busId",
-          "remarks"
-        ]
-      });
+
+      const idleBusData = await sequelize.query(
+        `
+        SELECT b.*
+        FROM busMasters b
+        LEFT JOIN dailyUpdates d
+          ON b.id = d.busId
+         AND d.date = :today
+        WHERE b.status = 'Active'
+          AND (
+                d.currentStatus = 'Idle'
+                OR d.id IS NULL
+              )
+        ORDER BY b.busName ASC
+        `,
+        {
+          replacements: { today },
+          type: Sequelize.QueryTypes.SELECT
+        }
+      );
+
 
       const finishedBus = await dailyUpdatesModel.count({
         where: {
@@ -1811,16 +1798,29 @@ END AS estimated_time,
       const finishedBusData = await dailyUpdatesModel.findAll({
         where: {
           date: today,
-          currentStatus: "finished",
+          currentStatus: "finished"
         },
         attributes: [
-          "busId",
-          "routeNo",
           "driverId",
           "conductorId",
-          "netAmountDeposited"
-        ]
+          "netAmountDeposited",
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+          {
+            model: busRoutesModel,
+            as: "route",
+            attributes: ["routeNo"],
+            required: true
+          },
+        ],
       });
+
 
       const stillBus = await dailyUpdatesModel.count({
         where: {
@@ -1835,14 +1835,23 @@ END AS estimated_time,
           currentStatus: "still",
         },
         attributes: [
-          "busId",
           "routeNo",
+          "noOfTrip",
           "driverId",
           "conductorId",
-          "noOfTrip",
           "totalOperated",
-          "remarks",
-          "stopTime"
+          "placeOfBreakdown",
+          "causeOfBreakdown",
+          "stopTime",
+          "date"
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
         ]
       });
 
@@ -1856,7 +1865,6 @@ END AS estimated_time,
         runningBus,
         runningVehicle,
         idleBus,
-        // idleBusCount: idleBus.length,
         idleBusData,
         finishedBus,
         finishedBusData,
@@ -1889,33 +1897,37 @@ END AS estimated_time,
   },
 
   async getAmountToBePaidByConductor(req, res) {
-
-    const id = req.query.id;
-
-    const sql = `SELECT 
-                  SUM(
-                      COALESCE(tragetedEarning, 0) 
-                      - COALESCE(netAmountDeposited, 0)
-                      ) AS amountToBeDeposited
-                  FROM dailyUpdates
-                  WHERE conductorId = ${id};
-                  `;
-
     try {
-      // Execute both queries
-      const [dataResults] = await sequelize.query(sql);
-      // const [countResults] = await sequelize.query(countQuery);
-
-      const formattedResults = dataResults.map((row) => row);
-      // const totalCount = countResults[0]?.totalCount || 0;
-
-      res.send({
-        // totalCount: '',
-        data: formattedResults,
+      const { id } = req.query;
+      console.log("id", id);
+  
+      if (!id) {
+        return res.status(400).send({ message: 'Conductor id is required' });
+      }
+  
+      const sql = `
+        SELECT 
+          SUM(
+            COALESCE(tragetedEarning, 0) 
+            - COALESCE(netAmountDeposited, 0)
+          ) AS amountToBeDeposited
+        FROM dailyUpdates
+        WHERE conductorId = :id
+      `;
+  
+      const [dataResults] = await sequelize.query(sql, {
+        replacements: { id },
+        type: sequelize.QueryTypes.SELECT,
       });
+  
+      res.send({
+        data: dataResults,
+      });
+  
     } catch (error) {
-      console.error("Error executing query:", error);
-      res.status(500).send({ error: "Failed to fetch data" });
+      console.error('Error executing query:', error);
+      res.status(500).send({ error: 'Failed to fetch data' });
     }
-  },
+  }
+  
 };

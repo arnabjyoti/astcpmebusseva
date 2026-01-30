@@ -90,7 +90,8 @@
                               <tr>
                                 <td>{{ form.routeDepot }}</td>
                                 <td>
-                                  {{ selectedDate | date : "dd/MM/yyyy" }}
+                                  {{ selectedDate | date : "dd/MM/yyyy" }} 
+                                  {{ currentTinme | date : "hh:mm:ss a" }}
                                 </td>
                                 <td>{{ busDetails.busNo }}</td>
                                 <td>{{ form.routeNo }}</td>
@@ -98,7 +99,7 @@
                                   {{ form.routeName }}
                                 </td>
                                 <td>
-                                  {{ form.startTime }}
+                                  {{ formatTime(form.startTime) | date:'hh:mm:ss a' }}
                                 </td>
                               </tr>
 
@@ -137,12 +138,12 @@
                               </tr>
                               <tr>
                                 <td>{{ form.routeDepot }}</td>
-                                <td>{{ form.osoc }}</td>
-                                <td></td>
-                                <td></td>
+                                <td>{{ form.osoc || '' }}</td>
+                                <td>{{ form.csoc || '' }}</td>
+                                <td>{{ form.consumedSOC || '' }}</td>
                                 <td>{{ form.omr }}</td>
-                                <td></td>
-                                <td></td>
+                                <td>{{ form.cmr || '' }}</td>
+                                <td> {{ form.totalOperated || '' }} </td>
                               </tr>
                             </table>
 
@@ -158,7 +159,7 @@
                                 <th>To</th>
                                 <th>Arrival Time</th>
                                 <th>Departure Time</th>
-                                <th>Booking Asst Signature</th>
+                                <th>Time keeper's Signature</th>
                               </tr>
 
                               <!-- 8 empty rows -->
@@ -237,28 +238,28 @@
                               <tr>
                                 <th>Chalo Way Bill No</th>
                                 <th>Chalo Ticket Count</th>
-                                <th>Total Pass Count</th>
+                                <th>Chalo Pass Count</th>
                                 <th>Chalo Ticket Amount</th>
-                                <th>Phone Pe</th>
+                                <th>UPI</th>
                                 <th>Cash Collection</th>
-                                <th>Wallet Card</th>
+                                <!-- <th>Wallet Card</th>
                                 <th>Card Recharge</th>
-                                <th>Mobile Pass</th>
+                                <th>Mobile Pass</th> -->
                                 <th>Additional Amount Deposited</th>
                                 <th>Total Amount Deposited</th>
                               </tr>
                               <tr>
-                                <td style="height: 18px"></td>
+                                <td style="height: 18px">{{form.chaloWayBillNo || ''}}</td>
+                                <td>{{form.chaloTicketNo || ''}}</td>
+                                <td>{{form.chaloPassengersNo || ''}}</td>
+                                <td>{{form.chaloTicketAmount || ''}}</td>
+                                <td>{{form.upi || ''}}</td>
+                                <td>{{form.cashCollection || ''}}</td>
+                                <!-- <td></td>
                                 <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td></td> -->
+                                <td>0</td>
+                                <td>{{form.netAmountDeposited}}</td>
                               </tr>
                             </table>
 
@@ -276,12 +277,12 @@
                                 <th>Balance</th>
                               </tr>
                               <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ busDetails.estimated_collection }}</td>
-                                <td></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>{{form.netAmountDeposited}}</td>
+                                <td>{{form.estimated_collection}}</td>
+                                <td> {{form.amountToBeDeposited}}</td>
                               </tr>
                             </table>
 
@@ -347,7 +348,7 @@
           <div class="d-flex justify-content-between p-3">
             <div>
               <h3>
-                <strong>Bus No: {{ busDetails.busNo }}</strong>
+                <strong>Vehicle No: {{ busDetails.busNo }}</strong>
               </h3>
             </div>
             <div>
@@ -421,50 +422,56 @@
                 <input type="number" class="form-control" [(ngModel)]="form.targetedTrip" name="targetedTrip" />
               </div>
 
+              <div class="col-md-4 pt-3">
+                <label>Chalo WayBill no</label>
+                <input type="text" class="form-control" [(ngModel)]="form.chaloWayBillNo" name="chaloWayBillNo" />
+              </div>
+
+
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>No Of Trip</label>
                 <input type="number" class="form-control" [(ngModel)]="form.noOfTrip" name="noOfTrip" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Passengers No.</label>
+                <label>Chalo Passengers Count</label>
                 <input type="text" class="form-control" [(ngModel)]="form.chaloPassengersNo" name="chaloPassengersNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Ticket No. </label>
+                <label>Chalo Ticket Count</label>
                 <input type="text" class="form-control" [(ngModel)]="form.chaloTicketNo" name="chaloTicketNo" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Chalo Ticket Amount (in Rs.) </label>
+                <label>Chalo Ticket Amount (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.chaloTicketAmount"
                   (change)="calculateAmount()" name="chaloTicketAmount" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Cash Collection (in Rs.)</label>
+                <label>Cash Collection (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.cashCollection" (change)="calculateAmount()"
                   name="cashCollection" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>UPI (in Rs.)</label>
+                <label>UPI (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.upi" (change)="calculateAmount()"
                   name="upi" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Net Amt deposited in WaySide Cahier (in Rs.)</label>
+                <label>Amount Collected (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
                   name="netAmountDeposited" readonly  />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Trageted Earning (in Rs.)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.estimated_collection" name="estimated_collection" />
+                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Amount to be deposited (in Rs.)</label>
+                <label>Pending Amount (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
@@ -501,7 +508,7 @@
 
                   <button type="button" class="btn btn-success text-center" (click)="updateData()" data-dismiss="modal"
                     *ngIf="formtype == 'update'">
-                    Update and Fininsh Trip
+                    Update and Complete Trip
                   </button>
                 </div>
               </div>

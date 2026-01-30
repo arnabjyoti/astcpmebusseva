@@ -32,19 +32,43 @@ module.exports = (sequelize, type) => {
         cashCollection: type.STRING,
         upi: type.STRING,
 
+        chaloWayBillNo: type.STRING,
         chaloMachineNo: type.STRING,
         noOfTrip: type.STRING,
-        
+
         netAmountDeposited: type.STRING,
         tragetedEarning: type.STRING,
         amountToBeDeposited: type.STRING,
+        placeOfBreakdown: type.STRING,
+        causeOfBreakdown: type.STRING,
         remarks: type.STRING,
         status: type.STRING
-        
+
     }, {});
-    dailyUpdates.associate = function(models) {
+    dailyUpdates.associate = function (models) {
         // associations can be defined here
         // dailyUpdates.hasMany(models.trip);
+        dailyUpdates.belongsTo(models.busMaster, {
+            foreignKey: "busId",
+            as: "bus"
+        });
+
+        dailyUpdates.belongsTo(models.busRoutesMaster, {
+            foreignKey: "routeNo",
+            targetKey: "routeNo",
+            as: "route"
+        });
+
+        dailyUpdates.belongsTo(models.driverMaster, {
+            foreignKey: "driverId",
+            as: "driver"
+        });
+
+        dailyUpdates.belongsTo(models.conductorMaster, {
+            foreignKey: "conductorId",
+            as: "conductor"
+        });
+
     };
     return dailyUpdates;
 };

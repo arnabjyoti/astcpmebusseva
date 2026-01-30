@@ -56,7 +56,7 @@
                   <td>{{ data.via }}</td>
                   <td>{{ data.routeNo }}</td>
                   <td>{{ data.routeName }}</td>
-                  <td>{{ data.routeDistance }}</td>
+                  <td>{{distanceConvert(data.routeDistance, data.depot_to_start_distance, data.end_to_depot_distance) }}</td>
                   <td>{{ data.estimated_collection }}</td>
                   <td>
                     <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
