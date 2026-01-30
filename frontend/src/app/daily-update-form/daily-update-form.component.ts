@@ -176,7 +176,7 @@ export class DailyUpdateFormComponent {
         this.form.routeNo = response.routeNo;
         this.form.estimated_collection = response.estimated_collection;
         this.form.tragetedEarning = response.estimated_collection;
-        this.form.amountToBeDeposited = response.estimated_collection;
+        // this.form.amountToBeDeposited = response.estimated_collection;
         this.form.routeDepot = response.routeDepot;
         this.form.routeStart = response.routeStart;
         this.form.routeEnd = response.routeEnd;
