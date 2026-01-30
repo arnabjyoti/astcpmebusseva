@@ -90,8 +90,7 @@
                               <tr>
                                 <td>{{ form.routeDepot }}</td>
                                 <td>
-                                  {{ selectedDate | date : "dd/MM/yyyy" }} -
-                                  {{ currentTinme | date : "hh:mm:ss a" }}
+                                  {{ selectedDate | date : "dd/MM/yyyy" }}
                                 </td>
                                 <td>{{ busDetails.busNo }}</td>
                                 <td>{{ form.routeNo }}</td>
@@ -99,7 +98,7 @@
                                   {{ form.routeName }}
                                 </td>
                                 <td>
-
+                                  {{ form.startTime }}
                                 </td>
                               </tr>
 
@@ -281,7 +280,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td>7000</td>
+                                <td>{{ busDetails.estimated_collection }}</td>
                                 <td></td>
                               </tr>
                             </table>

@@ -10,6 +10,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { end } from '@popperjs/core/lib/enums';
 
 @Component({
   selector: 'app-daily-update-form',
@@ -122,15 +123,22 @@ export class DailyUpdateFormComponent {
           conductor_id: data.conductor_id,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
-
+          estimated_collection: data.estimated_collection,
+          start: data.start,
+          end: data.end,
+          depot: data.depot,
         };
         this.busDetails = busDetails;
         this.routeNo = data.routeNo;
 
+          this.form.routeStart = data.start;
+          this.form.routeEnd = data.end;
+          this.form.routeDepot = data.depot;
+
         // this.form.currentStatus = 'finished'
 
         // this.form.busId = this.busId;
-        // this.form.date = this.selectedDate;
+        this.selectedDate = data.date;
         // this.form.routeNo = response.allotedRouteNo
         // this.form.depot = response.depotName;
         // this.routeName = response.routeName;

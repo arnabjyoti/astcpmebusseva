@@ -117,7 +117,7 @@ export class BusesComponent {
 
     this.http.get(ENDPOINT).subscribe(
       (response) => {
-        console.log('response ', response);
+        console.log('busList response ', response);
         this.busList = response;
       },
       (error) => {

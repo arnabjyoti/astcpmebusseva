@@ -1,7 +1,12 @@
-<!-- Loading starts -->
-<!-- <div id="loading-wrapper" *ngIf="isLodaing">
-  <ngx-spinner bdColor="rgba(0,0,0,0.9)" type="ball-clip-rotate"></ngx-spinner>
-</div> -->
+<div *ngIf="isLoading" class="text-center my-3">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<!-- Your actual data UI -->
+<div *ngIf="!isLoading">
+  <!-- conductor list table / UI here -->
 
 <!-- Loading ends -->
 <div class="content-wrapper">
@@ -48,6 +53,7 @@
                                         <tr>
                                             <th>Sl No.</th>
                                             <th>Conductor ID</th>
+                                            <th>License No</th>
                                             <th>Conductor Name</th>
                                             <th>Conductor Contact No</th>
                                             <th>Pending Amount</th>
@@ -61,6 +67,7 @@
                         }">
                                             <td>{{ i + 1 }}</td>
                                             <td>{{ data.conductor_id }}</td>
+                                            <td>{{ data.conductorLicenseNo }}</td>
                                             <td>{{ data.conductor_name }}</td>
                                             <td>{{ data.contact_no }}</td>
                                             <td>
@@ -119,6 +126,13 @@
                                                             <label>Conductor ID</label>
                                                             <input type="text" class="form-control"
                                                                 [(ngModel)]="form2.conductor_id" name="conductor_id" />
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <label>License No *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form2.conductorLicenseNo"
+                                                                name="conductorLicenseNo" required />
                                                         </div>
 
                                                         <div class="col-md-6">
@@ -225,6 +239,14 @@
                                                                     </th>
                                                                     <td>
                                                                         {{ selectedDataConductor.conductor_id }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th class="text-muted w-50">
+                                                                        License No
+                                                                    </th>
+                                                                    <td>
+                                                                        {{ selectedDataConductor.conductorLicenseNo }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
@@ -353,4 +375,5 @@
             </div>
         </div>
     </section>
+</div>
 </div>

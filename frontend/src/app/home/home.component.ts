@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
       this.runningBus = res.runningBus;
       this.runningVehicle = res.runningVehicle;
       // this.idleBus = res.idleBus;
-      this.idleBusCount = res.idleBusCount;
+      this.idleBusCount = res.idleBus;
       this.idleBusData = res.idleBusData;
       this.finishedBusData = res.finishedBusData;
       this.finishedBus = res.finishedBus;

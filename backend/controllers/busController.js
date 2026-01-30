@@ -420,6 +420,7 @@ module.exports = {
     try {
       const data = {
         conductor_id: req.body.conductor_id,
+        conductorLicenseNo: req.body.conductorLicenseNo,
         conductor_name: req.body.conductor_name,
         contact_no: req.body.contact_no,
         aadhaar: req.body.aadhaar,
@@ -452,6 +453,7 @@ module.exports = {
       const {
         id,
         conductor_id,
+        conductorLicenseNo,
         conductor_name,
         contact_no,
         aadhaar,
@@ -485,6 +487,7 @@ module.exports = {
 
       const updateData = {
         conductor_id,
+        conductorLicenseNo,
         conductor_name,
         contact_no,
         aadhaar,
@@ -811,12 +814,6 @@ SELECT
     bus.id,
     bus.busName,
     bus.busNo,
-    bus.baseDepot,
-    -- bus.conductorName,
-    -- bus.conductorContactNo,
-    -- bus.conductorId,
-    -- bus.driverName,
-    -- bus.driverContactNo,
     bus.status,
     bus.createdAt,
     bus.updatedAt,
@@ -946,6 +943,7 @@ ORDER BY bus.id DESC;
     busRoutesMasters.via AS routeVia,
     busRoutesMasters.depot AS routeDepot,
     busRoutesMasters.depot AS routeName,
+    busRoutesMasters.estimated_collection AS estimated_collection,
     busRoutesMasters.routeDistance AS routeDistance,
     -- 🔹 Last CMR from dailyUpdates
     COALESCE(
@@ -1045,6 +1043,7 @@ LIMIT 1;
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
         INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
+        
         WHERE du.id = ?
     `;
 
