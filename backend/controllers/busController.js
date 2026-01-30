@@ -953,6 +953,7 @@ ORDER BY bus.id DESC;
     busRoutesMasters.depot AS routeDepot,
     busRoutesMasters.depot AS routeName,
     busRoutesMasters.routeDistance AS routeDistance,
+    busRoutesMasters.estimated_collection AS estimated_collection,
     -- 🔹 Last CMR from dailyUpdates
     COALESCE(
         (
