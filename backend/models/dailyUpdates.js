@@ -32,6 +32,7 @@ module.exports = (sequelize, type) => {
         cashCollection: type.STRING,
         upi: type.STRING,
 
+        chaloWayBillNo: type.STRING,
         chaloMachineNo: type.STRING,
         noOfTrip: type.STRING,
 

@@ -56,6 +56,7 @@ export class DailyUpdateFormComponent {
     routeDepot: '',
     routeDistance: '',
 
+    chaloWayBillNo: 0,
     chaloTicketNo: 0,
     chaloPassengersNo: 0,
     chaloTicketAmount: 0,
@@ -63,6 +64,7 @@ export class DailyUpdateFormComponent {
     upi: 0,
 
     estimated_collection: 0,
+    tragetedEarning: 0,
     amountToBeDeposited: 0,
     currentStatus: '',
   };
@@ -91,6 +93,7 @@ export class DailyUpdateFormComponent {
     });
   }
 
+  
   spiner() {
     this.spinner.show();
     setTimeout(() => {
@@ -111,15 +114,23 @@ export class DailyUpdateFormComponent {
         console.log('getOneTripDetails ==>> ', data);
 
         this.form = data;
+        this.form.tragetedEarning = data.estimated_collection;
+        this.form.routeDepot = data.depot;
+        this.form.routeStart = data.start;
+        this.form.routeEnd = data.end;
+        this.form.driverId = data.driverId;
+        this.form.conductorId = data.conductorId;
+        console.log('data ==>> ', data.driverId);
+        
 
         let busDetails = {
           busName: data.busName,
           busNo: data.busNo,
           driverName: data.driverName,
-          driver_id: data.driver_id,
+          driverId: data.driverId,
           driverContactNo: data.driverContactNo,
           conductorName: data.conductorName,
-          conductor_id: data.conductor_id,
+          conductorId: data.conductorId,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
 
@@ -152,7 +163,7 @@ export class DailyUpdateFormComponent {
 
     this.http.post(ENDPOINT, { busId }).subscribe(
       (response: any) => {
-        console.log('response ==>> ', response);
+        console.log('getBusData ==>> ', response);
         // this.busList = response;
         this.form.timesheetNo = response.timesheetNo;
         this.busDetails = response;
@@ -160,10 +171,11 @@ export class DailyUpdateFormComponent {
         this.form.date = this.selectedDate;
         this.form.routeNo = response.allotedRouteNo;
         this.form.depot = response.depotName;
-        this.form.driverId = response.driverId;
-        this.form.conductorId = response.conductorId;
+        this.form.driverId = response.driver_actual_id;
+        this.form.conductorId = response.conductor_actual_id;
         this.form.routeNo = response.routeNo;
         this.form.estimated_collection = response.estimated_collection;
+        this.form.tragetedEarning = response.estimated_collection;
         this.form.amountToBeDeposited = response.estimated_collection;
         this.form.routeDepot = response.routeDepot;
         this.form.routeStart = response.routeStart;
@@ -287,7 +299,7 @@ export class DailyUpdateFormComponent {
     // this.form.netAmountDeposited = this.form.challanDeposited+this.form.walletCard+this.form.mobilePass+this.form.studentMpass+this.form.scanPay+this.form.unprintedTiciket+this.form.cardRecharge+this.form.phonePe-this.form.basisthaParking-this.form.tripAllowance;
 
     this.form.netAmountDeposited =
-      (parseInt(this.form.chaloTicketAmount) || 0) +
+      // (parseInt(this.form.chaloTicketAmount) || 0) +
       (parseInt(this.form.cashCollection) || 0) +
       (parseInt(this.form.upi) || 0);
 
@@ -699,7 +711,13 @@ export class DailyUpdateFormComponent {
   }
 
 
-
+  formatTime(time: string): Date {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  }
+  
 
 
 

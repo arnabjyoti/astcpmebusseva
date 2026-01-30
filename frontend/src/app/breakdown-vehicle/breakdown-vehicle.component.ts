@@ -1,5 +1,10 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { HttpClient } from '@angular/common/http';
+import { AppService } from 'src/app/app.service';
+import { environment } from 'src/environments/environment';
 import * as XLSX from 'xlsx';
 
 interface BreakdownRecord {
@@ -23,12 +28,12 @@ interface BreakdownRecord {
   styleUrls: ['./breakdown-vehicle.component.css'],
 })
 export class BreakdownVehicleComponent implements OnInit {
-
-  getBreakdownRecords: any[] = []
+  BreakdownData: any[] = [];
+  headers: any;
 
   breakdownRecords: BreakdownRecord[] = [];
   paginatedRecords: BreakdownRecord[] = [];
-  
+
   // Pagination properties
   currentPage: number = 1;
   pageSize: number = 10; // Records per page
@@ -41,18 +46,32 @@ export class BreakdownVehicleComponent implements OnInit {
   isEditMode: boolean = false;
   editingRecordId: number | null = null;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private app: AppService, private http: HttpClient) {
     this.breakdownForm = this.createForm();
+     this.app.getHttpHeader((h: any) => {
+      this.headers = h;
+    });
   }
 
   ngOnInit(): void {
     // Load breakdown records from your service
-    this.loadBreakdownRecords();
+    // this.loadBreakdownRecords();
+    this.fetchBreakdownTable();
   }
 
-  getBreakdownTableData(): void {
-    this.getBreakdownRecords = res.getBreakdownRecords;
-  }
+  fetchBreakdownTable(): void {
+    const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
+    
+      this.http.post(ENDPOINT, {  }).subscribe(
+        (response: any) => {
+          console.log('Hello me:',response);
+          this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 
   // Form Methods
   createForm(): FormGroup {
@@ -67,7 +86,7 @@ export class BreakdownVehicleComponent implements OnInit {
       dateOfBreakdown: ['', Validators.required],
       timeOfBreakdown: ['', Validators.required],
       causeOfBreakdown: ['', Validators.required],
-      remarks: ['']
+      remarks: [''],
     });
   }
 
@@ -89,7 +108,7 @@ export class BreakdownVehicleComponent implements OnInit {
         remarks: 'Immediate repair required',
       },
     ];
-    
+
     this.totalRecords = this.breakdownRecords.length;
     this.calculateTotalPages();
     this.updatePaginatedRecords();
@@ -144,7 +163,7 @@ export class BreakdownVehicleComponent implements OnInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5;
-    
+
     if (this.totalPages <= maxPagesToShow) {
       // Show all pages if total pages are less than or equal to maxPagesToShow
       for (let i = 1; i <= this.totalPages; i++) {
@@ -154,19 +173,19 @@ export class BreakdownVehicleComponent implements OnInit {
       // Show pages around current page
       let startPage = Math.max(1, this.currentPage - 2);
       let endPage = Math.min(this.totalPages, this.currentPage + 2);
-      
+
       // Adjust if at the beginning or end
       if (this.currentPage <= 3) {
         endPage = maxPagesToShow;
       } else if (this.currentPage >= this.totalPages - 2) {
         startPage = this.totalPages - maxPagesToShow + 1;
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 
@@ -180,10 +199,10 @@ export class BreakdownVehicleComponent implements OnInit {
   downloadReport(): void {
     // Format data for export
     const exportData = this.formatBreakdownDataForExport(this.breakdownRecords);
-    
+
     // Export to Excel
     this.exportToExcel(exportData, 'Breakdown_Records_Report');
-    
+
     console.log('Report downloaded successfully');
   }
 
@@ -200,7 +219,7 @@ export class BreakdownVehicleComponent implements OnInit {
       'Date of Breakdown': this.formatDate(record.dateOfBreakdown),
       'Time of Breakdown': record.timeOfBreakdown,
       'Cause of Breakdown': record.causeOfBreakdown,
-      'Remarks': record.remarks
+      Remarks: record.remarks,
     }));
   }
 
@@ -216,17 +235,17 @@ export class BreakdownVehicleComponent implements OnInit {
 
   private formatDate(date: any): string {
     if (!date) return '';
-    
+
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
-    
+
     return `${day}-${month}-${year}`;
   }
 
   // CRUD Operations
-  isOpen_form: boolean = false
+  isOpen_form: boolean = false;
   open_breakdown_form(): void {
     // Show the form for adding new breakdown
     this.isOpen_form = !this.isOpen_form;
@@ -245,10 +264,10 @@ export class BreakdownVehicleComponent implements OnInit {
     // Populate form with record data and show it
     this.isEditMode = true;
     this.editingRecordId = record.id;
-    
+
     // Format date for input[type="date"]
     const formattedDate = this.formatDateForInput(record.dateOfBreakdown);
-    
+
     this.breakdownForm.patchValue({
       vehicleNumber: record.vehicleNumber,
       routeNumber: record.routeNumber,
@@ -260,9 +279,9 @@ export class BreakdownVehicleComponent implements OnInit {
       dateOfBreakdown: formattedDate,
       timeOfBreakdown: record.timeOfBreakdown,
       causeOfBreakdown: record.causeOfBreakdown,
-      remarks: record.remarks
+      remarks: record.remarks,
     });
-    
+
     this.showForm = true;
     console.log('Edit breakdown:', record);
   }
@@ -273,12 +292,12 @@ export class BreakdownVehicleComponent implements OnInit {
       this.breakdownRecords = this.breakdownRecords.filter((r) => r.id !== id);
       this.totalRecords = this.breakdownRecords.length;
       this.calculateTotalPages();
-      
+
       // Check if current page is now out of bounds
       if (this.currentPage > this.totalPages && this.totalPages > 0) {
         this.currentPage = this.totalPages;
       }
-      
+
       this.updatePaginatedRecords();
       console.log('Deleted breakdown with id:', id);
       // Call your service to delete from backend
@@ -292,7 +311,9 @@ export class BreakdownVehicleComponent implements OnInit {
 
       if (this.isEditMode && this.editingRecordId !== null) {
         // Update existing record
-        const index = this.breakdownRecords.findIndex(r => r.id === this.editingRecordId);
+        const index = this.breakdownRecords.findIndex(
+          (r) => r.id === this.editingRecordId,
+        );
         if (index !== -1) {
           this.breakdownRecords[index] = {
             id: this.editingRecordId,
@@ -306,7 +327,7 @@ export class BreakdownVehicleComponent implements OnInit {
             dateOfBreakdown: new Date(formData.dateOfBreakdown),
             timeOfBreakdown: formData.timeOfBreakdown,
             causeOfBreakdown: formData.causeOfBreakdown,
-            remarks: formData.remarks || ''
+            remarks: formData.remarks || '',
           };
           console.log('Updated record:', this.breakdownRecords[index]);
           alert('Breakdown record updated successfully!');
@@ -325,9 +346,9 @@ export class BreakdownVehicleComponent implements OnInit {
           dateOfBreakdown: new Date(formData.dateOfBreakdown),
           timeOfBreakdown: formData.timeOfBreakdown,
           causeOfBreakdown: formData.causeOfBreakdown,
-          remarks: formData.remarks || ''
+          remarks: formData.remarks || '',
         };
-        
+
         this.breakdownRecords.push(newRecord);
         console.log('Created new record:', newRecord);
         alert('Breakdown record created successfully!');
@@ -345,10 +366,10 @@ export class BreakdownVehicleComponent implements OnInit {
       // or this.breakdownService.updateBreakdown(id, formData).subscribe(...)
     } else {
       // Mark all fields as touched to show validation errors
-      Object.keys(this.breakdownForm.controls).forEach(key => {
+      Object.keys(this.breakdownForm.controls).forEach((key) => {
         this.breakdownForm.get(key)?.markAsTouched();
       });
-      
+
       alert('Please fill in all required fields');
     }
   }
@@ -360,7 +381,11 @@ export class BreakdownVehicleComponent implements OnInit {
 
   onCancel(): void {
     if (this.breakdownForm.dirty) {
-      if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+      if (
+        confirm(
+          'Are you sure you want to cancel? Any unsaved changes will be lost.',
+        )
+      ) {
         this.showForm = false;
         this.breakdownForm.reset();
       }
@@ -375,7 +400,7 @@ export class BreakdownVehicleComponent implements OnInit {
     if (this.breakdownRecords.length === 0) {
       return 1;
     }
-    return Math.max(...this.breakdownRecords.map(r => r.id)) + 1;
+    return Math.max(...this.breakdownRecords.map((r) => r.id)) + 1;
   }
 
   formatDateForInput(date: Date | string): string {
