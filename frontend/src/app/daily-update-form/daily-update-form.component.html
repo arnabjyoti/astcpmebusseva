@@ -467,7 +467,7 @@
                 <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
                   name="netAmountDeposited" readonly />
               </div>
-              <div class="col-md-4 pt-3" >
+              <div class="col-md-4 pt-3">
                 <label>Targeted Earning (in Rs.)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
               </div>
@@ -488,15 +488,20 @@
                   <option value="finished">Finished</option>
                 </select>
               </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+
+
+              <div class="col-md-4 pt-3" *ngIf="form.currentStatus == 'still' && formtype == 'update'">
                 <label>Place of Breakdown</label>
-                <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
+                <input type="text" class="form-control" [(ngModel)]="form.placeOfBreakdown" name="placeOfBreakdown" />
               </div>
-              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+
+
+              <div class="col-md-4 pt-3" *ngIf="form.currentStatus == 'still' && formtype == 'update'">
                 <label>Cause of Breakdown</label>
-                <input type="number" class="form-control" [(ngModel)]="form.netAmountDeposited"
-                  name="netAmountDeposited" readonly />
+                <input type="text" class="form-control" [(ngModel)]="form.causeOfBreakdown" name="causeOfBreakdown"  />
               </div>
+
+
               <div class="col-md-8 pt-3">
                 <label>Remarks</label>
                 <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />

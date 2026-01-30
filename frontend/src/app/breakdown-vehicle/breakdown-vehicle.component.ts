@@ -1,7 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Injectable } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
 import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';

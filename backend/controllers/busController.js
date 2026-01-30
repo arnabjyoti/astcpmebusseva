@@ -1950,7 +1950,8 @@ END AS estimated_time,
           "placeOfBreakdown",
           "causeOfBreakdown",
           "stopTime",
-          "date"
+          "date",
+          "remarks"
         ],
         include: [
           {
