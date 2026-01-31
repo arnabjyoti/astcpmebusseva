@@ -1842,9 +1842,9 @@ END AS estimated_time,
           "conductorId",
           "totalOperated",
           "placeOfBreakdown",
-          "causeOfBreakdown",
+          // "causeOfBreakdown",
           "stopTime",
-          "date"
+          // "date"
         ],
         include: [
           {
@@ -1929,6 +1929,44 @@ END AS estimated_time,
       console.error('Error executing query:', error);
       res.status(500).send({ error: 'Failed to fetch data' });
     }
-  }
+  },
+
+  async fetchBreakdownTable(req, res) {
+    try {
+      const breakdownQuery = await dailyUpdatesModel.findAll({
+        where: {
+          // date: today,
+          status: 'Active',
+          currentStatus: 'still',
+        },
+        attributes: [
+          "routeNo",
+          "noOfTrip",
+          "driverId",
+          "conductorId",
+          "totalOperated",
+          "placeOfBreakdown",
+          "causeOfBreakdown",
+          "stopTime",
+          "date",
+          "remarks"
+        ],
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+        ]
+      });
+      res.status(200).send({
+        breakdownQuery,
+      });
+    } catch (error) {
+      console.error("Error fetching breakdown table:", error);
+      res.status(500).send({ error: "Failed to fetch breakdown table" });
+    }
+  }  
   
 };

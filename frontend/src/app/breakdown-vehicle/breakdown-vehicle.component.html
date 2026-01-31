@@ -24,7 +24,7 @@
       <!-- Breakdown Vehicle Form -->
       <div class="breakdown-form-container breakdown_form" id="vehicle_breakdown_form" *ngIf="isOpen_form">
         <div class="form-header">
-          <h4>Breakdown Vehicle Form</h4>
+          <h4>Update Vehicle Breakdown Form</h4>
           <button type="button" class="close" aria-label="Close" (click)="close_breakdown_form()">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -181,10 +181,6 @@
             <button class="btn btn-success" (click)="downloadReport()">
               <i class="fa fa-download"></i> Download Report
             </button>
-            <button class="btn btn-primary" data-toggle="breakdown_form" data-target="#vehicle_breakdown_form"
-              (click)=" open_breakdown_form()">
-              <i class="fa fa-plus"></i> Add Breakdown
-            </button>
           </div>
         </div>
 
@@ -208,21 +204,21 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let record of paginatedRecords; let i = index">
+              <tr *ngFor="let record of BreakdownData; let i = index">
                 <td>{{ getActualIndex(i) }}</td>
-                <td>{{ record.vehicleNumber }}</td>
-                <td>{{ record.routeNumber }}</td>
+                <td>{{ record?.bus?.busNo }}</td>
+                <td>{{ record.routeNo }}</td>
                 <td>{{ record.driverId }}</td>
                 <td>{{ record.conductorId }}</td>
-                <td>{{ record.tripCompleted }}</td>
-                <td>{{ record.kmDriven }}</td>
+                <td>{{ record.noOfTrip }}</td>
+                <td>{{ record.totalOperated }}</td>
                 <td>{{ record.placeOfBreakdown }}</td>
-                <td>{{ record.dateOfBreakdown | date: 'dd-MM-yyyy' }}</td>
-                <td>{{ record.timeOfBreakdown }}</td>
+                <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ record.stopTime }}</td>
                 <td>{{ record.causeOfBreakdown }}</td>
                 <td>{{ record.remarks }}</td>
                 <td>
-                  <button class="btn btn-sm btn-primary mr-1" (click)="editBreakdown(record)" title="Edit">
+                  <button class="btn btn-sm btn-primary mr-1" (click)="open_breakdown_form()" title="Edit">
                     <i class="fa fa-edit"></i>
                   </button>
                   <button class="btn btn-sm btn-danger" (click)="deleteBreakdown(record.id)" title="Delete">

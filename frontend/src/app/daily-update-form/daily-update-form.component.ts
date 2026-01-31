@@ -93,7 +93,6 @@ export class DailyUpdateFormComponent {
       }
     });
   }
-
   
   spiner() {
     this.spinner.show();
@@ -259,9 +258,6 @@ export class DailyUpdateFormComponent {
       }, 50);
     });
   }
-
-
-
 
 
   updateData = () => {

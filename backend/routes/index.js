@@ -54,6 +54,9 @@ module.exports = (app) => {
 	//home dashboard
 	app.get('/api/getDashboardCounts', BusController.getDashboardCounts);
 
+	// Breakdown Table
+	app.post('/api/fetchBreakdownTable', BusController.fetchBreakdownTable);
+
 	//current time
 	app.get('/api/getCurrentISTTime', BusController.getCurrentISTTime);
 
