@@ -35,9 +35,19 @@ h3, h4 {
 /* heder logo and title */
 .pdf-header {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  /* width: 100%; */
   margin-bottom: 3px;
+}
+
+.left-logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .logo-left {

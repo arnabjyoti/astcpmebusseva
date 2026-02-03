@@ -275,7 +275,7 @@ export class HomeComponent implements OnInit {
     // Prepare data as array of objects
     const data = this.runningVehicle.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.busNo || 'N/A',
+      'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus.routeNo || 'N/A',
       'Driver ID': bus.driverId || 'N/A',
       'Conductor ID': bus.conductorId || 'N/A',
@@ -296,7 +296,7 @@ export class HomeComponent implements OnInit {
   downloadIdleBusReport() {
     const data = this.idleBusData.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.busNo || 'N/A',
+      'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Idle Reason': bus.idleReason || 'Not Specified',
     }));
 
@@ -311,11 +311,11 @@ export class HomeComponent implements OnInit {
   downloadFinishedBusReport() {
     const data = this.finishedBusData.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.bus.busNo || 'N/A',
-      'Route Number': bus.route.routeNo || 'N/A',
+      'Vehicle Number': bus?.bus?.busNo || 'N/A',
+      'Route Number': bus?.route?.routeNo || 'N/A',
       'Driver ID': bus.driverId || 'N/A',
       'Conductor ID': bus.conductorId || 'N/A',
-      'Earnings': bus.netAmountDeposited || '0',
+      Earnings: bus?.netAmountDeposited || '0',
     }));
 
 
@@ -330,14 +330,14 @@ export class HomeComponent implements OnInit {
   downloadBreakdownBusReport() {
     const data = this.stillBusData.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.bus.busNo || 'N/A',
-      'Route Number': bus.routeNo || 'N/A',
+      'Vehicle Number': bus?.bus?.busNo || 'N/A',
+      'Route Number': bus?.route?.routeNo || 'N/A',
       'Driver ID': bus.driverId || 'N/A',
       'Conductor ID': bus.conductorId || 'N/A',
       'Trip Completed': bus.noOfTrip || 'N/A',
-      'Kilometres Driven': bus.kmDriven || 'N/A',
-      'Place of Breakdown': bus.breakdownPlace || 'N/A',
-      'Time of Breakdown': bus.breakdownTime || 'N/A',
+      'Kilometres Driven': bus.totalOperated || 'N/A',
+      'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
+      'Time of Breakdown': bus.stopTime || 'N/A',
     }));
 
 

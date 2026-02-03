@@ -114,14 +114,15 @@
                 Place of breakdown is required
               </small>
             </div>
-
-            <!-- Date of Breakdown -->
+            
+            <!-- Cause of Breakdown -->
             <div class="col-md-6 form-group">
-              <label for="dateOfBreakdown">Date of Breakdown <span class="required">*</span></label>
-              <input type="date" class="form-control" id="dateOfBreakdown" formControlName="dateOfBreakdown">
+              <label for="causeOfBreakdown">Cause of Breakdown <span class="required">*</span></label>
+              <input type="text" class="form-control" id="causeOfBreakdown" formControlName="causeOfBreakdown"
+                placeholder="Enter cause of breakdown">
               <small class="error-text"
-                *ngIf="breakdownForm.get('dateOfBreakdown')?.invalid && breakdownForm.get('dateOfBreakdown')?.touched">
-                Date of breakdown is required
+                *ngIf="breakdownForm.get('causeOfBreakdown')?.invalid && breakdownForm.get('causeOfBreakdown')?.touched">
+                Cause of breakdown is required
               </small>
             </div>
           </div>
@@ -137,14 +138,13 @@
               </small>
             </div>
 
-            <!-- Cause of Breakdown -->
+            <!-- Date of Breakdown -->
             <div class="col-md-6 form-group">
-              <label for="causeOfBreakdown">Cause of Breakdown <span class="required">*</span></label>
-              <input type="text" class="form-control" id="causeOfBreakdown" formControlName="causeOfBreakdown"
-                placeholder="Enter cause of breakdown">
+              <label for="dateOfBreakdown">Date of Breakdown <span class="required">*</span></label>
+              <input type="date" class="form-control" id="dateOfBreakdown" formControlName="dateOfBreakdown">
               <small class="error-text"
-                *ngIf="breakdownForm.get('causeOfBreakdown')?.invalid && breakdownForm.get('causeOfBreakdown')?.touched">
-                Cause of breakdown is required
+                *ngIf="breakdownForm.get('dateOfBreakdown')?.invalid && breakdownForm.get('dateOfBreakdown')?.touched">
+                Date of breakdown is required
               </small>
             </div>
           </div>
@@ -226,13 +226,14 @@
                   </button>
                 </td>
               </tr>
-              <tr *ngIf="paginatedRecords.length === 0">
+              <tr *ngIf="BreakdownData.length === 0">
                 <td colspan="13" class="text-center text-muted">No breakdown records found</td>
               </tr>
             </tbody>
           </table>
         </div>
 
+        <!-- Table Pagination Section -->
         <div class="pagination-container">
           <div class="pagination-info">
             <span>Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalRecords }} entries</span>
