@@ -44,9 +44,13 @@ export class BreakdownVehicleComponent implements OnInit {
   isEditMode: boolean = false;
   editingRecordId: number | null = null;
 
-  constructor(private formBuilder: FormBuilder, private app: AppService, private http: HttpClient) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private app: AppService,
+    private http: HttpClient,
+  ) {
     this.breakdownForm = this.createForm();
-     this.app.getHttpHeader((h: any) => {
+    this.app.getHttpHeader((h: any) => {
       this.headers = h;
     });
   }
@@ -59,17 +63,17 @@ export class BreakdownVehicleComponent implements OnInit {
 
   fetchBreakdownTable(): void {
     const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
-    
-      this.http.post(ENDPOINT, {  }).subscribe(
-        (response: any) => {
-          console.log('Hello me:',response);
-          this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-    }
+
+    this.http.post(ENDPOINT, {}).subscribe(
+      (response: any) => {
+        console.log('Hello me:', response);
+        this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+  }
 
   // Form Methods
   createForm(): FormGroup {
@@ -194,14 +198,37 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   // Export Methods
+  // downloadReport(): void {
+  //   // Format data for export
+  //   const exportData = this.formatBreakdownDataForExport(this.breakdownRecords);
+
+  //   // Export to Excel
+  //   this.exportToExcel(exportData, 'Breakdown_Records_Report');
+
+  //   console.log('Report downloaded successfully');
+  // }
+
   downloadReport(): void {
-    // Format data for export
-    const exportData = this.formatBreakdownDataForExport(this.breakdownRecords);
+    const data = this.BreakdownData.map((bus, index) => ({
+      'Sl No.': index + 1,
+      'Vehicle Number': bus?.bus?.busNo || 'N/A',
+      'Route Number': bus?.routeNo || 'N/A',
+      'Driver ID': bus.driverId || 'N/A',
+      'Conductor ID': bus.conductorId || 'N/A',
+      'Trip Completed': bus.noOfTrip || 'N/A',
+      'Kilometres Driven': bus.totalOperated || 'N/A',
+      'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
+      'Date of Breakdown': bus.date || 'N/A',
+      'Time of Breakdown': bus.stopTime || 'N/A',
+      'Cause of Breakdown': bus.causeOfBreakdown || 'N/A',
+      'Remarks': bus.remarks || 'N/A',
+    }));
 
-    // Export to Excel
-    this.exportToExcel(exportData, 'Breakdown_Records_Report');
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Breakdown Buses');
 
-    console.log('Report downloaded successfully');
+    XLSX.writeFile(wb, `breakdown-buses-${new Date().getTime()}.xlsx`);
   }
 
   formatBreakdownDataForExport(records: BreakdownRecord[]): any[] {
