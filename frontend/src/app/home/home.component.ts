@@ -294,7 +294,7 @@ export class HomeComponent implements OnInit {
 
   // Download report for Idle Buses Modal (EXCEL)
   downloadIdleBusReport() {
-    const data = this.idleBus.map((bus, index) => ({
+    const data = this.idleBusData.map((bus, index) => ({
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Idle Reason': bus.idleReason || 'Not Specified',
@@ -318,6 +318,7 @@ export class HomeComponent implements OnInit {
       Earnings: bus?.netAmountDeposited || '0',
     }));
 
+
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Finished Buses');
@@ -338,6 +339,12 @@ export class HomeComponent implements OnInit {
       'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
       'Time of Breakdown': bus.stopTime || 'N/A',
     }));
+
+
+    // console.log("data", data);
+    // console.log("stillBusData", this.stillBusData);
+    
+    // return;
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
