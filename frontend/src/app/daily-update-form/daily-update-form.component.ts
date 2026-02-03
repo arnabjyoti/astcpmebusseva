@@ -120,6 +120,9 @@ export class DailyUpdateFormComponent {
         this.form.routeEnd = data.end;
         this.form.driverId = data.driverId;
         this.form.conductorId = data.conductorId;
+
+        this.form.conductor_actual_id = data.conductor_actual_id,
+        this.form.driver_actual_id = data.driver_actual_id
         console.log('data ==>> ', data.driverId);
         
 
@@ -262,11 +265,17 @@ export class DailyUpdateFormComponent {
 
   updateData = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
+
+    this.form.conductorId = this.form.conductor_actual_id;
+    this.form.driverId = this.form.driver_actual_id;
+
     const requestOptions = {
       requestObject: this.form,
       id: this.triptId,
     };
     console.log('mmmmmmmmmmm', requestOptions);
+
+    // return;
     this.http.post(ENDPOINT, requestOptions).subscribe(
       (response) => {
         console.log('response ', response);

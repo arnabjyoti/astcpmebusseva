@@ -273,12 +273,12 @@ export class HomeComponent implements OnInit {
   // Download report for Running Buses Modal (EXCEL)
   downloadRunningBusReport() {
     // Prepare data as array of objects
-    const data = this.idleBus.map((bus, index) => ({
+    const data = this.runningVehicle.map((bus, index) => ({
       'Sl No.': index + 1,
       'Vehicle Number': bus.busNo || 'N/A',
-      'Route Number': bus.route?.routeNo || 'N/A',
-      'Driver ID': bus.driver?.driver_id || 'N/A',
-      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
+      'Route Number': bus.routeNo || 'N/A',
+      'Driver ID': bus.driverId || 'N/A',
+      'Conductor ID': bus.conductorId || 'N/A',
     }));
 
     // Create worksheet
@@ -294,7 +294,7 @@ export class HomeComponent implements OnInit {
 
   // Download report for Idle Buses Modal (EXCEL)
   downloadIdleBusReport() {
-    const data = this.idleBus.map((bus, index) => ({
+    const data = this.idleBusData.map((bus, index) => ({
       'Sl No.': index + 1,
       'Vehicle Number': bus.busNo || 'N/A',
       'Idle Reason': bus.idleReason || 'Not Specified',
@@ -309,14 +309,15 @@ export class HomeComponent implements OnInit {
 
   // NOW YOU TRY! Download report for Finished Buses Modal (EXCEL)
   downloadFinishedBusReport() {
-    const data = this.idleBus.map((bus, index) => ({
+    const data = this.finishedBusData.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.busNo || 'N/A',
-      'Route Number': bus.busName || 'N/A',
-      'Driver ID': bus.driver?.driver_id || 'N/A',
-      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
-      Earnings: bus.earnings || '0',
+      'Vehicle Number': bus.bus.busNo || 'N/A',
+      'Route Number': bus.route.routeNo || 'N/A',
+      'Driver ID': bus.driverId || 'N/A',
+      'Conductor ID': bus.conductorId || 'N/A',
+      'Earnings': bus.netAmountDeposited || '0',
     }));
+
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -327,17 +328,23 @@ export class HomeComponent implements OnInit {
 
   // Download report for Breakdown Buses Modal (EXCEL)
   downloadBreakdownBusReport() {
-    const data = this.idleBus.map((bus, index) => ({
+    const data = this.stillBusData.map((bus, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus.busNo || 'N/A',
-      'Route Number': bus.busName || 'N/A',
-      'Driver ID': bus.driver?.driver_id || 'N/A',
-      'Conductor ID': bus.conductor?.conductor_id || 'N/A',
-      'Trip Completed': bus.tripCompleted || 'N/A',
+      'Vehicle Number': bus.bus.busNo || 'N/A',
+      'Route Number': bus.routeNo || 'N/A',
+      'Driver ID': bus.driverId || 'N/A',
+      'Conductor ID': bus.conductorId || 'N/A',
+      'Trip Completed': bus.noOfTrip || 'N/A',
       'Kilometres Driven': bus.kmDriven || 'N/A',
       'Place of Breakdown': bus.breakdownPlace || 'N/A',
       'Time of Breakdown': bus.breakdownTime || 'N/A',
     }));
+
+
+    // console.log("data", data);
+    // console.log("stillBusData", this.stillBusData);
+    
+    // return;
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
