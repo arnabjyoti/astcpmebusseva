@@ -951,7 +951,7 @@ ORDER BY bus.id DESC;
     busRoutesMasters.end AS routeEnd,
     busRoutesMasters.via AS routeVia,
     busRoutesMasters.depot AS routeDepot,
-    busRoutesMasters.depot AS routeName,
+    busRoutesMasters.routeName AS routeName,
     busRoutesMasters.routeDistance AS routeDistance,
     busRoutesMasters.estimated_collection AS estimated_collection,
     -- 🔹 Last CMR from dailyUpdates

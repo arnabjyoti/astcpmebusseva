@@ -121,7 +121,8 @@ export class DailyUpdateFormComponent {
         this.form.conductorId = data.conductorId;
 
         this.form.conductor_actual_id = data.conductor_actual_id,
-        this.form.driver_actual_id = data.driver_actual_id
+        this.form.driver_actual_id = data.driver_actual_id,
+        this.selectedDate = data.date;
         console.log('data ==>> ', data.driverId);
         
 
@@ -723,7 +724,4 @@ export class DailyUpdateFormComponent {
     return date;
   }
   
-
-
-
 }
