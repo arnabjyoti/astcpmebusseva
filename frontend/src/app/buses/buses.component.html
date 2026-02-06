@@ -16,12 +16,7 @@
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item active">
-              <button
-                class="btn btn-default"
-                data-toggle="modal"
-                data-target="#formModal"
-                (click)="openNewDialog()"
-              >
+              <button class="btn btn-default" data-toggle="modal" data-target="#formModal" (click)="openNewDialog()">
                 <i class="fas fa-plus"></i> New Bus
               </button>
             </li>
@@ -44,12 +39,7 @@
             <div class="d-flex align-items-end gap-2 mb-3 filter-bar">
               <div class="form-group mb-0">
                 <label class="form-label fw-semibold">Select Date</label>
-                <input
-                  type="date"
-                  class="form-control premium-input"
-                  [(ngModel)]="dataForDate"
-                  name="dataForDate"
-                />
+                <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate" />
               </div>
 
               <button class="btn btn-success premium-btn" (click)="getBuses()">
@@ -74,15 +64,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  *ngFor="let data of busList; let i = index"
-                  [ngClass]="{ 
+                <tr *ngFor="let data of busList; let i = index" [ngClass]="{ 
                     'running-bg': data.currentStatus === 'running',
                     'still-bg': data.currentStatus === 'still',
                     'finished-bg': data.currentStatus === 'finished',
                   
-                   }"
-                >
+                   }">
                   <td>{{ i + 1 }}</td>
                   <td>{{ data.busName }}</td>
                   <td>{{ data.busNo }}</td>
@@ -90,21 +77,16 @@
                   <td>
                     {{ data.driverContactNo }}
                   </td>
-                  <td
-                    [ngClass]="{
+                  <td [ngClass]="{
                       'text-danger': data.conductorStatus === 'Block'
-                    }"
-                  >
+                    }">
                     <div>
                       {{ data.conductorName }}
-                   <button
-                      class="btn btn-default"
-                      data-toggle="modal"
-                      data-target="#conductorRemainModal"
-                      (click)="getRemainingAmountForConductor(i)"
-                    >
-                      <i class="fa fa-eye"></i>
-                    </button></div>
+                      <button class="btn btn-default" data-toggle="modal" data-target="#conductorRemainModal"
+                        (click)="getRemainingAmountForConductor(i)">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </div>
                   </td>
                   <td>{{ data.conductorContactNo }}</td>
                   <td>{{ data.routeDepot }}</td>
@@ -112,68 +94,40 @@
                   <td>
                     {{ data.currentStatus || "idle" | titlecase }}
                     {{
-                      data.currentStatus == "running"
-                        ? " (" + data.noOfTrip + ")"
-                        : ""
+                    data.currentStatus == "running"
+                    ? " (" + data.noOfTrip + ")"
+                    : ""
                     }}
                   </td>
                   <td style="text-align: center; width: 15%">
-                    <button
-                      class="btn btn-default"
-                      data-toggle="modal"
-                      data-target="#viewModal"
-                      (click)="viewData(i)"
-                    >
+                    <button class="btn btn-default" data-toggle="modal" data-target="#viewModal" (click)="viewData(i)">
                       <i class="fa fa-eye"></i>
                     </button>
-                    <button
-                      (click)="openEditDialog(data)"
-                      class="btn btn-default"
-                      data-toggle="modal"
-                      data-target="#formModal"
-                    >
+                    <button (click)="openEditDialog(data)" class="btn btn-default" data-toggle="modal"
+                      data-target="#formModal">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button
-                      (click)="openConfirmationDialog(data)"
-                      class="btn btn-default"
-                      data-toggle="modal"
-                      data-target="#deleteModal"
-                    >
+                    <button (click)="openConfirmationDialog(data)" class="btn btn-default" data-toggle="modal"
+                      data-target="#deleteModal">
                       <i class="fas fa-trash"></i>
                     </button>
 
                     <div class="gap-2">
                       <div class="pb-2" *ngIf="data.currentStatus == 'running'">
-                        <button
-                          class="btn btn-warning btn-sm"
-                          data-toggle="modal"
-                          data-target="#updateRoute"
-                          (click)="viewData(i)"
-                        >
+                        <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#updateRoute"
+                          (click)="viewData(i)">
                           <i class="fas fa-recycle"></i> Update Rounds
                         </button>
                       </div>
                       <div class="pb-2" *ngIf="data.currentStatus == 'running'">
-                        <button
-                          class="btn btn-danger btn-sm"
-                          data-toggle="modal"
-                          (click)="redirectToUpdateForm(data)"
-                        >
+                        <button class="btn btn-danger btn-sm" data-toggle="modal" (click)="redirectToUpdateForm(data)">
                           <i class="fas fa-stop"></i> Stop Trip
                         </button>
                       </div>
 
-                      <div
-                        class="pb-2"
-                        *ngIf="data.currentStatus !== 'running'"
-                      >
-                        <button
-                          class="btn btn-info btn-sm"
-                          data-toggle="modal"
-                          data-target="#addDetailsModal"
-                          (click)="viewData(i)"
-                        >
+                      <div class="pb-2" *ngIf="data.currentStatus !== 'running'">
+                        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#addDetailsModal"
+                          (click)="viewData(i)">
                           <i class="fas fa-plus"></i> Update Trip
                         </button>
                       </div>
@@ -199,21 +153,11 @@
                         <div class="row">
                           <div class="col-md-6 pt-3">
                             <label>Bus Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.busName"
-                              name="busName"
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.busName" name="busName" />
                           </div>
                           <div class="col-md-6 pt-3">
                             <label>Bus No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.busNo"
-                              name="busNo"
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo" />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -228,63 +172,54 @@
 
                           <div class="col-md-6 pt-3">
                             <label>Driver Name</label>
-                            <!-- (change)="manageDrive()" -->
-                            <select
-                              class="form-control"
-                              name="driverName"
-                              [(ngModel)]="form.driverName"
-                              (change)="manageDrive()"
-                            >
+
+                            <select class="form-control" name="driverName" [(ngModel)]="form.driverName"
+                              (change)="manageDrive()">
                               <option value="">Select a Driver</option>
-                              <option
-                                *ngFor="let driver of driverList"
-                                [value]="driver.id"
-                              >
+
+                              <option *ngFor="let driver of driverList" [value]="driver.id"
+                                [disabled]="driver.allotmentStatus === 'Allotted'" [ngClass]="{
+        'driver-allotted': driver.allotmentStatus === 'Allotted'
+      }">
                                 {{ driver.driver_name }} - {{ driver.id }}
+                                <span *ngIf="driver.allotmentStatus === 'Allotted'">
+                                  (Already Allotted)
+                                </span>
                               </option>
                             </select>
                           </div>
 
+
                           <div class="col-md-6 pt-3">
                             <label>Driver Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.driverContactNo"
-                              name="driverContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.driverContactNo"
+                              name="driverContactNo" readonly />
                           </div>
 
                           <div class="col-md-6 pt-3">
                             <label>Conductor Name</label>
-                            <!-- (change)="manageConductor()" -->
-                            <select
-                              class="form-control"
-                              name="conductorName"
-                              [(ngModel)]="form.conductorName"
-                              (change)="manageConductor()"
-                            >
+
+                            <select class="form-control" name="conductorName" [(ngModel)]="form.conductorName"
+                              (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
-                              <option
-                                *ngFor="let conductor of conductorList"
-                                [value]="conductor.id"
-                              >
-                                {{ conductor.conductor_name }} -
-                                {{ conductor.id }}
+
+                              <option *ngFor="let conductor of conductorList" [value]="conductor.id"
+                                [disabled]="conductor.allotmentStatus === 'Allotted'" [ngClass]="{
+        'driver-allotted': conductor.allotmentStatus === 'Allotted'
+      }">
+                                {{ conductor.conductor_name }} - {{ conductor.id }}
+                                <span *ngIf="conductor.allotmentStatus === 'Allotted'">
+                                  (Already Allotted)
+                                </span>
                               </option>
                             </select>
                           </div>
 
+
                           <div class="col-md-6 pt-3">
                             <label>Conductor Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.conductorContactNo"
-                              name="conductorContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.conductorContactNo"
+                              name="conductorContactNo" readonly />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -303,16 +238,9 @@
                               name="allotedRouteNo"
                             /> -->
 
-                            <select
-                              class="form-control"
-                              name="allotedRouteNo"
-                              [(ngModel)]="form.allotedRouteNo"
-                            >
+                            <select class="form-control" name="allotedRouteNo" [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
-                              <option
-                                *ngFor="let route of routeList"
-                                [value]="route.id"
-                              >
+                              <option *ngFor="let route of routeList" [value]="route.id">
                                 {{ route.routeNo }}
                               </option>
                             </select>
@@ -329,32 +257,16 @@
                         </div>
                       </div>
 
-                      <button
-                        style="float: right"
-                        *ngIf="!isEdit"
-                        type="button"
-                        class="btn btn-info"
-                        (click)="saveData()"
-                        data-dismiss="modal"
-                      >
+                      <button style="float: right" *ngIf="!isEdit" type="button" class="btn btn-info"
+                        (click)="saveData()" data-dismiss="modal">
                         Save
                       </button>
-                      <button
-                        style="float: right"
-                        *ngIf="isEdit"
-                        type="button"
-                        class="btn btn-info"
-                        (click)="updateData()"
-                        data-dismiss="modal"
-                      >
+                      <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
+                        (click)="updateData()" data-dismiss="modal">
                         Update
                       </button>
-                      <button
-                        style="float: right; margin-right: 5px"
-                        type="button"
-                        class="btn btn-default"
-                        data-dismiss="modal"
-                      >
+                      <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"
+                        data-dismiss="modal">
                         Cancel
                       </button>
                     </form>
@@ -430,11 +342,7 @@
 
                     <!-- <p> -->
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        (click)="redirectToAddForm()"
-                      >
+                      <button class="btn btn-primary" data-dismiss="modal" (click)="redirectToAddForm()">
                         Start Trip
                       </button>
                     </div>
@@ -464,20 +372,11 @@
 
                     <p>
                       <label for="">Update Trip:</label>
-                      <input
-                        type="text"
-                        name="newRoundTrip"
-                        [(ngModel)]="newRoundTrip"
-                        class="form-control col-md-4"
-                      />
+                      <input type="text" name="newRoundTrip" [(ngModel)]="newRoundTrip" class="form-control col-md-4" />
                     </p>
 
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        (click)="updateTrip()"
-                      >
+                      <button class="btn btn-primary" data-dismiss="modal" (click)="updateTrip()">
                         Update Trip
                       </button>
                     </div>
@@ -498,28 +397,16 @@
                   <div class="modal-body">
                     <h4>
                       Are you sure ! You want to delete bus
-                      <strong
-                        ><i
-                          >"{{ toBeDeletedRecord.busName }}-{{
-                            toBeDeletedRecord.busNo
-                          }}"</i
-                        ></strong
-                      >
+                      <strong><i>"{{ toBeDeletedRecord.busName }}-{{
+                          toBeDeletedRecord.busNo
+                          }}"</i></strong>
                       ?
                     </h4>
-                    <button
-                      type="button"
-                      class="btn btn-primary float-sm-right"
-                      (click)="handleDeleteBus()"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteBus()"
+                      data-dismiss="modal">
                       Yes
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-default float-sm-right"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
                       No
                     </button>
                   </div>
@@ -529,8 +416,8 @@
 
 
 
-             <!-- conductors remaining amount Modal -->
-             <div class="modal fade" id="conductorRemainModal" tabindex="-1">
+            <!-- conductors remaining amount Modal -->
+            <div class="modal fade" id="conductorRemainModal" tabindex="-1">
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -564,14 +451,14 @@
                         <div class="text-center">
 
                           <h2>Remaining Amount:
-                          {{ amountToBeDeposited > 0 ? amountToBeDeposited : 0 }}
-                        </h2>
+                            {{ amountToBeDeposited > 0 ? amountToBeDeposited : 0 }}
+                          </h2>
                         </div>
                       </div>
 
 
                     </div>
-                
+
                   </div>
                 </div>
               </div>

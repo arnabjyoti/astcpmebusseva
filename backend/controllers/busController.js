@@ -397,26 +397,95 @@ module.exports = {
   },
 
   getDriver(req, res) {
-    console.log("here");
-    let query = {
-      where: { status: "Active" },
-      raw: true,
-      order: [["id", "DESC"]],
-    };
+  console.log("here");
 
-    return driverMasterModel
-      .findAll(query)
-      .then((routes) => {
-        return res.status(200).send(routes);
-      })
-      .catch((error) => {
-        console.log(error);
-        return res.status(400).send(error);
-      });
-  },
+  driverMasterModel.findAll({
+    where: { status: "Active" },
+    attributes: [
+      "id",
+      "driver_id",
+      "driver_name",
+      "contact_no",
+      "aadhaar",
+      "pan",
+      "voter",
+      "dl",
+      "address",
+      "photo",
+      "status",
+      [
+        Sequelize.literal(`
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 
+              FROM busMasters 
+              WHERE busMasters.driverId = driverMaster.id
+            )
+            THEN 'Allotted'
+            ELSE 'Not Allotted'
+          END
+        `),
+        "allotmentStatus"
+      ]
+    ],
+    order: [["driver_name", "ASC"]],
+    raw: true
+  })
+  .then((drivers) => {
+    return res.status(200).send(drivers);
+  })
+  .catch((error) => {
+    console.log(error);
+    return res.status(400).send(error);
+  });
+},
 
-  saveConductor(req, res) {
-    console.log("reqqqqqqqqqqq", req.body);
+getConductorWithAllotment(req, res) {
+
+  conductorMasterModel.findAll({
+    where: { status: "Active" },
+    attributes: [
+      "id",
+      "conductor_id",
+      "conductorLicenseNo",
+      "conductor_name",
+      "contact_no",
+      "aadhaar",
+      "pan",
+      "voter",
+      "dl",
+      "address",
+      "photo",
+      "status",
+      [
+        Sequelize.literal(`
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 
+              FROM busMasters 
+              WHERE busMasters.conductorId = conductorMaster.id
+            )
+            THEN 'Allotted'
+            ELSE 'Not Allotted'
+          END
+        `),
+        "allotmentStatus"
+      ]
+    ],
+    order: [["conductor_name", "ASC"]],
+    raw: true
+  })
+  .then((conductors) => {
+    return res.status(200).send(conductors);
+  })
+  .catch((error) => {
+    console.log(error);
+    return res.status(400).send(error);
+  });
+},
+
+saveConductor(req, res) {
+  console.log("reqqqqqqqqqqq", req.body);
 
     try {
       const data = {
@@ -950,6 +1019,7 @@ ORDER BY bus.id DESC;
     busRoutesMasters.depot AS routeDepot,
     busRoutesMasters.depot AS routeName,
     busRoutesMasters.estimated_collection AS estimated_collection,
+    busRoutesMasters.routeName AS routeName,
     busRoutesMasters.routeDistance AS routeDistance,
     busRoutesMasters.estimated_collection AS estimated_collection,
     -- 🔹 Last CMR from dailyUpdates

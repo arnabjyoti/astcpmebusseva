@@ -39,6 +39,7 @@ module.exports = (app) => {
 	app.post('/api/deleteConductor', BusController.deleteConductor);
 	app.post('/api/blockConductor', BusController.blockConductor);
 	app.get('/api/getDriver', BusController.getDriver);
+	app.get('/api/getConductorWithAllotment', BusController.getConductorWithAllotment);
 	app.get('/api/getConductor', BusController.getConductor);
 	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
 	app.get('/api/getAmountToBePaidByConductor', BusController.getAmountToBePaidByConductor);
