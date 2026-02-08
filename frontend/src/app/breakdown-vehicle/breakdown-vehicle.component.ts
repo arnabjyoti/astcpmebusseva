@@ -44,12 +44,15 @@ export class BreakdownVehicleComponent implements OnInit {
   isEditMode: boolean = false;
   editingRecordId: number | null = null;
 
+  searchForm: FormGroup;
+
   constructor(
     private formBuilder: FormBuilder,
     private app: AppService,
     private http: HttpClient,
   ) {
     this.breakdownForm = this.createForm();
+    this.searchForm = this.formBuilder.group({});
     this.app.getHttpHeader((h: any) => {
       this.headers = h;
     });
@@ -58,13 +61,42 @@ export class BreakdownVehicleComponent implements OnInit {
   ngOnInit(): void {
     // Load breakdown records from your service
     // this.loadBreakdownRecords();
+    this.searchForm = this.formBuilder.group({
+      fromDate: [''],
+      toDate: [''],
+      vehicleNumber: [''],
+      routeNumber: ['']
+    });
+
     this.fetchBreakdownTable();
   }
 
+
+  onSearch() {
+    this.currentPage = 1; // reset pagination
+    this.fetchBreakdownTable();
+  }
+  
+  resetSearch() {
+    this.searchForm.reset();
+    this.currentPage = 1;
+    this.fetchBreakdownTable();
+  }
+  
+
   fetchBreakdownTable(): void {
     const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
+    const params = {
+      page: this.currentPage,
+      limit: this.pageSize,
+      ...this.searchForm.value
+    };
 
-    this.http.post(ENDPOINT, {}).subscribe(
+    console.log("params", params);
+    
+
+
+    this.http.post(ENDPOINT, {params}).subscribe(
       (response: any) => {
         console.log('Hello me:', response);
         this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
