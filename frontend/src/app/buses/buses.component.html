@@ -47,95 +47,144 @@
               </button>
             </div>
 
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Bus Name</th>
-                  <th>Veh No</th>
-                  <th>Driver Name</th>
-                  <th>Driver Contact No</th>
-                  <th>Conductor Name</th>
-                  <th>Conductor Contact No</th>
-                  <th>Base Depot</th>
-                  <th>Alloted Route No</th>
-                  <th>Current Status</th>
-                  <th style="text-align: center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let data of busList; let i = index" [ngClass]="{ 
-                    'running-bg': data.currentStatus === 'running',
-                    'still-bg': data.currentStatus === 'still',
-                    'finished-bg': data.currentStatus === 'finished',
-                  
-                   }">
-                  <td>{{ i + 1 }}</td>
-                  <td>{{ data.busName }}</td>
-                  <td>{{ data.busNo }}</td>
-                  <td>{{ data.driverName }}</td>
-                  <td>
-                    {{ data.driverContactNo }}
-                  </td>
-                  <td [ngClass]="{
-                      'text-danger': data.conductorStatus === 'Block'
-                    }">
-                    <div>
-                      {{ data.conductorName }}
-                      <button class="btn btn-default" data-toggle="modal" data-target="#conductorRemainModal"
-                        (click)="getRemainingAmountForConductor(i)">
-                        <i class="fa fa-eye"></i>
-                      </button>
-                    </div>
-                  </td>
-                  <td>{{ data.conductorContactNo }}</td>
-                  <td>{{ data.routeDepot }}</td>
-                  <td>{{ data.routeNo }}</td>
-                  <td>
-                    {{ data.currentStatus || "idle" | titlecase }}
-                    {{
-                    data.currentStatus == "running"
-                    ? " (" + data.noOfTrip + ")"
-                    : ""
-                    }}
-                  </td>
-                  <td style="text-align: center; width: 15%">
-                    <button class="btn btn-default" data-toggle="modal" data-target="#viewModal" (click)="viewData(i)">
-                      <i class="fa fa-eye"></i>
-                    </button>
-                    <button (click)="openEditDialog(data)" class="btn btn-default" data-toggle="modal"
-                      data-target="#formModal">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button (click)="openConfirmationDialog(data)" class="btn btn-default" data-toggle="modal"
-                      data-target="#deleteModal">
-                      <i class="fas fa-trash"></i>
-                    </button>
+            <table class="table table-hover professional-table">
+  <thead class="professional-thead">
+    <tr>
+      <th>#</th>
+      <th>Bus Name</th>
+      <th>Veh No</th>
+      <th>Driver</th>
+      <th>Driver Contact</th>
+      <th>Conductor</th>
+      <th>Conductor Contact</th>
+      <th>Depot</th>
+      <th>Route</th>
+      <th>Status</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
 
-                    <div class="gap-2">
-                      <div class="pb-2" *ngIf="data.currentStatus == 'running'">
-                        <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#updateRoute"
-                          (click)="viewData(i)">
-                          <i class="fas fa-recycle"></i> Update Rounds
-                        </button>
-                      </div>
-                      <div class="pb-2" *ngIf="data.currentStatus == 'running'">
-                        <button class="btn btn-danger btn-sm" data-toggle="modal" (click)="redirectToUpdateForm(data)">
-                          <i class="fas fa-stop"></i> Stop Trip
-                        </button>
-                      </div>
+  <tbody>
+    <tr *ngFor="let data of busList; let i = index"
+        [ngClass]="{
+          'row-running': data.currentStatus === 'running',
+          'row-still': data.currentStatus === 'still',
+          'row-finished': data.currentStatus === 'finished'
+        }">
 
-                      <div class="pb-2" *ngIf="data.currentStatus !== 'running'">
-                        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#addDetailsModal"
-                          (click)="viewData(i)">
-                          <i class="fas fa-plus"></i> Update Trip
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <td>{{ i + 1 }}</td>
+      <td class="font-weight-bold">{{ data.busName }}</td>
+      <td>{{ data.busNo }}</td>
+      <td>{{ data.driverName || '-' }}</td>
+      <td>{{ data.driverContactNo || '-' }}</td>
+
+      <!-- Conductor -->
+      <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+        <div class="d-flex align-items-center gap-2">
+          <span>{{ data.conductorName || '-' }}</span>
+
+          <button class="btn btn-icon"
+                  *ngIf="data.conductor_actual_id; else conductorNotAllotted"
+                  data-toggle="modal"
+                  data-target="#conductorRemainModal"
+                  (click)="getRemainingAmountForConductor(i)">
+            <i class="fa fa-eye"></i>
+          </button>
+
+          <ng-template #conductorNotAllotted>
+            <span class="text-muted small">
+              <i class="fas fa-exclamation-circle"></i>
+              Not allotted
+            </span>
+          </ng-template>
+        </div>
+      </td>
+
+      <td>{{ data.conductorContactNo || '-' }}</td>
+      <td>{{ data.routeDepot || '-' }}</td>
+      <td>{{ data.routeNo || '-' }}</td>
+
+      <!-- Status -->
+      <td>
+        <span class="status-badge"
+              [ngClass]="{
+                'status-running': data.currentStatus === 'running',
+                'status-still': data.currentStatus === 'still',
+                'status-finished': data.currentStatus === 'finished'
+              }">
+          {{ data.currentStatus || 'idle' | titlecase }}
+          <span *ngIf="data.currentStatus === 'running'">
+            ({{ data.noOfTrip }})
+          </span>
+        </span>
+      </td>
+
+      <!-- Actions -->
+      <td class="text-center action-cell">
+
+        <div class="btn-group mb-2">
+          <button class="btn btn-light btn-sm"
+                  data-toggle="modal"
+                  data-target="#viewModal"
+                  (click)="viewData(i)">
+            <i class="fa fa-eye"></i>
+          </button>
+
+          <button class="btn btn-light btn-sm"
+                  (click)="openEditDialog(data)"
+                  data-toggle="modal"
+                  data-target="#formModal">
+            <i class="fas fa-edit"></i>
+          </button>
+
+          <button class="btn btn-light btn-sm"
+                  (click)="openConfirmationDialog(data)"
+                  data-toggle="modal"
+                  data-target="#deleteModal">
+            <i class="fas fa-trash text-danger"></i>
+          </button>
+        </div>
+
+        <!-- Trip actions -->
+        <div *ngIf="data.currentStatus === 'running'" class="mb-1">
+          <button class="btn btn-warning btn-sm btn-block"
+                  data-toggle="modal"
+                  data-target="#updateRoute"
+                  (click)="viewData(i)">
+            <i class="fas fa-recycle"></i> Update Rounds
+          </button>
+        </div>
+
+        <div *ngIf="data.currentStatus === 'running'" class="mb-1">
+          <button class="btn btn-danger btn-sm btn-block"
+                  data-toggle="modal"
+                  (click)="redirectToUpdateForm(data)">
+            <i class="fas fa-stop"></i> Stop Trip
+          </button>
+        </div>
+
+        <div *ngIf="data.currentStatus !== 'running'">
+          <button *ngIf="data.driver_actual_id && data.conductor_actual_id; else tripNotAllowed"
+                  class="btn btn-info btn-sm btn-block"
+                  data-toggle="modal"
+                  data-target="#addDetailsModal"
+                  (click)="viewData(i)">
+            <i class="fas fa-plus"></i> Update Trip
+          </button>
+
+          <ng-template #tripNotAllowed>
+            <span class="text-muted small">
+              <i class="fas fa-exclamation-circle"></i>
+              Driver / Conductor not allotted
+            </span>
+          </ng-template>
+        </div>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
             <!-- Form Modal -->
             <div class="modal fade" id="formModal" tabindex="-1">
@@ -143,7 +192,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <h2 class="modal-title">Vehicle Info</h2>
-                    <button type="button" class="close" data-dismiss="modal">
+                    <button type="button" class="close" data-dismiss="modal" id="modalClose">
                       &times;
                     </button>
                   </div>
@@ -153,11 +202,13 @@
                         <div class="row">
                           <div class="col-md-6 pt-3">
                             <label>Bus Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busName" name="busName" />
+                            <input type="text" class="form-control" [(ngModel)]="form.busName" name="busName"
+                              placeholder="Enter Bus Name" />
                           </div>
                           <div class="col-md-6 pt-3">
                             <label>Bus No</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo" />
+                            <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo"
+                              placeholder="Enter Bus No" />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -176,11 +227,12 @@
                             <select class="form-control" name="driverName" [(ngModel)]="form.driverName"
                               (change)="manageDrive()">
                               <option value="">Select a Driver</option>
+                              <option value="REMOVE">❌ Remove Driver</option>
 
                               <option *ngFor="let driver of driverList" [value]="driver.id"
                                 [disabled]="driver.allotmentStatus === 'Allotted'" [ngClass]="{
-        'driver-allotted': driver.allotmentStatus === 'Allotted'
-      }">
+                                  'driver-allotted': driver.allotmentStatus === 'Allotted'
+                                }">
                                 {{ driver.driver_name }} - {{ driver.id }}
                                 <span *ngIf="driver.allotmentStatus === 'Allotted'">
                                   (Already Allotted)
@@ -202,11 +254,12 @@
                             <select class="form-control" name="conductorName" [(ngModel)]="form.conductorName"
                               (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
+                              <option value="REMOVE">❌ Remove Conductor</option>
 
                               <option *ngFor="let conductor of conductorList" [value]="conductor.id"
                                 [disabled]="conductor.allotmentStatus === 'Allotted'" [ngClass]="{
-        'driver-allotted': conductor.allotmentStatus === 'Allotted'
-      }">
+                                  'driver-allotted': conductor.allotmentStatus === 'Allotted'
+                                }">
                                 {{ conductor.conductor_name }} - {{ conductor.id }}
                                 <span *ngIf="conductor.allotmentStatus === 'Allotted'">
                                   (Already Allotted)
@@ -258,11 +311,11 @@
                       </div>
 
                       <button style="float: right" *ngIf="!isEdit" type="button" class="btn btn-info"
-                        (click)="saveData()" data-dismiss="modal">
+                        (click)="saveData()">
                         Save
                       </button>
                       <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
-                        (click)="updateData()" data-dismiss="modal">
+                        (click)="updateData()">
                         Update
                       </button>
                       <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"

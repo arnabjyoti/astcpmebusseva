@@ -289,6 +289,13 @@
                               </tr>
                             </table>
 
+                            <!-- Total Pending Amont -->
+                            <table class="tbl">
+                              <tr>
+                                <th><b>TOTAL PENDING AMOUNT:</b>{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0) }}</th>
+                              </tr>
+                            </table>
+
                             <!-- Remarks -->
                             <table class="tbl">
                               <tr>
@@ -426,7 +433,7 @@
                 <input type="number" class="form-control" [(ngModel)]="form.targetedTrip" name="targetedTrip" />
               </div>
 
-              <div class="col-md-4 pt-3">
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Chalo WayBill no</label>
                 <input type="text" class="form-control" [(ngModel)]="form.chaloWayBillNo" name="chaloWayBillNo" />
               </div>
@@ -464,6 +471,11 @@
                 <input type="number" class="form-control" [(ngModel)]="form.upi" (change)="calculateAmount()"
                   name="upi" />
               </div>
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Additional Amount (₹)</label>
+                <input type="number" class="form-control" [(ngModel)]="form.additionalAmount" (change)="calculateAmount()"
+                  name="additionalAmount" />
+              </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Amount Collected (₹)</label>
@@ -475,9 +487,16 @@
                 <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Pending Amount (₹)</label>
+                <label>Pending Amount (₹) - Today</label>
                 <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
+              
+
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Total Pending Amount (₹) - Pre + Today ({{amountToBeDeposited}}+{{form.amountToBeDeposited}})</label>
+                <input type="text" class="form-control" value="{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0)}}" name="amountToBeDeposited" readonly />
+              </div>
+
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
                 <input type="time" class="form-control" [(ngModel)]="form.stopTime" name="stopTime" />
@@ -509,6 +528,8 @@
                 <label>Remarks</label>
                 <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />
               </div>
+
+
               <div class="col-md-12 pt-3">
                 <div class="text-center p-3">
                   <button *ngIf="formtype == 'update'" class="btn btn-info mr-2" (click)="openPreview()"

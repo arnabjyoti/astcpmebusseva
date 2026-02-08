@@ -48,73 +48,136 @@ export class BusesComponent {
   }
 
   saveData = () => {
-    const ENDPOINT = `${environment.BASE_URL}/api/createBus`;
-    let selectedDriverDetails = this.driverList.find((ele: any) => {
-      return ele.id === parseInt(this.form?.driverName);
-    });
-    let selectedConductorDetails = this.conductorList.find((ele: any) => {
-      return ele.id === parseInt(this.form?.conductorName);
-    });
 
-    this.form.driverId = selectedDriverDetails.id;
-    this.form.driverName = selectedDriverDetails.driver_name;
-    this.form.conductorId = selectedConductorDetails.id;
-    this.form.conductorName = selectedConductorDetails.conductor_name;
-    const requestOptions = {
-      requestObject: this.form,
-    };
-    this.http.post(ENDPOINT, requestOptions).subscribe(
-      (response) => {
-        console.log('response ', response);
-        this.getBuses();
-        this.getDriver();
-        this.getConductor();
-        this.toastr.success('Added Successfully', 'Success');
-      },
-      (error) => {
-        console.log('error here ', error);
-        this.toastr.error('Something went wrong !', 'Warning');
-      },
-      () => {
-        console.log('Observable is now completed.');
-      }
-    );
+  // 🔴 Basic validation
+  if (!this.form.busNo || this.form.busNo.trim() === '') {
+    this.toastr.warning('Bus No is required', 'Validation');
+    return;
+  }
+
+  if (!this.form.driverName) {
+    this.toastr.warning('Please select a Driver', 'Validation');
+    return;
+  }
+
+  if (!this.form.conductorName) {
+    this.toastr.warning('Please select a Conductor', 'Validation');
+    return;
+  }
+
+  if (!this.form.allotedRouteNo) {
+    this.toastr.warning('Please select a Route', 'Validation');
+    return;
+  }
+
+  // ✅ continue only if validation passed
+  const ENDPOINT = `${environment.BASE_URL}/api/createBus`;
+
+  let selectedDriverDetails = this.driverList.find(
+    (ele: any) => ele.id === parseInt(this.form.driverName)
+  );
+
+  let selectedConductorDetails = this.conductorList.find(
+    (ele: any) => ele.id === parseInt(this.form.conductorName)
+  );
+
+  if (!selectedDriverDetails || !selectedConductorDetails) {
+    this.toastr.error('Invalid Driver or Conductor selected', 'Error');
+    return;
+  }
+
+  this.form.driverId = selectedDriverDetails.id;
+  this.form.driverName = selectedDriverDetails.driver_name;
+  this.form.conductorId = selectedConductorDetails.id;
+  this.form.conductorName = selectedConductorDetails.conductor_name;
+
+  const requestOptions = {
+    requestObject: this.form,
   };
+
+  this.http.post(ENDPOINT, requestOptions).subscribe(
+    (response) => {
+      this.getBuses();
+      this.getDriver();
+      this.getConductor();
+      this.toastr.success('Added Successfully', 'Success');
+      let ele: any = document.getElementById('modalClose');
+      ele.click();
+    },
+    (error) => {
+      this.toastr.error('Something went wrong!', 'Warning');
+    }
+  );
+};
+
 
   updateData = () => {
-    const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
-    let selectedDriverDetails = this.driverList.find((ele: any) => {
-      return ele.id === parseInt(this.form?.driverName);
-    });
-    let selectedConductorDetails = this.conductorList.find((ele: any) => {
-      return ele.id === parseInt(this.form?.conductorName);
-    });
 
-    this.form.driverName = selectedDriverDetails.driver_name;
-    this.form.conductorName = selectedConductorDetails.conductor_name;
-    this.form.driverId = selectedDriverDetails.id;
-    this.form.conductorId = selectedConductorDetails.id;
-    const requestOptions = {
-      requestObject: this.form,
-    };
+  // 🔴 Basic validation (no driver/conductor validation)
+  if (!this.form.busNo || this.form.busNo.trim() === '') {
+    this.toastr.warning('Bus No is required', 'Validation');
+    return;
+  }
 
-    this.http.post(ENDPOINT, requestOptions).subscribe(
-      (response) => {
-        console.log('response ', response);
-        this.getBuses();
-        this.getDriver();
-        this.getConductor();
-        this.toastr.success('Updated Successfully', 'Success');
-      },
-      (error) => {
-        console.log('error here ', error);
-        this.toastr.error('Something went wrong !', 'Warning');
-      },
-      () => {
-        console.log('Observable is now completed.');
-      }
+  if (!this.form.allotedRouteNo) {
+    this.toastr.warning('Please select a Route', 'Validation');
+    return;
+  }
+
+  // 👉 DRIVER LOGIC
+  if (this.form.driverName === 'REMOVE') {
+    this.form.driverId = null;
+    this.form.driverName = null;
+  } 
+  else if (this.form.driverName) {
+    const driver = this.driverList.find(
+      (d: any) => d.id === parseInt(this.form.driverName)
     );
+
+    if (driver) {
+      this.form.driverId = driver.id;
+      this.form.driverName = driver.driver_name;
+    }
+  }
+  // else → keep existing values (do nothing)
+
+  // 👉 CONDUCTOR LOGIC
+  if (this.form.conductorName === 'REMOVE') {
+    this.form.conductorId = null;
+    this.form.conductorName = null;
+  } 
+  else if (this.form.conductorName) {
+    const conductor = this.conductorList.find(
+      (c: any) => c.id === parseInt(this.form.conductorName)
+    );
+
+    if (conductor) {
+      this.form.conductorId = conductor.id;
+      this.form.conductorName = conductor.conductor_name;
+    }
+  }
+
+  const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
+
+  const requestOptions = {
+    requestObject: this.form,
   };
+
+  this.http.post(ENDPOINT, requestOptions).subscribe(
+    () => {
+      this.getBuses();
+      this.getDriver();
+      this.getConductor();
+      this.toastr.success('Updated Successfully', 'Success');
+    },
+    () => {
+      this.toastr.error('Something went wrong!', 'Warning');
+    }
+  );
+  let ele: any = document.getElementById('modalClose');
+    ele.click();
+};
+
 
   getBuses = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
