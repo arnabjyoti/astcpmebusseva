@@ -331,7 +331,7 @@ export class HomeComponent implements OnInit {
     const data = this.stillBusData.map((bus, index) => ({
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
-      'Route Number': bus?.route?.routeNo || 'N/A',
+      'Route Number': bus?.routeNo || 'N/A',
       'Driver ID': bus.driverId || 'N/A',
       'Conductor ID': bus.conductorId || 'N/A',
       'Trip Completed': bus.noOfTrip || 'N/A',
