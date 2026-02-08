@@ -2003,12 +2003,57 @@ END AS estimated_time,
 
   async fetchBreakdownTable(req, res) {
     try {
+
+      const {
+        fromDate,
+        toDate,
+        vehicleNumber,
+        routeNumber
+      } = req.body.params;
+
+      console.log("fromDate", fromDate);
+      console.log("toDate", toDate);
+      console.log("vehicleNumber", vehicleNumber);
+      console.log("routeNumber", routeNumber);
+
+      // 🔹 Breakdown filters
+      const whereCondition = {
+        status: "Active",
+        currentStatus: "still"
+      };
+
+      // 📅 Date range filter
+      if (fromDate && toDate) {
+        whereCondition.date = {
+          [Op.between]: [fromDate, toDate]
+        };
+      }
+
+
+      // 🛣️ Route number filter
+      if (routeNumber) {
+        whereCondition.routeNo = {
+          [Op.like]: `%${routeNumber}%`
+        };
+      }
+
+      // 🚌 Bus (vehicle) filter
+      const busWhere = {};
+      if (vehicleNumber) {
+        busWhere.busNo = {
+          [Op.like]: `%${vehicleNumber}%`
+        };
+      }
+
+
+
       const breakdownQuery = await dailyUpdatesModel.findAll({
-        where: {
-          // date: today,
-          status: 'Active',
-          currentStatus: 'still',
-        },
+        // where: {
+        //   // date: today,
+        //   status: 'Active',
+        //   currentStatus: 'still',
+        // },
+        where: whereCondition,
         attributes: [
           "routeNo",
           "noOfTrip",
@@ -2026,7 +2071,8 @@ END AS estimated_time,
             model: busMasterModel,
             as: "bus",
             attributes: ["busNo"],
-            required: true
+            required: true,
+            where: busWhere // 🔥 vehicle filter applied here
           },
         ]
       });

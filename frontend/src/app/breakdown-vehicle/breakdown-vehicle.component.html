@@ -184,6 +184,62 @@
           </div>
         </div>
 
+
+        <div>
+         
+          <div class="card mb-3">
+            <div class="card-body">
+              <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+                <div class="row align-items-end">
+          
+                  <!-- From Date -->
+                  <div class="col-md-3 form-group">
+                    <label>From Date</label>
+                    <input type="date" class="form-control" formControlName="fromDate">
+                  </div>
+          
+                  <!-- To Date -->
+                  <div class="col-md-3 form-group">
+                    <label>To Date</label>
+                    <input type="date" class="form-control" formControlName="toDate">
+                  </div>
+          
+                  <!-- Vehicle Number -->
+                  <div class="col-md-3 form-group">
+                    <label>Vehicle Number</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter vehicle number"
+                      formControlName="vehicleNumber">
+                  </div>
+          
+                  <!-- Route Number -->
+                  <div class="col-md-3 form-group">
+                    <label>Route Number</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter route number"
+                      formControlName="routeNumber">
+                  </div>
+          
+                </div>
+          
+                <div class="text-right mt-3">
+                  <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fa fa-search"></i> Search
+                  </button>
+                  <button type="button" class="btn btn-secondary" (click)="resetSearch()">
+                    <i class="fa fa-times"></i> Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+        </div>
+
         <div class="table-responsive">
           <table class="table table-striped table-bordered">
             <thead>
