@@ -56,8 +56,10 @@
                             <!-- Header -->
                             <div class="pdf-header py-3">
                               <div class="left-logo-container">
-                                <span><img src="../../../assets/image/login/astc.png" alt="Left Logo" class="logo-left"/></span>
-                                <span style="font-size: 16px; font-weight: bold; font-family: 'Times New Roman', Times; margin-left: 1px;">
+                                <span><img src="../../../assets/image/login/astc.png" alt="Left Logo"
+                                    class="logo-left" /></span>
+                                <span
+                                  style="font-size: 16px; font-weight: bold; font-family: 'Times New Roman', Times; margin-left: 1px;">
                                   <b>ASSAM STATE TRANSPORT CORPORATION</b>
                                 </span>
                               </div>
@@ -261,7 +263,7 @@
                                 <!-- <td></td>
                                 <td></td>
                                 <td></td> -->
-                                <td>0</td>
+                                <td>{{form.additionalAmount || 0}}</td>
                                 <td>{{form.netAmountDeposited}}</td>
                               </tr>
                             </table>
@@ -292,7 +294,8 @@
                             <!-- Total Pending Amont -->
                             <table class="tbl">
                               <tr>
-                                <th><b>TOTAL PENDING AMOUNT:</b>{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0) }}</th>
+                                <th><b>TOTAL PENDING AMOUNT : (₹) </b>{{ (+amountToBeDeposited || 0) +
+                                  (+form.amountToBeDeposited || 0) }}</th>
                               </tr>
                             </table>
 
@@ -473,8 +476,8 @@
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Additional Amount (₹)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.additionalAmount" (change)="calculateAmount()"
-                  name="additionalAmount" />
+                <input type="number" class="form-control" [(ngModel)]="form.additionalAmount"
+                  (change)="calculateAmount()" name="additionalAmount" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
@@ -483,18 +486,20 @@
                   name="netAmountDeposited" readonly />
               </div>
               <div class="col-md-4 pt-3">
-                <label>Targeted Earning (in Rs.)</label>
+                <label>Targeted Earning (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Pending Amount (₹) - Today</label>
+                <label>Today's Pending Amount (₹)</label>
                 <input type="number" class="form-control" [(ngModel)]="form.amountToBeDeposited" readonly />
               </div>
-              
+
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Total Pending Amount (₹) - Pre + Today ({{amountToBeDeposited}}+{{form.amountToBeDeposited}})</label>
-                <input type="text" class="form-control" value="{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0)}}" name="amountToBeDeposited" readonly />
+                <label>Total Pending (₹) - Pre + Today ({{amountToBeDeposited}}+{{form.amountToBeDeposited}})</label>
+                <input type="text" class="form-control"
+                  value="{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0)}}" name="amountToBeDeposited"
+                  readonly />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
