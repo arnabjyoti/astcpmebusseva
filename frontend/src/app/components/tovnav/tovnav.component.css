@@ -329,3 +329,12 @@
   padding: 0 2px;
   border-radius: 2px;
 }
+.sidebar-dark-teal .nav-sidebar > .nav-item > .nav-link.active {
+  background: linear-gradient(
+    135deg,
+    #26d9a6 0%,
+    #20c997 50%,
+    #1ba784 100%
+  );
+  color: #ffffff;
+}

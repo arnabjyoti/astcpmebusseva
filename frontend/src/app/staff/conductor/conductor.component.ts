@@ -12,6 +12,8 @@ import { environment } from 'src/environments/environment';
 })
 export class ConductorComponent {
 
+  isLoading: boolean = false;
+
   public endpoint: string;
     constructor(
       private appService: AppService,
@@ -26,6 +28,7 @@ export class ConductorComponent {
   
     form2: any = {
     conductor_id: '',
+    conductorLicenseNo: '',
     conductor_name: '',
     contact_no: '',
     aadhaar: '',
@@ -73,6 +76,7 @@ isConductorEdit: boolean = false;
     this.isConductorEdit = false;
     this.form2 = {
       conductor_id: '',
+      conductorLicenseNo: '',
       conductor_name: '',
       contact_no: '',
       aadhaar: '',
@@ -97,6 +101,7 @@ isConductorEdit: boolean = false;
 
   const formData = new FormData();
   formData.append('conductor_id', this.form2.conductor_id);
+  formData.append('conductorLicenseNo', this.form2.conductorLicenseNo);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
@@ -126,6 +131,7 @@ isConductorEdit: boolean = false;
 
   this.form2 = {
     conductor_id: data?.conductor_id,
+    conductorLicenseNo: data?.conductorLicenseNo,
     id: data?.id,
     conductor_name: data?.conductor_name,
     contact_no: data?.contact_no,
@@ -158,6 +164,7 @@ isConductorEdit: boolean = false;
   
   formData.append('id', this.form2.id);
   formData.append('conductor_id', this.form2.conductor_id);
+  formData.append('conductorLicenseNo', this.form2.conductorLicenseNo);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
@@ -193,10 +200,13 @@ isConductorEdit: boolean = false;
   getConductors = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getConductor`;
 
+    this.isLoading = true;
+
     this.http.get(ENDPOINT).subscribe(
       (response) => {
         console.log('response ', response);
         this.conductorList = response;
+        this.isLoading = false; // hide loader after success
       },
       (error) => {
         console.log('error here ', error);
