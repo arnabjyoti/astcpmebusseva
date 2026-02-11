@@ -14,3 +14,90 @@
     color: rgb(249 247 247);
     background-color: #747474;
 }
+.driver-allotted {
+  color: #999 !important;
+  background-color: #f2f2f2;
+}
+.driver-allotted {
+  color: #999 !important;
+  background-color: #f2f2f2;
+}
+
+/* table designed */
+
+.professional-table {
+  background-color: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.professional-thead {
+  background-color: #2f363d;
+  color: #ffffff;
+}
+
+.professional-thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-color: #dee2e6;
+}
+
+/* Table borders (soft, not dark) */
+.professional-table td,
+.professional-table th {
+  border-color: #e1e5ea;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.professional-table tbody tr:hover {
+  background-color: #f6f9fc;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-running {
+  background-color: #e3fcef;
+  color: #0f8a5f;
+}
+
+.status-still {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-finished {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Action buttons */
+.action-cell .btn-light {
+  border: 1px solid #dee2e6;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  padding: 2px 6px;
+}
+/* ✅ Light row status colors */
+.row-running {
+  background-color: #eafaf4 !important;
+}
+
+.row-still {
+  background-color: #fff8e6 !important;
+}
+
+.row-finished {
+  background-color: #fdeeee !important;
+}

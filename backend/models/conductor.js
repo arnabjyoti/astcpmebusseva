@@ -7,6 +7,7 @@ module.exports = (sequelize, type) => {
             autoIncrement: true
         },
         conductor_id: type.STRING,
+        conductorLicenseNo: type.STRING,
         conductor_name: type.STRING,
         contact_no: type.STRING,
         aadhaar: type.STRING,

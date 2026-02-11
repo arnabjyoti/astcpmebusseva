@@ -31,6 +31,7 @@ module.exports = (sequelize, type) => {
         chaloTicketAmount: type.STRING,
         cashCollection: type.STRING,
         upi: type.STRING,
+        additionalAmount: type.STRING,
 
         chaloWayBillNo: type.STRING,
         chaloMachineNo: type.STRING,

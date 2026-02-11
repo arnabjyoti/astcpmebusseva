@@ -10,6 +10,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { end } from '@popperjs/core/lib/enums';
 
 @Component({
   selector: 'app-daily-update-form',
@@ -62,6 +63,7 @@ export class DailyUpdateFormComponent {
     chaloTicketAmount: 0,
     cashCollection: 0,
     upi: 0,
+    additionalAmount: 0,
 
     estimated_collection: 0,
     tragetedEarning: 0,
@@ -136,18 +138,26 @@ export class DailyUpdateFormComponent {
           conductorId: data.conductorId,
           conductorContactNo: data.conductorContactNo,
           baseDepot: data.baseDepot,
-
+          estimated_collection: data.estimated_collection,
+          start: data.start,
+          end: data.end,
+          depot: data.depot,
         };
         this.busDetails = busDetails;
         this.routeNo = data.routeNo;
 
+          this.form.routeStart = data.start;
+          this.form.routeEnd = data.end;
+          this.form.routeDepot = data.depot;
+
         // this.form.currentStatus = 'finished'
 
         // this.form.busId = this.busId;
-        // this.form.date = this.selectedDate;
+        this.selectedDate = data.date;
         // this.form.routeNo = response.allotedRouteNo
         // this.form.depot = response.depotName;
         // this.routeName = response.routeName;
+        this.getRemainingAmountForConductor();
       },
       (error) => {
         console.log('error here ', error);
@@ -176,6 +186,7 @@ export class DailyUpdateFormComponent {
         this.form.depot = response.depotName;
         this.form.driverId = response.driver_actual_id;
         this.form.conductorId = response.conductor_actual_id;
+        this.form.conductor_actual_id = response.conductor_actual_id,
         this.form.routeNo = response.routeNo;
         this.form.estimated_collection = response.estimated_collection;
         this.form.tragetedEarning = response.estimated_collection;
@@ -188,6 +199,8 @@ export class DailyUpdateFormComponent {
         this.form.omr = response.lastCmr;
         this.form.routeName = response.routeName;
         this.form.osoc = 100;
+
+        this.getRemainingAmountForConductor();
       },
       (error) => {
         console.log('error here ', error);
@@ -307,7 +320,8 @@ export class DailyUpdateFormComponent {
     this.form.netAmountDeposited =
       // (parseInt(this.form.chaloTicketAmount) || 0) +
       (parseInt(this.form.cashCollection) || 0) +
-      (parseInt(this.form.upi) || 0);
+      (parseInt(this.form.upi) || 0) +
+      (parseInt(this.form.additionalAmount) || 0);
 
     this.calculateDiposite();
   };
@@ -723,5 +737,33 @@ export class DailyUpdateFormComponent {
     date.setHours(hours, minutes, 0, 0);
     return date;
   }
+
+
+
+
+  // remaining amount
+  amountToBeDeposited: any = 0;
+    getRemainingAmountForConductor() {
+  
+  
+      const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.form.conductor_actual_id}`;
+  
+      this.http.get(ENDPOINT).subscribe(
+        (response: any) => {
+          console.log('response remaining amount', response.data.amountToBeDeposited);
+          this.amountToBeDeposited = response.data.amountToBeDeposited
+  
+        },
+        (error) => {
+          console.log('error here ', error);
+          this.toastr.error('Something went wrong !', 'Warning');
+        },
+        () => {
+          console.log('Observable is now completed.');
+        }
+      );
+  
+  
+    };
   
 }
