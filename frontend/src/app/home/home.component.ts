@@ -173,12 +173,18 @@ export class HomeComponent implements OnInit {
               this.totalRoute,
             ],
             backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+            borderWidth: 1,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+        },
       },
     });
   }
