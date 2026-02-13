@@ -420,6 +420,7 @@ module.exports = {
               SELECT 1 
               FROM busMasters 
               WHERE busMasters.driverId = driverMaster.id
+              AND busMasters.status = 'Active'
             )
             THEN 'Allotted'
             ELSE 'Not Allotted'
@@ -464,6 +465,7 @@ getConductorWithAllotment(req, res) {
               SELECT 1 
               FROM busMasters 
               WHERE busMasters.conductorId = conductorMaster.id
+              AND busMasters.status = 'Active'
             )
             THEN 'Allotted'
             ELSE 'Not Allotted'
