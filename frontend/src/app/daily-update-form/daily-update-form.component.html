@@ -324,11 +324,27 @@
                             <table class="tbl">
                               <tr>
                                 <th>
-                                  <b>TOTAL PENDING AMOUNT : (₹) </b
-                                  >{{
+                                  <b>TOTAL PENDING AMOUNT : (₹) </b>
+                                  <!-- {{
                                     (+remainingAmount || 0) +
                                       (+form.amountToBeDeposited || 0)
-                                  }}
+                                  }} -->
+                                  <!-- {{
+                                    totalPendingAmount() < 0 ? <>123</> : totalPendingAmount()
+                                  }} -->
+                                  <span
+                                    *ngIf="
+                                      totalPendingAmount() < 0;
+                                      else normalValue
+                                    "
+                                    class="text-success font-weight-bold"
+                                  >
+                                    +{{ positivePendingAmount(totalPendingAmount()) }}
+                                  </span>
+
+                                  <ng-template #normalValue>
+                                    {{ totalPendingAmount() }}
+                                  </ng-template>
                                 </th>
                               </tr>
                             </table>
@@ -674,14 +690,21 @@
                   + {{ toInt(form.amountToBeDeposited) }})
                 </label>
 
-                <input
+                <!-- <input
                   type="text"
                   class="form-control"
                   [value]="
-                    toInt(remainingAmount) - toInt(form.tragetedEarning) +
-                    toInt(form.amountToBeDeposited) -
-                    toInt(form.additionalAmount)
+                    toInt(remainingAmount) -
+                    toInt(form.tragetedEarning) +
+                    toInt(form.amountToBeDeposited)
                   "
+                  name="amountToBeDeposited"
+                  readonly
+                /> -->
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="totalPendingAmount()"
                   name="amountToBeDeposited"
                   readonly
                 />

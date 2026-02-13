@@ -24,7 +24,7 @@ export class DailyUpdateFormComponent {
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router,
-    private spinner: NgxSpinnerService,
+    private spinner: NgxSpinnerService
   ) {}
 
   private apiUrl = 'https://worldtimeapi.org/api/timezone/Asia/Kolkata';
@@ -123,9 +123,9 @@ export class DailyUpdateFormComponent {
         this.form.driverId = data.driverId;
         this.form.conductorId = data.conductorId;
 
-        ((this.form.conductor_actual_id = data.conductor_actual_id),
+        (this.form.conductor_actual_id = data.conductor_actual_id),
           (this.form.driver_actual_id = data.driver_actual_id),
-          (this.selectedDate = data.date));
+          (this.selectedDate = data.date);
         console.log('data ==>> ', data.driverId);
 
         let busDetails = {
@@ -165,7 +165,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      },
+      }
     );
   };
 
@@ -186,8 +186,8 @@ export class DailyUpdateFormComponent {
         this.form.depot = response.depotName;
         this.form.driverId = response.driver_actual_id;
         this.form.conductorId = response.conductor_actual_id;
-        ((this.form.conductor_actual_id = response.conductor_actual_id),
-          (this.form.routeNo = response.routeNo));
+        (this.form.conductor_actual_id = response.conductor_actual_id),
+          (this.form.routeNo = response.routeNo);
         this.form.estimated_collection = response.estimated_collection;
         this.form.tragetedEarning = response.estimated_collection;
         // this.form.amountToBeDeposited = response.estimated_collection;
@@ -208,7 +208,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      },
+      }
     );
   };
 
@@ -243,7 +243,7 @@ export class DailyUpdateFormComponent {
         (error) => {
           this.toastr.error('Something went wrong!', 'Warning');
           this.isSaving = false; // ✅ stop loader on error
-        },
+        }
       );
     } else {
       this.toastr.warning('Please fill all required fields', 'Warning');
@@ -292,7 +292,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      },
+      }
     );
   };
 
@@ -334,7 +334,7 @@ export class DailyUpdateFormComponent {
       () => {
         this.toastr.error('Something went wrong !', 'Warning');
         this.isSaving = false;
-      },
+      }
     );
   };
 
@@ -438,7 +438,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('IST Observable is now completed.');
-      },
+      }
     );
   };
 
@@ -577,7 +577,7 @@ export class DailyUpdateFormComponent {
 
       // ===== Save PDF =====
       doc.save(
-        `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
+        `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`
       );
     };
   }
@@ -811,22 +811,22 @@ export class DailyUpdateFormComponent {
     doc.text(
       'SIGNATURE OF THE CASHIER\nPM e-bus sewa\nRupnagar, Guwahati-32',
       10,
-      y,
+      y
     );
     doc.text(
       'SIGNATURE OF THE AUDITOR\nPM e-bus sewa\nRupnagar, Guwahati-32',
       70,
-      y,
+      y
     );
     doc.text(
       'SIGNATURE OF THE OPERATION MANAGER\nPM e-bus sewa\nRupnagar, Guwahati-32',
       140,
-      y,
+      y
     );
 
     // ===== Save PDF =====
     doc.save(
-      `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
+      `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`
     );
   }
 
@@ -841,14 +841,14 @@ export class DailyUpdateFormComponent {
   remainingAmount: any = 0;
   getRemainingAmountForConductor() {
     console.log('conductor id', this.form.conductor_actual_id);
-    
+
     const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.form.conductor_actual_id}`;
 
     this.http.get(ENDPOINT).subscribe(
       (response: any) => {
         console.log(
           'response remaining amount',
-          response.data.amountToBeDeposited,
+          response.data.amountToBeDeposited
         );
         this.remainingAmount = response.data.amountToBeDeposited;
       },
@@ -858,15 +858,26 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      },
+      }
     );
   }
-
 
   toInt(value: any): number {
     return parseInt(value, 10) || 0;
   }
 
-  
+  totalPendingAmount(): number {
+    let amount = this.toInt(this.form.netAmountDeposited) >= this.toInt(this.form.tragetedEarning) ? 
+    this.toInt(this.remainingAmount) - this.toInt(this.form.netAmountDeposited)
+    :  
+    this.toInt(this.remainingAmount) -
+    this.toInt(this.form.tragetedEarning) +
+    this.toInt(this.form.amountToBeDeposited) ;
+    return amount;
+  }
 
+
+   positivePendingAmount(number: number): number {
+    return Math.abs(number);
+  }
 }
