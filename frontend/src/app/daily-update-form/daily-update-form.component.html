@@ -496,9 +496,9 @@
 
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
-                <label>Total Pending (₹) - Pre + Today ({{amountToBeDeposited}}+{{form.amountToBeDeposited}})</label>
+                <label>Total Pending (₹) - Pre + Today ({{amountToBeDeposited}} + {{form.amountToBeDeposited}})</label>
                 <input type="text" class="form-control"
-                  value="{{ (+amountToBeDeposited || 0) + (+form.amountToBeDeposited || 0)}}" name="amountToBeDeposited"
+                  value="{{ (+form.amountToBeDeposited || 0) + (amountToBeDeposited || 0)}}" name="amountToBeDeposited"
                   readonly />
               </div>
 
@@ -539,7 +539,7 @@
                 <div class="text-center p-3">
                   <button *ngIf="formtype == 'update'" class="btn btn-info mr-2" (click)="openPreview()"
                     data-toggle="modal" data-target="#exampleModal">
-                    Print Opening Log Sheet
+                    Log Sheet Preview
                   </button>
                   <button type="button" class="btn btn-success text-center" (click)="saveData()" [disabled]="isSaving"
                     *ngIf="formtype !== 'update'">
@@ -550,7 +550,7 @@
                     </span>
                   </button>
 
-                  <button type="button" class="btn btn-success text-center" (click)="updateData()" data-dismiss="modal"
+                  <button type="button" class="btn btn-success text-center" (click)="updateAndDownload()" data-dismiss="modal"
                     *ngIf="formtype == 'update'">
                     Update and Complete Trip
                   </button>
