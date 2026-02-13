@@ -12,6 +12,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { end } from '@popperjs/core/lib/enums';
 
+declare var $: any;
 @Component({
   selector: 'app-daily-update-form',
   templateUrl: './daily-update-form.component.html',
@@ -29,7 +30,7 @@ export class DailyUpdateFormComponent {
   private apiUrl = 'https://worldtimeapi.org/api/timezone/Asia/Kolkata';
   currentTinme: string | null = null;
 
-  public isLodaing: boolean = true;
+  public isLoading: boolean = false;
 
   public isSaving = false;
 
@@ -297,6 +298,8 @@ export class DailyUpdateFormComponent {
 
   // Update and download Closing Log Sheet
   updateAndDownload = async () => {
+    if (this.isSaving) return;
+
     this.isSaving = true;
 
     const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
@@ -310,14 +313,17 @@ export class DailyUpdateFormComponent {
     };
 
     this.http.post(ENDPOINT, requestOptions).subscribe(
-      async (response) => {
+      async () => {
         this.showPreview = true;
 
         await this.waitForElement('printA4');
+        await new Promise((r) => setTimeout(r, 300)); // small rendering buffer
 
         await this.downloadPdf();
 
         this.showPreview = false;
+
+        $('#exampleModal').modal('hide'); // ✅ close AFTER download
 
         this.router.navigate(['/buses']);
 
@@ -325,7 +331,7 @@ export class DailyUpdateFormComponent {
 
         this.isSaving = false;
       },
-      (error) => {
+      () => {
         this.toastr.error('Something went wrong !', 'Warning');
         this.isSaving = false;
       },
@@ -365,12 +371,14 @@ export class DailyUpdateFormComponent {
 
   showPreview = false;
 
-  openPreview() {
-    this.isLodaing = true;
-    this.spiner();
-    this.getCurrentISTTime();
+  async openPreview() {
+    this.isLoading = true;
+
     this.showPreview = true;
-    this.isLodaing = false;
+
+    await this.waitForElement('printA4');
+
+    this.isLoading = false;
   }
 
   downloadPdf(): Promise<void> {
@@ -828,7 +836,6 @@ export class DailyUpdateFormComponent {
     date.setHours(hours, minutes, 0, 0);
     return date;
   }
-
 
   // remaining amount
   amountToBeDeposited: any = 0;
