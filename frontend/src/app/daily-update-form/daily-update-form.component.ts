@@ -838,8 +838,10 @@ export class DailyUpdateFormComponent {
   }
 
   // remaining amount
-  amountToBeDeposited: any = 0;
+  remainingAmount: any = 0;
   getRemainingAmountForConductor() {
+    console.log('conductor id', this.form.conductor_actual_id);
+    
     const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.form.conductor_actual_id}`;
 
     this.http.get(ENDPOINT).subscribe(
@@ -848,7 +850,7 @@ export class DailyUpdateFormComponent {
           'response remaining amount',
           response.data.amountToBeDeposited,
         );
-        this.amountToBeDeposited = response.data.amountToBeDeposited;
+        this.remainingAmount = response.data.amountToBeDeposited;
       },
       (error) => {
         console.log('error here ', error);
@@ -859,4 +861,12 @@ export class DailyUpdateFormComponent {
       },
     );
   }
+
+
+  toInt(value: any): number {
+    return parseInt(value, 10) || 0;
+  }
+
+  
+
 }
