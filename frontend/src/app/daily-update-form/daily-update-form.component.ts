@@ -23,8 +23,8 @@ export class DailyUpdateFormComponent {
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router,
-    private spinner: NgxSpinnerService
-  ) { }
+    private spinner: NgxSpinnerService,
+  ) {}
 
   private apiUrl = 'https://worldtimeapi.org/api/timezone/Asia/Kolkata';
   currentTinme: string | null = null;
@@ -94,7 +94,7 @@ export class DailyUpdateFormComponent {
       }
     });
   }
-  
+
   spiner() {
     this.spinner.show();
     setTimeout(() => {
@@ -122,11 +122,10 @@ export class DailyUpdateFormComponent {
         this.form.driverId = data.driverId;
         this.form.conductorId = data.conductorId;
 
-        this.form.conductor_actual_id = data.conductor_actual_id,
-        this.form.driver_actual_id = data.driver_actual_id,
-        this.selectedDate = data.date;
+        ((this.form.conductor_actual_id = data.conductor_actual_id),
+          (this.form.driver_actual_id = data.driver_actual_id),
+          (this.selectedDate = data.date));
         console.log('data ==>> ', data.driverId);
-        
 
         let busDetails = {
           busName: data.busName,
@@ -146,9 +145,9 @@ export class DailyUpdateFormComponent {
         this.busDetails = busDetails;
         this.routeNo = data.routeNo;
 
-          this.form.routeStart = data.start;
-          this.form.routeEnd = data.end;
-          this.form.routeDepot = data.depot;
+        this.form.routeStart = data.start;
+        this.form.routeEnd = data.end;
+        this.form.routeDepot = data.depot;
 
         // this.form.currentStatus = 'finished'
 
@@ -165,7 +164,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -186,8 +185,8 @@ export class DailyUpdateFormComponent {
         this.form.depot = response.depotName;
         this.form.driverId = response.driver_actual_id;
         this.form.conductorId = response.conductor_actual_id;
-        this.form.conductor_actual_id = response.conductor_actual_id,
-        this.form.routeNo = response.routeNo;
+        ((this.form.conductor_actual_id = response.conductor_actual_id),
+          (this.form.routeNo = response.routeNo));
         this.form.estimated_collection = response.estimated_collection;
         this.form.tragetedEarning = response.estimated_collection;
         // this.form.amountToBeDeposited = response.estimated_collection;
@@ -208,53 +207,47 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
   saveData = async () => {
+    if (this.isSaving) return; // 🚫 prevent double click
 
-  if (this.isSaving) return; // 🚫 prevent double click
+    if (this.form.startTime != 0 && this.form.omr != 0 && this.form.osoc != 0) {
+      this.isSaving = true; // ✅ start loader + disable button
 
-  if (this.form.startTime != 0 && this.form.omr != 0 && this.form.osoc != 0) {
+      const ENDPOINT = `${environment.BASE_URL}/api/saveDailyUpdates`;
 
-    this.isSaving = true; // ✅ start loader + disable button
+      const requestOptions = {
+        requestObject: this.form,
+      };
 
-    const ENDPOINT = `${environment.BASE_URL}/api/saveDailyUpdates`;
+      console.log('dataaaaa', requestOptions);
 
-    const requestOptions = {
-      requestObject: this.form,
-    };
+      this.http.post<any>(ENDPOINT, requestOptions).subscribe(
+        async (response) => {
+          this.form.timesheetNo = response.timesheetNo;
 
-    console.log("dataaaaa",requestOptions);
-    
+          this.showPreview = true;
+          await this.waitForElement('printA4');
+          await this.downloadPdf();
+          this.showPreview = false;
 
-    this.http.post<any>(ENDPOINT, requestOptions).subscribe(
-      async (response) => {
+          this.router.navigate(['/buses']);
+          this.toastr.success('Added Successfully', 'Success');
 
-        this.form.timesheetNo = response.timesheetNo;
-
-        this.showPreview = true;
-        await this.waitForElement('printA4');
-        await this.downloadPdf();
-        this.showPreview = false;
-
-        this.router.navigate(['/buses']);
-        this.toastr.success('Added Successfully', 'Success');
-
-        this.isSaving = false; // ✅ stop loader
-      },
-      (error) => {
-        this.toastr.error('Something went wrong!', 'Warning');
-        this.isSaving = false; // ✅ stop loader on error
-      }
-    );
-
-  } else {
-    this.toastr.warning('Please fill all required fields', 'Warning');
-  }
-};
-
+          this.isSaving = false; // ✅ stop loader
+        },
+        (error) => {
+          this.toastr.error('Something went wrong!', 'Warning');
+          this.isSaving = false; // ✅ stop loader on error
+        },
+      );
+    } else {
+      this.toastr.warning('Please fill all required fields', 'Warning');
+    }
+  };
 
   waitForElement(id: string): Promise<HTMLElement> {
     return new Promise((resolve) => {
@@ -268,7 +261,7 @@ export class DailyUpdateFormComponent {
     });
   }
 
-
+  // Old function for update without download
   updateData = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
 
@@ -298,7 +291,44 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
+    );
+  };
+
+  // Update and download Closing Log Sheet
+  updateAndDownload = async () => {
+    this.isSaving = true;
+
+    const ENDPOINT = `${environment.BASE_URL}/api/updateDailyUpdates`;
+
+    this.form.conductorId = this.form.conductor_actual_id;
+    this.form.driverId = this.form.driver_actual_id;
+
+    const requestOptions = {
+      requestObject: this.form,
+      id: this.triptId,
+    };
+
+    this.http.post(ENDPOINT, requestOptions).subscribe(
+      async (response) => {
+        this.showPreview = true;
+
+        await this.waitForElement('printA4');
+
+        await this.downloadPdf();
+
+        this.showPreview = false;
+
+        this.router.navigate(['/buses']);
+
+        this.toastr.success('Updated Successfully', 'Success');
+
+        this.isSaving = false;
+      },
+      (error) => {
+        this.toastr.error('Something went wrong !', 'Warning');
+        this.isSaving = false;
+      },
     );
   };
 
@@ -332,7 +362,6 @@ export class DailyUpdateFormComponent {
 
     this.form.amountToBeDeposited = Math.max(0, target - deposited);
   };
-
 
   showPreview = false;
 
@@ -375,18 +404,16 @@ export class DailyUpdateFormComponent {
           .from(element)
           .save()
           .then(() => {
-            resolve();   // ✅ PDF finished downloading
+            resolve(); // ✅ PDF finished downloading
           })
           .catch((err: any) => {
             reject(err);
           });
-
       } catch (err) {
         reject(err);
       }
     });
   }
-
 
   getCurrentISTTime = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getCurrentISTTime`;
@@ -403,19 +430,9 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('IST Observable is now completed.');
-      }
+      },
     );
   };
-
-
-
-
-
-
-
-
-
-
 
   downloadPdfText(timesheetNo: string) {
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -467,18 +484,26 @@ export class DailyUpdateFormComponent {
       // ===== Driver / Conductor =====
       autoTable(doc, {
         startY: y,
-        head: [[
-          'Driver ID', 'Driver Name', 'Driver Phone',
-          'Conductor ID', 'Conductor Name', 'Conductor Phone'
-        ]],
-        body: [[
-          this.busDetails.driverId,
-          this.busDetails.driverName,
-          this.busDetails.driverContactNo,
-          this.busDetails.conductorId,
-          this.busDetails.conductorName,
-          this.busDetails.conductorContactNo
-        ]]
+        head: [
+          [
+            'Driver ID',
+            'Driver Name',
+            'Driver Phone',
+            'Conductor ID',
+            'Conductor Name',
+            'Conductor Phone',
+          ],
+        ],
+        body: [
+          [
+            this.busDetails.driverId,
+            this.busDetails.driverName,
+            this.busDetails.driverContactNo,
+            this.busDetails.conductorId,
+            this.busDetails.conductorName,
+            this.busDetails.conductorContactNo,
+          ],
+        ],
       });
 
       y = (doc as any).lastAutoTable.finalY + 6;
@@ -486,19 +511,20 @@ export class DailyUpdateFormComponent {
       // ===== SOC & Meter =====
       autoTable(doc, {
         startY: y,
-        head: [[
-          'Place', 'Opening SOC', 'Closing SOC', 'Consumed SOC',
-          'Opening KM', 'Closing KM', 'Covered KM'
-        ]],
-        body: [[
-          this.form.routeDepot,
-          this.form.osoc,
-          '',
-          '',
-          this.form.omr,
-          '',
-          ''
-        ]]
+        head: [
+          [
+            'Place',
+            'Opening SOC',
+            'Closing SOC',
+            'Consumed SOC',
+            'Opening KM',
+            'Closing KM',
+            'Covered KM',
+          ],
+        ],
+        body: [
+          [this.form.routeDepot, this.form.osoc, '', '', this.form.omr, '', ''],
+        ],
       });
 
       y = (doc as any).lastAutoTable.finalY + 6;
@@ -512,7 +538,7 @@ export class DailyUpdateFormComponent {
           [this.form.routeNo, '2', this.form.routeStart, this.form.routeEnd],
           [this.form.routeNo, '3', this.form.routeEnd, this.form.routeStart],
           [this.form.routeNo, '4', this.form.routeStart, this.form.routeEnd],
-        ]
+        ],
       });
 
       y = (doc as any).lastAutoTable.finalY + 6;
@@ -520,11 +546,18 @@ export class DailyUpdateFormComponent {
       // ===== Earnings =====
       autoTable(doc, {
         startY: y,
-        head: [[
-          'Way Bill', 'Ticket Count', 'Pass Count',
-          'Ticket Amt', 'PhonePe', 'Cash', 'Wallet'
-        ]],
-        body: [['', '', '', '', '', '', '']]
+        head: [
+          [
+            'Way Bill',
+            'Ticket Count',
+            'Pass Count',
+            'Ticket Amt',
+            'PhonePe',
+            'Cash',
+            'Wallet',
+          ],
+        ],
+        body: [['', '', '', '', '', '', '']],
       });
 
       y = (doc as any).lastAutoTable.finalY + 10;
@@ -535,20 +568,13 @@ export class DailyUpdateFormComponent {
       doc.text('Operation Manager Signature', 150, y);
 
       // ===== Save PDF =====
-      doc.save(`Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`);
+      doc.save(
+        `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
+      );
     };
   }
 
-
-
-
-
-
-
-
-
   // later will use it
-
 
   // Helper function to load image and return a Promise
   loadImage(src: string): Promise<HTMLImageElement> {
@@ -605,19 +631,28 @@ export class DailyUpdateFormComponent {
 
     autoTable(doc, {
       startY: y,
-      head: [[
-        'Depot Name', 'Date', 'Veh No', 'Alloted Route No', 'Alloted Route Name', 'Time of Departure from Depot'
-      ]],
-      body: [[
-        this.form.routeDepot,
-        this.selectedDate,
-        this.busDetails.busNo,
-        this.form.routeNo,
-        this.form.routeName,
-        ''
-      ]],
+      head: [
+        [
+          'Depot Name',
+          'Date',
+          'Veh No',
+          'Alloted Route No',
+          'Alloted Route Name',
+          'Time of Departure from Depot',
+        ],
+      ],
+      body: [
+        [
+          this.form.routeDepot,
+          this.selectedDate,
+          this.busDetails.busNo,
+          this.form.routeNo,
+          this.form.routeName,
+          '',
+        ],
+      ],
       theme: 'grid',
-      styles: { fontSize: 9 }
+      styles: { fontSize: 9 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -625,19 +660,28 @@ export class DailyUpdateFormComponent {
     // ===== Driver / Conductor =====
     autoTable(doc, {
       startY: y,
-      head: [[
-        'Driver ID', 'Driver Name', 'Driver Ph No', 'Conductor ID', 'Conductor Name', 'Conductor Ph No'
-      ]],
-      body: [[
-        this.busDetails.driverId,
-        this.busDetails.driverName,
-        this.busDetails.driverContactNo,
-        this.busDetails.conductorId,
-        this.busDetails.conductorName,
-        this.busDetails.conductorContactNo
-      ]],
+      head: [
+        [
+          'Driver ID',
+          'Driver Name',
+          'Driver Ph No',
+          'Conductor ID',
+          'Conductor Name',
+          'Conductor Ph No',
+        ],
+      ],
+      body: [
+        [
+          this.busDetails.driverId,
+          this.busDetails.driverName,
+          this.busDetails.driverContactNo,
+          this.busDetails.conductorId,
+          this.busDetails.conductorName,
+          this.busDetails.conductorContactNo,
+        ],
+      ],
       theme: 'grid',
-      styles: { fontSize: 9 }
+      styles: { fontSize: 9 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -645,18 +689,22 @@ export class DailyUpdateFormComponent {
     // ===== State of Charge & Meter Reading =====
     autoTable(doc, {
       startY: y,
-      head: [['Place', 'Opening SOC', 'Closing SOC', 'Consumed SOC', 'Opening KM', 'Closing KM', 'Covered KM']],
-      body: [[
-        this.form.routeDepot,
-        this.form.osoc,
-        '',
-        '',
-        this.form.omr,
-        '',
-        ''
-      ]],
+      head: [
+        [
+          'Place',
+          'Opening SOC',
+          'Closing SOC',
+          'Consumed SOC',
+          'Opening KM',
+          'Closing KM',
+          'Covered KM',
+        ],
+      ],
+      body: [
+        [this.form.routeDepot, this.form.osoc, '', '', this.form.omr, '', ''],
+      ],
       theme: 'grid',
-      styles: { fontSize: 9, halign: 'center' }
+      styles: { fontSize: 9, halign: 'center' },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -666,17 +714,30 @@ export class DailyUpdateFormComponent {
     for (let i = 1; i <= 8; i++) {
       let from = i % 2 === 0 ? this.form.routeStart : this.form.routeEnd;
       let to = i % 2 === 0 ? this.form.routeEnd : this.form.routeStart;
-      if (i === 8) { from = this.form.routeStart; to = this.form.routeDepot; }
+      if (i === 8) {
+        from = this.form.routeStart;
+        to = this.form.routeDepot;
+      }
 
       routeBody.push([this.form.routeNo, i, from, to, '', '', '']);
     }
 
     autoTable(doc, {
       startY: y,
-      head: [['Route No', 'Trip', 'From', 'To', 'Arrival Time', 'Departure Time', 'Booking Asst Signature']],
+      head: [
+        [
+          'Route No',
+          'Trip',
+          'From',
+          'To',
+          'Arrival Time',
+          'Departure Time',
+          'Booking Asst Signature',
+        ],
+      ],
       body: routeBody,
       theme: 'grid',
-      styles: { fontSize: 9 }
+      styles: { fontSize: 9 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -684,14 +745,24 @@ export class DailyUpdateFormComponent {
     // ===== Earnings Table =====
     autoTable(doc, {
       startY: y,
-      head: [[
-        'Chalo Way Bill No', 'Chalo Ticket Count', 'Total Pass Count', 'Chalo Ticket Amount',
-        'Phone Pe', 'Cash Collection', 'Wallet Card', 'Card Recharge', 'Mobile Pass',
-        'Additional Amount Deposited', 'Total Amount Deposited'
-      ]],
+      head: [
+        [
+          'Chalo Way Bill No',
+          'Chalo Ticket Count',
+          'Total Pass Count',
+          'Chalo Ticket Amount',
+          'Phone Pe',
+          'Cash Collection',
+          'Wallet Card',
+          'Card Recharge',
+          'Mobile Pass',
+          'Additional Amount Deposited',
+          'Total Amount Deposited',
+        ],
+      ],
       body: [['', '', '', '', '', '', '', '', '', '', '']],
       theme: 'grid',
-      styles: { fontSize: 9 }
+      styles: { fontSize: 9 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -699,12 +770,19 @@ export class DailyUpdateFormComponent {
     // ===== Total Deductions =====
     autoTable(doc, {
       startY: y,
-      head: [[
-        'Trip Allowance', 'GMC Parking', 'Total Deduction', 'Net Amount Deposited After Deductions', 'Fixed Target', 'Balance'
-      ]],
+      head: [
+        [
+          'Trip Allowance',
+          'GMC Parking',
+          'Total Deduction',
+          'Net Amount Deposited After Deductions',
+          'Fixed Target',
+          'Balance',
+        ],
+      ],
       body: [['', '', '', '', 7000, '']],
       theme: 'grid',
-      styles: { fontSize: 9 }
+      styles: { fontSize: 9 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 2;
@@ -715,21 +793,34 @@ export class DailyUpdateFormComponent {
       head: [['REMARKS']],
       body: [['']],
       theme: 'grid',
-      styles: { fontSize: 9, minCellHeight: 15 }
+      styles: { fontSize: 9, minCellHeight: 15 },
     });
 
     y = (doc as any).lastAutoTable.finalY + 10;
 
     // ===== Signatures =====
     doc.setFontSize(9);
-    doc.text('SIGNATURE OF THE CASHIER\nPM e-bus sewa\nRupnagar, Guwahati-32', 10, y);
-    doc.text('SIGNATURE OF THE AUDITOR\nPM e-bus sewa\nRupnagar, Guwahati-32', 70, y);
-    doc.text('SIGNATURE OF THE OPERATION MANAGER\nPM e-bus sewa\nRupnagar, Guwahati-32', 140, y);
+    doc.text(
+      'SIGNATURE OF THE CASHIER\nPM e-bus sewa\nRupnagar, Guwahati-32',
+      10,
+      y,
+    );
+    doc.text(
+      'SIGNATURE OF THE AUDITOR\nPM e-bus sewa\nRupnagar, Guwahati-32',
+      70,
+      y,
+    );
+    doc.text(
+      'SIGNATURE OF THE OPERATION MANAGER\nPM e-bus sewa\nRupnagar, Guwahati-32',
+      140,
+      y,
+    );
 
     // ===== Save PDF =====
-    doc.save(`Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`);
+    doc.save(
+      `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
+    );
   }
-
 
   formatTime(time: string): Date {
     const [hours, minutes] = time.split(':').map(Number);
@@ -739,31 +830,26 @@ export class DailyUpdateFormComponent {
   }
 
 
-
-
   // remaining amount
   amountToBeDeposited: any = 0;
-    getRemainingAmountForConductor() {
-  
-  
-      const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.form.conductor_actual_id}`;
-  
-      this.http.get(ENDPOINT).subscribe(
-        (response: any) => {
-          console.log('response remaining amount', response.data.amountToBeDeposited);
-          this.amountToBeDeposited = response.data.amountToBeDeposited
-  
-        },
-        (error) => {
-          console.log('error here ', error);
-          this.toastr.error('Something went wrong !', 'Warning');
-        },
-        () => {
-          console.log('Observable is now completed.');
-        }
-      );
-  
-  
-    };
-  
+  getRemainingAmountForConductor() {
+    const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.form.conductor_actual_id}`;
+
+    this.http.get(ENDPOINT).subscribe(
+      (response: any) => {
+        console.log(
+          'response remaining amount',
+          response.data.amountToBeDeposited,
+        );
+        this.amountToBeDeposited = response.data.amountToBeDeposited;
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      },
+      () => {
+        console.log('Observable is now completed.');
+      },
+    );
+  }
 }
