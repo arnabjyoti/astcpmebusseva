@@ -397,24 +397,24 @@ module.exports = {
   },
 
   getDriver(req, res) {
-  console.log("here");
+    console.log("here");
 
-  driverMasterModel.findAll({
-    where: { status: "Active" },
-    attributes: [
-      "id",
-      "driver_id",
-      "driver_name",
-      "contact_no",
-      "aadhaar",
-      "pan",
-      "voter",
-      "dl",
-      "address",
-      "photo",
-      "status",
-      [
-        Sequelize.literal(`
+    driverMasterModel.findAll({
+      where: { status: "Active" },
+      attributes: [
+        "id",
+        "driver_id",
+        "driver_name",
+        "contact_no",
+        "aadhaar",
+        "pan",
+        "voter",
+        "dl",
+        "address",
+        "photo",
+        "status",
+        [
+          Sequelize.literal(`
           CASE 
             WHEN EXISTS (
               SELECT 1 
@@ -426,40 +426,40 @@ module.exports = {
             ELSE 'Not Allotted'
           END
         `),
-        "allotmentStatus"
-      ]
-    ],
-    order: [["driver_name", "ASC"]],
-    raw: true
-  })
-  .then((drivers) => {
-    return res.status(200).send(drivers);
-  })
-  .catch((error) => {
-    console.log(error);
-    return res.status(400).send(error);
-  });
-},
+          "allotmentStatus"
+        ]
+      ],
+      order: [["driver_name", "ASC"]],
+      raw: true
+    })
+      .then((drivers) => {
+        return res.status(200).send(drivers);
+      })
+      .catch((error) => {
+        console.log(error);
+        return res.status(400).send(error);
+      });
+  },
 
-getConductorWithAllotment(req, res) {
+  getConductorWithAllotment(req, res) {
 
-  conductorMasterModel.findAll({
-    where: { status: "Active" },
-    attributes: [
-      "id",
-      "conductor_id",
-      "conductorLicenseNo",
-      "conductor_name",
-      "contact_no",
-      "aadhaar",
-      "pan",
-      "voter",
-      "dl",
-      "address",
-      "photo",
-      "status",
-      [
-        Sequelize.literal(`
+    conductorMasterModel.findAll({
+      where: { status: "Active" },
+      attributes: [
+        "id",
+        "conductor_id",
+        "conductorLicenseNo",
+        "conductor_name",
+        "contact_no",
+        "aadhaar",
+        "pan",
+        "voter",
+        "dl",
+        "address",
+        "photo",
+        "status",
+        [
+          Sequelize.literal(`
           CASE 
             WHEN EXISTS (
               SELECT 1 
@@ -471,23 +471,23 @@ getConductorWithAllotment(req, res) {
             ELSE 'Not Allotted'
           END
         `),
-        "allotmentStatus"
-      ]
-    ],
-    order: [["conductor_name", "ASC"]],
-    raw: true
-  })
-  .then((conductors) => {
-    return res.status(200).send(conductors);
-  })
-  .catch((error) => {
-    console.log(error);
-    return res.status(400).send(error);
-  });
-},
+          "allotmentStatus"
+        ]
+      ],
+      order: [["conductor_name", "ASC"]],
+      raw: true
+    })
+      .then((conductors) => {
+        return res.status(200).send(conductors);
+      })
+      .catch((error) => {
+        console.log(error);
+        return res.status(400).send(error);
+      });
+  },
 
-saveConductor(req, res) {
-  console.log("reqqqqqqqqqqq", req.body);
+  saveConductor(req, res) {
+    console.log("reqqqqqqqqqqq", req.body);
 
     try {
       const data = {
@@ -679,12 +679,12 @@ saveConductor(req, res) {
   getConductorAttendance(req, res) {
     try {
       const { from, to } = req.query; // ✅ correct destructuring
-  
+
       // expected format: YYYY-MM-DD
       if (!from || !to) {
         return res.status(400).send({ message: "from and to dates are required" });
       }
-  
+
       const sql = `
         WITH RECURSIVE calendar AS (
           SELECT DATE(:from) AS day
@@ -719,7 +719,7 @@ saveConductor(req, res) {
         GROUP BY conductor_id, conductor_name
         ORDER BY conductor_name;
       `;
-  
+
       return sequelize
         .query(sql, {
           replacements: { from, to }, // ✅ pass both
@@ -732,13 +732,13 @@ saveConductor(req, res) {
           console.error(error);
           return res.status(400).send(error);
         });
-  
+
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
     }
   }
-,  
+  ,
 
   async saveDailyUpdates(req, res) {
     try {
@@ -1819,8 +1819,6 @@ END AS estimated_time,
         },
         attributes: [
           "routeNo",
-          "driverId",
-          "conductorId",
         ],
         include: [
           {
@@ -1829,6 +1827,18 @@ END AS estimated_time,
             attributes: ["busNo"],
             required: true
           },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+            required: true
+          },
+          {
+            model: conductorMasterModel,
+            as: "conductor",
+            attributes: ["conductor_id"],
+            required: true
+          }
         ]
       });
 
@@ -1874,8 +1884,6 @@ END AS estimated_time,
           currentStatus: "finished"
         },
         attributes: [
-          "driverId",
-          "conductorId",
           "netAmountDeposited",
         ],
         include: [
@@ -1891,6 +1899,18 @@ END AS estimated_time,
             attributes: ["routeNo"],
             required: true
           },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+            required: true
+          },
+          {
+            model: conductorMasterModel,
+            as: "conductor",
+            attributes: ["conductor_id"],
+            required: true
+          }
         ],
       });
 
@@ -1910,13 +1930,9 @@ END AS estimated_time,
         attributes: [
           "routeNo",
           "noOfTrip",
-          "driverId",
-          "conductorId",
           "totalOperated",
           "placeOfBreakdown",
-          // "causeOfBreakdown",
           "stopTime",
-          // "date"
         ],
         include: [
           {
@@ -1925,6 +1941,18 @@ END AS estimated_time,
             attributes: ["busNo"],
             required: true
           },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+            required: true
+          },
+          {
+            model: conductorMasterModel,
+            as: "conductor",
+            attributes: ["conductor_id"],
+            required: true
+          }
         ]
       });
 
@@ -1973,11 +2001,11 @@ END AS estimated_time,
     try {
       const { id } = req.query;
       console.log("id", id);
-  
+
       if (!id) {
         return res.status(400).send({ message: 'Conductor id is required' });
       }
-  
+
       const sql = `
         SELECT 
           SUM(
@@ -1987,16 +2015,16 @@ END AS estimated_time,
         FROM dailyUpdates
         WHERE conductorId = :id
       `;
-  
+
       const [dataResults] = await sequelize.query(sql, {
         replacements: { id },
         type: sequelize.QueryTypes.SELECT,
       });
-  
+
       res.send({
         data: dataResults,
       });
-  
+
     } catch (error) {
       console.error('Error executing query:', error);
       res.status(500).send({ error: 'Failed to fetch data' });
@@ -2047,20 +2075,12 @@ END AS estimated_time,
         };
       }
 
-
-
       const breakdownQuery = await dailyUpdatesModel.findAll({
-        // where: {
-        //   // date: today,
-        //   status: 'Active',
-        //   currentStatus: 'still',
-        // },
+
         where: whereCondition,
         attributes: [
           "routeNo",
           "noOfTrip",
-          "driverId",
-          "conductorId",
           "totalOperated",
           "placeOfBreakdown",
           "causeOfBreakdown",
@@ -2076,8 +2096,21 @@ END AS estimated_time,
             required: true,
             where: busWhere // 🔥 vehicle filter applied here
           },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+            required: true
+          },
+          {
+            model: conductorMasterModel,
+            as: "conductor",
+            attributes: ["conductor_id"],
+            required: true
+          }
         ]
       });
+
       res.status(200).send({
         breakdownQuery,
       });
@@ -2085,6 +2118,6 @@ END AS estimated_time,
       console.error("Error fetching breakdown table:", error);
       res.status(500).send({ error: "Failed to fetch breakdown table" });
     }
-  }  
-  
+  }
+
 };

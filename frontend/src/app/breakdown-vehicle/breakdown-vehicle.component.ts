@@ -92,7 +92,7 @@ export class BreakdownVehicleComponent implements OnInit {
       ...this.searchForm.value
     };
 
-    console.log("params", params);
+    console.log("Breakdow parmas : ", params);
     
 
 
@@ -245,8 +245,8 @@ export class BreakdownVehicleComponent implements OnInit {
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus?.routeNo || 'N/A',
-      'Driver ID': bus.driverId || 'N/A',
-      'Conductor ID': bus.conductorId || 'N/A',
+      'Driver ID': bus?.driver?.driver_id || 'N/A',
+      'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
       'Trip Completed': bus.noOfTrip || 'N/A',
       'Kilometres Driven': bus.totalOperated || 'N/A',
       'Place of Breakdown': bus.placeOfBreakdown || 'N/A',

@@ -6,7 +6,7 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: true
         },
-        conductor_id: type.STRING,
+        conductor_id: type.STRING(255),
         conductorLicenseNo: type.STRING,
         conductor_name: type.STRING,
         contact_no: type.STRING,
@@ -14,6 +14,7 @@ module.exports = (sequelize, type) => {
         pan: type.STRING,
         voter: type.STRING,
         dl: type.STRING,
+        licenseExpiryConductor: type.STRING,
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING
