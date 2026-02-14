@@ -6,7 +6,7 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: true
         },
-        busId: type.STRING,
+        busId: type.INTEGER,
         date: type.STRING,
 
         timesheetNo: type.STRING,
@@ -22,8 +22,8 @@ module.exports = (sequelize, type) => {
         currentStatus: type.STRING,
         startTime: type.STRING,
         stopTime: type.STRING,
-        driverId: type.STRING,
-        conductorId: type.STRING,
+        driverId: type.INTEGER,
+        conductorId: type.INTEGER,
 
 
         chaloTicketNo: type.STRING,
@@ -51,6 +51,7 @@ module.exports = (sequelize, type) => {
         // dailyUpdates.hasMany(models.trip);
         dailyUpdates.belongsTo(models.busMaster, {
             foreignKey: "busId",
+            targetKey: "id",
             as: "bus"
         });
 
@@ -62,11 +63,13 @@ module.exports = (sequelize, type) => {
 
         dailyUpdates.belongsTo(models.driverMaster, {
             foreignKey: "driverId",
+            targetKey: "id",
             as: "driver"
         });
 
         dailyUpdates.belongsTo(models.conductorMaster, {
             foreignKey: "conductorId",
+            targetKey: "id",
             as: "conductor"
         });
 
