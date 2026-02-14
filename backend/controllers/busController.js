@@ -1087,30 +1087,87 @@ LIMIT 1;
   // },
 
   async getDailyUpdates(req, res) {
+
     let { dateFrom, dateTo } = req.body;
 
     console.log("dateFrom - dateTo", dateFrom, dateTo);
 
-    let sqlQuery = `
-        SELECT du.id as duId, du.*, bm.*, br.*
-        FROM dailyUpdates AS du
-        INNER JOIN busMasters AS bm ON bm.id = du.busId
-        INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
-        WHERE du.date BETWEEN STR_TO_DATE(?, '%Y-%m-%d') AND STR_TO_DATE(?, '%Y-%m-%d') AND br.status='Active' AND du.status='Active'
-    `;
-
     try {
-      const [results] = await sequelize.query(sqlQuery, {
-        replacements: [dateFrom, dateTo],
+      let { dateFrom, dateTo, busId } = req.body;
+
+      // Build dynamic filter
+      let whereCondition = {
+        status: "Active"
+      };
+
+      if (dateFrom && dateTo) {
+        whereCondition.date = {
+          [Op.between]: [dateFrom, dateTo]
+        };
+      }
+
+      if (busId) {
+        whereCondition.busId = busId;
+      }
+
+      const getBusData = await dailyUpdatesModel.findAll({
+        where: whereCondition,
+
+        attributes: [
+          "date",
+          "timesheetNo",
+          "routeNo",
+          "omr",
+          "cmr",
+          "totalOperated",
+          "noOfTrip",
+          "chaloPassengersNo",
+          "chaloTicketNo",
+          "chaloTicketAmount",
+          "cashCollection",
+          "upi",
+          "additionalAmount",
+          "netAmountDeposited",
+          "tragetedEarning",
+          "amountToBeDeposited",
+          "status",
+          "startTime",
+          "stopTime",
+          "remarks"
+        ],
+
+        include: [
+          {
+            model: busMasterModel,
+            as: "bus",
+            attributes: ["busNo"],
+            required: true
+          },
+          {
+            model: driverMasterModel,
+            as: "driver",
+            attributes: ["driver_id"],
+            required: false
+          },
+          {
+            model: conductorMasterModel,
+            as: "conductor",
+            attributes: ["conductor_id"],
+            required: false
+          }
+        ],
+
+        order: [["date", "DESC"]]
       });
 
-      console.log("res =>", results);
-      res.send(results);
+      return res.status(200).send(getBusData);
+
     } catch (error) {
-      console.error("Error executing query:", error);
-      res.status(500).send({ error: "Failed to fetch data" });
+      console.error("Error fetching daily updates:", error);
+      return res.status(500).send({ message: "Failed to fetch data" });
     }
   },
+
 
   async getOneTripDetails(req, res) {
     let { id } = req.body;
