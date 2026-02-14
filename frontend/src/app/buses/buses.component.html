@@ -53,9 +53,9 @@
       <th>#</th>
       <th>Bus Name</th>
       <th>Veh No</th>
-      <th>Driver</th>
+      <th>Driver ID</th>
       <th>Driver Contact</th>
-      <th>Conductor</th>
+      <th>Conductor ID</th>
       <th>Conductor Contact</th>
       <th>Depot</th>
       <th>Route</th>
@@ -75,13 +75,13 @@
       <td>{{ i + 1 }}</td>
       <td class="font-weight-bold">{{ data.busName }}</td>
       <td>{{ data.busNo }}</td>
-      <td>{{ data.driverName || '-' }}</td>
+      <td>{{ data.driverId || '-' }}</td>
       <td>{{ data.driverContactNo || '-' }}</td>
 
       <!-- Conductor -->
       <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
         <div class="d-flex align-items-center gap-2">
-          <span>{{ data.conductorName || '-' }}</span>
+          <span>{{ data.conductorId || '-' }}</span>
 
           <button class="btn btn-icon"
                   *ngIf="data.conductor_actual_id; else conductorNotAllotted"
