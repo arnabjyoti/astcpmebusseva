@@ -30,7 +30,7 @@
           </button>
         </div>
 
-        <form [formGroup]="breakdownForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="breakdownForm" (ngSubmit)="updateForm()">
           <div class="row">
             <!-- Vehicle Number -->
             <div class="col-md-6 form-group">
@@ -248,9 +248,12 @@
                 <th>Vehicle Number</th>
                 <th>Route Number</th>
                 <th>Driver ID</th>
+                <th>Driver Name</th>
                 <th>Conductor ID</th>
+                <th>Conductor Name</th>
                 <th>Trip Completed</th>
                 <th>Kilometres Driven</th>
+                <th>Km Driven at Breakdown Time</th>
                 <th>Place of Breakdown</th>
                 <th>Date of Breakdown</th>
                 <th>Time of Breakdown</th>
@@ -265,9 +268,12 @@
                 <td>{{ record?.bus?.busNo }}</td>
                 <td>{{ record.routeNo }}</td>
                 <td>{{ record?.driver?.driver_id }}</td>
+                <td>{{ record?.driver?.driver_name }}</td>
                 <td>{{ record?.conductor?.conductor_id }}</td>
+                <td>{{ record?.conductor?.conductor_name }}</td>
                 <td>{{ record.noOfTrip }}</td>
                 <td>{{ record.totalOperated }}</td>
+                <td>{{ record.totalOperatedAtBreakdown }}</td>
                 <td>{{ record.placeOfBreakdown }}</td>
                 <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>
                 <td>{{ record.stopTime }}</td>

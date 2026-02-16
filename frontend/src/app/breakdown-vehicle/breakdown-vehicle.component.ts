@@ -65,38 +65,36 @@ export class BreakdownVehicleComponent implements OnInit {
       fromDate: [''],
       toDate: [''],
       vehicleNumber: [''],
-      routeNumber: ['']
+      routeNumber: [''],
     });
 
     this.fetchBreakdownTable();
   }
 
-
   onSearch() {
     this.currentPage = 1; // reset pagination
     this.fetchBreakdownTable();
   }
-  
+
   resetSearch() {
     this.searchForm.reset();
     this.currentPage = 1;
     this.fetchBreakdownTable();
   }
-  
+
+  updateForm() {}
 
   fetchBreakdownTable(): void {
     const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
     const params = {
       page: this.currentPage,
       limit: this.pageSize,
-      ...this.searchForm.value
+      ...this.searchForm.value,
     };
 
-    console.log("Breakdow parmas : ", params);
-    
+    console.log('Breakdow parmas : ', params);
 
-
-    this.http.post(ENDPOINT, {params}).subscribe(
+    this.http.post(ENDPOINT, { params }).subscribe(
       (response: any) => {
         console.log('Hello me:', response);
         this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
@@ -246,14 +244,17 @@ export class BreakdownVehicleComponent implements OnInit {
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus?.routeNo || 'N/A',
       'Driver ID': bus?.driver?.driver_id || 'N/A',
+      'Driver Name': bus?.driver?.driver_name || 'N/A',
       'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
+      'Conductor Name': bus?.conductor?.conductor_name || 'N/A',
       'Trip Completed': bus.noOfTrip || 'N/A',
       'Kilometres Driven': bus.totalOperated || 'N/A',
+      'Km operated at Breakdown': bus.totalOperatedAtBreakdown || 'N/A',
       'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
       'Date of Breakdown': bus.date || 'N/A',
       'Time of Breakdown': bus.stopTime || 'N/A',
       'Cause of Breakdown': bus.causeOfBreakdown || 'N/A',
-      'Remarks': bus.remarks || 'N/A',
+      Remarks: bus.remarks || 'N/A',
     }));
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
