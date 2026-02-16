@@ -2156,13 +2156,13 @@ END AS estimated_time,
           {
             model: driverMasterModel,
             as: "driver",
-            attributes: ["driver_id"],
+            attributes: ["driver_id", "driver_name"],
             required: true
           },
           {
             model: conductorMasterModel,
             as: "conductor",
-            attributes: ["conductor_id"],
+            attributes: ["conductor_id", "conductor_name"],
             required: true
           }
         ]

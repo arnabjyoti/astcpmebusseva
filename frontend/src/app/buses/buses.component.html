@@ -54,8 +54,10 @@
       <th>Bus Name</th>
       <th>Veh No</th>
       <th>Driver ID</th>
+      <th>Driver Name</th>
       <th>Driver Contact</th>
       <th>Conductor ID</th>
+      <th>Conductor Name</th>
       <th>Conductor Contact</th>
       <th>Depot</th>
       <th>Route</th>
@@ -76,6 +78,7 @@
       <td class="font-weight-bold">{{ data.busName }}</td>
       <td>{{ data.busNo }}</td>
       <td>{{ data.driverId || '-' }}</td>
+      <td>{{ data.driverName || '-' }}</td>
       <td>{{ data.driverContactNo || '-' }}</td>
 
       <!-- Conductor -->
@@ -100,6 +103,7 @@
         </div>
       </td>
 
+      <td>{{ data.conductorName || '-' }}</td>
       <td>{{ data.conductorContactNo || '-' }}</td>
       <td>{{ data.routeDepot || '-' }}</td>
       <td>{{ data.routeNo || '-' }}</td>
