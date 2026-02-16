@@ -23,11 +23,9 @@
 
             <div class="float-right">
 
-                <div
-                class="d-flex align-items-center justify-content-end w-100 p-2"
-              >
-                <!-- PDF -->
-                <!-- <button
+                <div class="d-flex align-items-center justify-content-end w-100 p-2">
+                    <!-- PDF -->
+                    <!-- <button
                   class="btn btn-primary"
                   (click)="downloadPDF()"
                   [disabled]="isExportingPDF"
@@ -47,29 +45,18 @@
                   </ng-template>
                 </button> &nbsp;&nbsp; -->
 
-                <!-- Excel -->
-                <button
-                  class="btn btn-success"
-                  (click)="downloadExcel()"
-                  [disabled]="isExportingExcel"
-                >
-                  <ng-container
-                    *ngIf="!isExportingExcel; else excelLoading"
-                  >
-                  <i class="fas fa-download"
-                  style="color:aliceblue"></i> Download Excel
-                  </ng-container>
+                    <!-- Excel -->
+                    <button class="btn btn-success" (click)="downloadExcel()" [disabled]="isExportingExcel">
+                        <ng-container *ngIf="!isExportingExcel; else excelLoading">
+                            <i class="fas fa-download" style="color:aliceblue"></i> Download Excel
+                        </ng-container>
 
-                  <ng-template #excelLoading>
-                    <span
-                      class="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Generating Excel...
-                  </ng-template>
-                </button>
-              </div>
+                        <ng-template #excelLoading>
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Generating Excel...
+                        </ng-template>
+                    </button>
+                </div>
 
 
                 <!-- <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
@@ -93,14 +80,14 @@
             <div>
 
             </div>
-            <div class="table-responsive" #reportSection
-            id="reportSection">
+            <div class="table-responsive" #reportSection id="reportSection">
                 <table class="table table-bordered table-striped table-hover table-sm text-nowrap" id="dataTable">
 
                     <thead class="thead-dark">
                         <tr class="text-center align-middle">
                             <th>#</th>
                             <th>Date</th>
+                            <th>Vehicle No</th>
                             <th>Driver ID</th>
                             <th>Conductor ID</th>
                             <th>Timesheet No</th>
@@ -132,6 +119,7 @@
                             <td class="text-center">{{ i + 1 }}</td>
                             <td class="text-center">{{ value?.date }}</td>
 
+                            <td>{{ value?.bus?.busNo }}</td>
                             <td>{{ value?.driver?.driver_id }}</td>
                             <td>{{ value?.conductor?.conductor_id }}</td>
 
