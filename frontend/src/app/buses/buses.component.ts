@@ -13,6 +13,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
+  isLoading: boolean = false;
+
   constructor(
     private appService: AppService,
     private http: HttpClient,
@@ -182,10 +184,13 @@ export class BusesComponent {
   getBuses = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
 
+    this.isLoading = true;
+
     this.http.get(ENDPOINT).subscribe(
       (response) => {
         console.log('busList response ', response);
         this.busList = response;
+        this.isLoading = false;
       },
       (error) => {
         console.log('error here ', error);

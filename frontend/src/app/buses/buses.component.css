@@ -49,7 +49,7 @@
 .professional-table th {
   border-color: #e1e5ea;
   vertical-align: middle;
-  font-size: 14px;
+  font-size: 11px;
 }
 
 .professional-table tbody tr:hover {
@@ -58,24 +58,24 @@
 
 /* Status badges */
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
+  /* padding: 4px 10px;
+  border-radius: 12px; */
   font-size: 12px;
   font-weight: 600;
 }
 
 .status-running {
-  background-color: #e3fcef;
+  /* background-color: #e3fcef; */
   color: #0f8a5f;
 }
 
 .status-still {
-  background-color: #fff3cd;
+  /* background-color: #fff3cd; */
   color: #856404;
 }
 
 .status-finished {
-  background-color: #f8d7da;
+  /* background-color: #f8d7da; */
   color: #721c24;
 }
 
@@ -100,4 +100,21 @@
 
 .row-finished {
   background-color: #fdeeee !important;
+}
+
+
+.card {
+  border-radius: 12px;
+}
+
+.input-group-text {
+  border-right: 0;
+}
+
+.form-control {
+  border-left: 0;
+}
+
+.btn-success {
+  border-radius: 8px;
 }
