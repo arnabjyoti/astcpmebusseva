@@ -231,8 +231,8 @@
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                   <td>{{ bus?.bus?.busNo }}</td>
                   <td>{{ bus.routeNo }}</td>
-                  <td>{{ bus.driverId }}</td>
-                  <td>{{ bus?.conductorId }}</td>
+                  <td>{{ bus?.driver?.driver_id }}</td>
+                  <td>{{ bus?.conductor?.conductor_id }}</td>
                 </tr>
               </tbody>
             </table>
@@ -384,8 +384,8 @@
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                   <td>{{ bus?.bus?.busNo }}</td>
                   <td>{{ bus?.route?.routeNo }}</td>
-                  <td>{{ bus.driverId }}</td>
-                  <td>{{ bus.conductorId }}</td>
+                  <td>{{ bus?.driver?.driver_id }}</td>
+                  <td>{{ bus?.conductor?.conductor_id }}</td>
                   <td>{{ bus?.netAmountDeposited }}</td>
                 </tr>
               </tbody>
@@ -467,8 +467,8 @@
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                   <td>{{ bus?.bus?.busNo }}</td>
                   <td>{{ bus.routeNo }}</td>
-                  <td>{{ bus.driverId }}</td>
-                  <td>{{ bus.conductorId }}</td>
+                  <td>{{ bus?.driver?.driver_id }}</td>
+                  <td>{{ bus?.conductor?.conductor_id }}</td>
                   <td>{{ bus.noOfTrip }}</td>
                   <td>{{ bus.totalOperated }}</td>
                   <td>{{ bus.placeOfBreakdown }}</td>

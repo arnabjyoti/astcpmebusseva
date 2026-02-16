@@ -283,8 +283,8 @@ export class HomeComponent implements OnInit {
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus.routeNo || 'N/A',
-      'Driver ID': bus.driverId || 'N/A',
-      'Conductor ID': bus.conductorId || 'N/A',
+      'Driver ID': bus?.driver?.driver_id || 'N/A',
+      'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
     }));
 
     // Create worksheet
@@ -319,8 +319,8 @@ export class HomeComponent implements OnInit {
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus?.route?.routeNo || 'N/A',
-      'Driver ID': bus.driverId || 'N/A',
-      'Conductor ID': bus.conductorId || 'N/A',
+      'Driver ID': bus?.driver?.driver_id || 'N/A',
+      'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
       Earnings: bus?.netAmountDeposited || '0',
     }));
 
@@ -338,8 +338,8 @@ export class HomeComponent implements OnInit {
       'Sl No.': index + 1,
       'Vehicle Number': bus?.bus?.busNo || 'N/A',
       'Route Number': bus?.routeNo || 'N/A',
-      'Driver ID': bus.driverId || 'N/A',
-      'Conductor ID': bus.conductorId || 'N/A',
+      'Driver ID': bus?.driver?.driver_id || 'N/A',
+      'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
       'Trip Completed': bus.noOfTrip || 'N/A',
       'Kilometres Driven': bus.totalOperated || 'N/A',
       'Place of Breakdown': bus.placeOfBreakdown || 'N/A',

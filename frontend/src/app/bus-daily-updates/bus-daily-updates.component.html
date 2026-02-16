@@ -127,56 +127,56 @@
                     </thead>
 
                     <tbody>
-                        <tr *ngFor="let data of dataList; let i = index" class="align-middle">
+                        <tr *ngFor="let value of dataList; let i = index" class="align-middle">
 
                             <td class="text-center">{{ i + 1 }}</td>
-                            <td class="text-center">{{ data.date }}</td>
+                            <td class="text-center">{{ value?.date }}</td>
 
-                            <td>{{ data.driverName }}</td>
-                            <td>{{ data.conductorName }}</td>
+                            <td>{{ value?.driver?.driver_id }}</td>
+                            <td>{{ value?.conductor?.conductor_id }}</td>
 
-                            <td class="text-center font-weight-bold">{{ data.timesheetNo }}</td>
+                            <td class="text-center font-weight-bold">{{ value.timesheetNo }}</td>
 
-                            <td>{{ data.routeNo }} - {{ data.routeName }}</td>
+                            <td>{{ value.routeNo }} - {{ value.routeName }}</td>
 
-                            <td class="text-center">{{ data.startTime }}</td>
+                            <td class="text-center">{{ value.startTime }}</td>
 
-                            <td class="text-right">{{ data.omr }}</td>
-                            <td class="text-right">{{ data.cmr }}</td>
-                            <td class="text-right font-weight-bold">{{ data.totalOperated }}</td>
+                            <td class="text-right">{{ value.omr }}</td>
+                            <td class="text-right">{{ value.cmr }}</td>
+                            <td class="text-right font-weight-bold">{{ value.totalOperated }}</td>
 
-                            <td class="text-center">{{ data.noOfTrip }}</td>
-                            <td class="text-center">{{ data.chaloPassengersNo }}</td>
-                            <td class="text-center">{{ data.chaloTicketNo }}</td>
+                            <td class="text-center">{{ value.noOfTrip }}</td>
+                            <td class="text-center">{{ value.chaloPassengersNo }}</td>
+                            <td class="text-center">{{ value.chaloTicketNo }}</td>
 
-                            <td class="text-right">{{ data.chaloTicketAmount }}</td>
-                            <td class="text-right">{{ data.cashCollection }}</td>
-                            <td class="text-right">{{ data.upi }}</td>
-                            <td class="text-right">{{ data.additionalAmount }}</td>
+                            <td class="text-right">{{ value.chaloTicketAmount }}</td>
+                            <td class="text-right">{{ value.cashCollection }}</td>
+                            <td class="text-right">{{ value.upi }}</td>
+                            <td class="text-right">{{ value.additionalAmount }}</td>
 
-                            <td class="text-right font-weight-bold text-success">{{ data.netAmountDeposited }}</td>
-                            <td class="text-right">{{ data.tragetedEarning }}</td>
-                            <td class="text-right text-danger">{{ data.amountToBeDeposited }}</td>
+                            <td class="text-right font-weight-bold text-success">{{ value.netAmountDeposited }}</td>
+                            <td class="text-right">{{ value.tragetedEarning }}</td>
+                            <td class="text-right text-danger">{{ value.amountToBeDeposited }}</td>
 
-                            <td class="text-center">{{ data.stopTime }}</td>
+                            <td class="text-center">{{ value.stopTime }}</td>
 
                             <td class="text-center">
                                 <span class="badge" [ngClass]="{
-                                    'badge-success': data.currentStatus === 'approved',
-                                    'badge-warning': data.currentStatus === 'pending',
-                                    'badge-danger': data.currentStatus === 'rejected'
+                                    'badge-success': value.currentStatus === 'approved',
+                                    'badge-warning': value.currentStatus === 'pending',
+                                    'badge-danger': value.currentStatus === 'rejected'
                                 }">
-                                    {{ data.currentStatus | titlecase }}
+                                    {{ value.status | titlecase }}
                                 </span>
                             </td>
 
-                            <td class="text-truncate" style="max-width:150px" title="{{data.remarks}}">
-                                {{ data.remarks }}
+                            <td class="text-truncate" style="max-width:150px" title="{{value.remarks}}">
+                                {{ value.remarks }}
                             </td>
 
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-danger" data-toggle="modal"
-                                    data-target="#deleteModal" (click)="openDeleteConfirmationDialog(data)">
+                                    data-target="#deleteModal" (click)="openDeleteConfirmationDialog(value)">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </td>

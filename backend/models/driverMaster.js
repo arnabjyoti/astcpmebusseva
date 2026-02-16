@@ -6,13 +6,14 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: true
         },
-        driver_id: type.STRING,
+        driver_id: type.STRING(255),
         driver_name: type.STRING,
         contact_no: type.STRING,
         aadhaar: type.STRING,
         pan: type.STRING,
         voter: type.STRING,
         dl: type.STRING,
+        licenseExpiryDriver: type.STRING,
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING
@@ -22,7 +23,7 @@ module.exports = (sequelize, type) => {
         // busMaster.hasMany(models.trip);
         driverMaster.hasMany(models.dailyUpdates, {
             foreignKey: "driverId",
-            as: "driverId"
+            as: "dailyUpdates"
         });
 
     };
