@@ -888,6 +888,7 @@ SELECT
     bus.busName,
     bus.busNo,
     bus.status,
+    bus.remarks,
     bus.createdAt,
     bus.updatedAt,
 
