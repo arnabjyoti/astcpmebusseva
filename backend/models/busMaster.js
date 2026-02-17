@@ -16,7 +16,8 @@ module.exports = (sequelize, type) => {
         conductorContactNo: type.STRING,
         baseDepot: type.STRING,
         allotedRouteNo: type.STRING,
-        status: type.STRING
+        status: type.STRING,
+        remarks: type.STRING
     }, {});
 
     busMaster.associate = function (models) {
