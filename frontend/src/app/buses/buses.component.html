@@ -59,7 +59,8 @@
       <th>Conductor Contact</th>
       <th>Depot</th>
       <th>Route</th>
-      <th>Status</th>
+      <th>Is fixed</th>
+      <th>Current Status</th>
       <th class="text-center">Action</th>
     </tr>
   </thead>
@@ -103,6 +104,26 @@
       <td>{{ data.conductorContactNo || '-' }}</td>
       <td>{{ data.routeDepot || '-' }}</td>
       <td>{{ data.routeNo || '-' }}</td>
+
+
+      <td>
+        <label class="switch">
+          <input 
+            type="checkbox"
+            [checked]="data.isFixed === 'yes'"
+            (change)="toggleFixed(data, $event)"
+          >
+          <span class="slider"></span>
+        </label>
+      
+        <span class="status-badge"
+              [ngClass]="{
+                'status-running': data.isFixed === 'yes',
+                'status-finished': data.isFixed === 'no'
+              }">
+          {{ (data.isFixed || 'no') | titlecase }}
+        </span>
+      </td>
 
       <!-- Status -->
       <td>
@@ -202,12 +223,12 @@
                         <div class="row">
                           <div class="col-md-6 pt-3">
                             <label>Bus Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busName" name="busName"
+                            <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'" [(ngModel)]="form.busName" name="busName"
                               placeholder="Enter Bus Name" />
                           </div>
                           <div class="col-md-6 pt-3">
                             <label>Bus No</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo"
+                            <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'" [(ngModel)]="form.busNo" name="busNo"
                               placeholder="Enter Bus No" />
                           </div>
 
@@ -222,9 +243,9 @@
                           </div> -->
 
                           <div class="col-md-6 pt-3">
-                            <label>Driver Name</label>
+                            <label>Driver Name {{form.isFixed}}</label>
 
-                            <select class="form-control" name="driverName" [(ngModel)]="form.driverName"
+                            <select class="form-control" name="driverName" [disabled]="form.isFixed === 'yes'" [(ngModel)]="form.driverName"
                               (change)="manageDrive()">
                               <option value="">Select a Driver</option>
                               <option value="REMOVE">❌ Remove Driver</option>
@@ -251,7 +272,7 @@
                           <div class="col-md-6 pt-3">
                             <label>Conductor Name</label>
 
-                            <select class="form-control" name="conductorName" [(ngModel)]="form.conductorName"
+                            <select class="form-control" name="conductorName" [disabled]="form.isFixed === 'yes'" [(ngModel)]="form.conductorName"
                               (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
                               <option value="REMOVE">❌ Remove Conductor</option>
@@ -291,7 +312,7 @@
                               name="allotedRouteNo"
                             /> -->
 
-                            <select class="form-control" name="allotedRouteNo" [(ngModel)]="form.allotedRouteNo">
+                            <select class="form-control" name="allotedRouteNo" [disabled]="form.isFixed === 'yes'" [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
                               <option *ngFor="let route of routeList" [value]="route.id">
                                 {{ route.routeNo }}
@@ -315,6 +336,7 @@
                         Save
                       </button>
                       <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
+                      [disabled]="form.isFixed === 'yes'"
                         (click)="updateData()">
                         Update
                       </button>
