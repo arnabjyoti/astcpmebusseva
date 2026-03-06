@@ -61,7 +61,8 @@
                   <th>Conductor Contact</th>
                   <th>Depot</th>
                   <th>Route</th>
-                  <th>Status</th>
+                  <th>Is fixed</th>
+                  <th>Current Status</th>
                   <th class="text-center">Action</th>
                 </tr>
               </thead>
@@ -105,69 +106,83 @@
                   <td>{{ data.routeDepot || '-' }}</td>
                   <td>{{ data.routeNo || '-' }}</td>
 
-                  <!-- Status -->
-                  <td>
-                    <span class="status-badge" [ngClass]="{
+      <td>
+        <label class=" switch">
+                        <input type="checkbox" [checked]="data.isFixed === 'yes'" (change)="toggleFixed(data, $event)">
+                        <span class="slider"></span>
+                        </label>
+
+                        <span class="status-badge" [ngClass]="{
+                'status-running': data.isFixed === 'yes',
+                'status-finished': data.isFixed === 'no'
+              }">
+                          {{ (data.isFixed || 'no') | titlecase }}
+                        </span>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                      <span class="status-badge" [ngClass]="{
                 'status-running': data.currentStatus === 'running',
                 'status-still': data.currentStatus === 'still',
                 'status-finished': data.currentStatus === 'finished'
               }">
                       {{ data.currentStatus || 'idle' | titlecase }}
-                      <span *ngIf="data.currentStatus === 'running'">
-                        ({{ data.noOfTrip }})
+                        <span *ngIf="data.currentStatus === 'running'">
+                          ({{ data.noOfTrip }})
+                        </span>
                       </span>
-                    </span>
-                  </td>
+                    </td>
 
                   <!-- Actions -->
-                  <td class="text-center action-cell">
+                    <td class="text-center action-cell">
 
                     <div class="btn-group mb-2">
-                      <button class="btn btn-light btn-sm" data-toggle="modal" data-target="#viewModal"
-                        (click)="viewData(i)">
-                        <i class="fa fa-eye"></i>
-                      </button>
+                        <button class="btn btn-light btn-sm" data-toggle="modal" data-target="#viewModal"
+                          (click)="viewData(i)">
+                          <i class="fa fa-eye"></i>
+                        </button>
 
                       <button class="btn btn-light btn-sm" (click)="openEditDialog(data)" data-toggle="modal"
-                        data-target="#formModal">
-                        <i class="fas fa-edit"></i>
-                      </button>
+                          data-target="#formModal">
+                          <i class="fas fa-edit"></i>
+                        </button>
 
                       <button class="btn btn-light btn-sm" (click)="openConfirmationDialog(data)" data-toggle="modal"
-                        data-target="#deleteModal">
-                        <i class="fas fa-trash text-danger"></i>
-                      </button>
-                    </div>
+                          data-target="#deleteModal">
+                          <i class="fas fa-trash text-danger"></i>
+                        </button>
+                      </div>
 
                     <!-- Trip actions -->
-                    <div *ngIf="data.currentStatus === 'running'" class="mb-1">
-                      <button class="btn btn-warning btn-sm btn-block" data-toggle="modal" data-target="#updateRoute"
-                        (click)="viewData(i)">
-                        <i class="fas fa-recycle"></i> Update Rounds
-                      </button>
-                    </div>
+                      <div *ngIf="data.currentStatus === 'running'" class="mb-1">
+                        <button class="btn btn-warning btn-sm btn-block" data-toggle="modal" data-target="#updateRoute"
+                          (click)="viewData(i)">
+                          <i class="fas fa-recycle"></i> Update Rounds
+                        </button>
+                      </div>
 
                     <div *ngIf="data.currentStatus === 'running'" class="mb-1">
-                      <button class="btn btn-danger btn-sm btn-block" data-toggle="modal"
-                        (click)="redirectToUpdateForm(data)">
-                        <i class="fas fa-stop"></i> Stop Trip
-                      </button>
-                    </div>
+                        <button class="btn btn-danger btn-sm btn-block" data-toggle="modal"
+                          (click)="redirectToUpdateForm(data)">
+                          <i class="fas fa-stop"></i> Stop Trip
+                        </button>
+                      </div>
 
                     <div *ngIf="data.currentStatus !== 'running'">
-                      <button *ngIf="data.driver_actual_id && data.conductor_actual_id; else tripNotAllowed"
-                        class="btn btn-info btn-sm btn-block" data-toggle="modal" data-target="#addDetailsModal"
-                        (click)="viewData(i)">
-                        <i class="fas fa-plus"></i> Update Trip
-                      </button>
+                        <button *ngIf="data.driver_actual_id && data.conductor_actual_id; else tripNotAllowed"
+                          class="btn btn-info btn-sm btn-block" data-toggle="modal" data-target="#addDetailsModal"
+                          (click)="viewData(i)">
+                          <i class="fas fa-plus"></i> Update Trip
+                        </button>
 
                       <ng-template #tripNotAllowed>
-                        <span class="text-muted small">
-                          <i class="fas fa-exclamation-circle"></i>
-                          Driver / Conductor not allotted
-                        </span>
-                      </ng-template>
-                    </div>
+                          <span class="text-muted small">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Driver / Conductor not allotted
+                          </span>
+                        </ng-template>
+                      </div>
 
                   </td>
                 </tr>
@@ -191,13 +206,13 @@
                         <div class="row">
                           <div class="col-md-6 pt-3">
                             <label>Bus Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busName" name="busName"
-                              placeholder="Enter Bus Name" />
+                          <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.busName" name="busName" placeholder="Enter Bus Name" />
                           </div>
                           <div class="col-md-6 pt-3">
                             <label>Bus No</label>
-                            <input type="text" class="form-control" [(ngModel)]="form.busNo" name="busNo"
-                              placeholder="Enter Bus No" />
+                          <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.busNo" name="busNo" placeholder="Enter Bus No" />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -211,10 +226,10 @@
                           </div> -->
 
                           <div class="col-md-6 pt-3">
-                            <label>Driver Name</label>
+                            <label>Driver Name {{form.isFixed}}</label>
 
-                            <select class="form-control" name="driverName" [(ngModel)]="form.driverName"
-                              (change)="manageDrive()">
+                          <select class="form-control" name="driverName" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.driverName" (change)="manageDrive()">
                               <option value="">Select a Driver</option>
                               <option value="REMOVE">❌ Remove Driver</option>
 
@@ -240,8 +255,8 @@
                           <div class="col-md-6 pt-3">
                             <label>Conductor Name</label>
 
-                            <select class="form-control" name="conductorName" [(ngModel)]="form.conductorName"
-                              (change)="manageConductor()">
+                          <select class="form-control" name="conductorName" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.conductorName" (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
                               <option value="REMOVE">❌ Remove Conductor</option>
 
@@ -280,7 +295,8 @@
                               name="allotedRouteNo"
                             /> -->
 
-                            <select class="form-control" name="allotedRouteNo" [(ngModel)]="form.allotedRouteNo">
+                          <select class="form-control" name="allotedRouteNo" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
                               <option *ngFor="let route of routeList" [value]="route.id">
                                 {{ route.routeNo }}
@@ -304,7 +320,7 @@
                         Save
                       </button>
                       <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
-                        (click)="updateData()">
+                      [disabled]="form.isFixed === 'yes'" (click)="updateData()">
                         Update
                       </button>
                       <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"

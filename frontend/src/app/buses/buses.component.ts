@@ -402,6 +402,8 @@ export class BusesComponent {
   };
 
   openEditDialog = (data: any) => {
+    console.log("data: ", data);
+    
     this.isEdit = true;
     let selectedDriverDetails = this.driverList.find(
       (ele: any) => ele.driver_name === data?.driverName
@@ -419,6 +421,7 @@ export class BusesComponent {
       conductorContactNo: data?.conductorContactNo,
       baseDepot: data?.baseDepot,
       allotedRouteNo: data?.routeId,
+      isFixed: data?.isFixed,
     };
   };
 
@@ -493,6 +496,33 @@ export class BusesComponent {
     }
   }
 
+  toggleFixed(data: any, event: any) {
+    console.log('data', event.target.checked);
+    
+
+    // return;
+    const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
+    const requestOptions = {
+      requestObject: { 
+        isFixed: event.target.checked ? 'yes' : 'no', 
+        id: data.id, 
+      },
+      
+    };
+    this.http.post(ENDPOINT, requestOptions).subscribe(
+      (response) => {
+        this.getBuses();
+        this.toastr.success('Bus updated successfully', 'Success Message');
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      },
+      () => {
+        console.log('Observable is now completed.');
+      }
+    );
+  }
 
 
 }
