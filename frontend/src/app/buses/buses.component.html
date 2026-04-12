@@ -133,14 +133,21 @@
                 'status-still': getStatus(data) === 'still',
                 'status-finished': getStatus(data) === 'finished'
               }">
-      {{data.dailyUpdateDate}}
-          {{ getStatus(data) | titlecase }}
+      <!-- {{data.dailyUpdateDate}} -->
+
+          {{ getStatus(data) | titlecase }} 
+          
       
-          <span *ngIf="getStatus(data) === 'running'">
+          <span *ngIf="getStatus(data) === 'running' && data.noOfTrip" >
             ({{ data.noOfTrip }})
           </span>
       
         </span>
+        <div *ngIf="getStatus(data) === 'running'" style="font-size: x-small;">
+            <small>
+              From {{data.startDate | date}}
+            </small>
+          </div>
       </td>
 
       <!-- Actions -->

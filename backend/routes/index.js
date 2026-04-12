@@ -42,6 +42,7 @@ module.exports = (app) => {
 	app.get('/api/getConductorWithAllotment', BusController.getConductorWithAllotment);
 	app.get('/api/getConductor', BusController.getConductor);
 	app.get('/api/getConductorAttendance', BusController.getConductorAttendance);
+	app.post('/api/saveConductorAttendanceOverride', BusController.saveConductorAttendanceOverride);
 	app.get('/api/getAmountToBePaidByConductor', BusController.getAmountToBePaidByConductor);
 
 	app.post('/api/sendOtp', sendMail.sendOtp);
