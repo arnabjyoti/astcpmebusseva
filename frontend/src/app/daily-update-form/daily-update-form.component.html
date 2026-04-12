@@ -711,6 +711,15 @@
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Stop Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="form.stopDate"
+                  name="stopDate"
+                />
+              </div>
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
                 <input
                   type="time"

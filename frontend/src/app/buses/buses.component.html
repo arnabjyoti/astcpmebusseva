@@ -39,7 +39,7 @@
             <div class="d-flex align-items-end gap-2 mb-3 filter-bar">
               <div class="form-group mb-0">
                 <label class="form-label fw-semibold">Select Date</label>
-                <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate" />
+                <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate" max="{{ today | date: 'yyyy-MM-dd' }}" />
               </div>
 
               <button class="btn btn-success premium-btn" (click)="getBuses()">
@@ -129,14 +129,17 @@
       <td>
         <span class="status-badge"
               [ngClass]="{
-                'status-running': data.currentStatus === 'running',
-                'status-still': data.currentStatus === 'still',
-                'status-finished': data.currentStatus === 'finished'
+                'status-running': getStatus(data) === 'running',
+                'status-still': getStatus(data) === 'still',
+                'status-finished': getStatus(data) === 'finished'
               }">
-          {{ data.currentStatus || 'idle' | titlecase }}
-          <span *ngIf="data.currentStatus === 'running'">
+      {{data.dailyUpdateDate}}
+          {{ getStatus(data) | titlecase }}
+      
+          <span *ngIf="getStatus(data) === 'running'">
             ({{ data.noOfTrip }})
           </span>
+      
         </span>
       </td>
 
@@ -176,7 +179,7 @@
           </button>
         </div>
 
-        <div *ngIf="data.currentStatus === 'running'" class="mb-1">
+        <div *ngIf="getStatus(data) === 'running'" class="mb-1">
           <button class="btn btn-danger btn-sm btn-block"
                   data-toggle="modal"
                   (click)="redirectToUpdateForm(data)">

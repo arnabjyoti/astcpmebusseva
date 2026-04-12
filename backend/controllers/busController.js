@@ -870,80 +870,186 @@ saveConductor(req, res) {
   //     });
   // },
 
+
+
   // *****************************************
-  getBusList(req, res) {
-    const reqDate = req.query.date;
-    let filterDate;
+//   getBusList(req, res) {
+//     const reqDate = req.query.date;
+//     let filterDate;
 
-    if (reqDate) {
-      const [yyyy, mm, dd] = reqDate.split("-");
-      filterDate = `${yyyy}-${mm}-${dd}`;
-    } else {
-      filterDate = null;
-    }
+//     if (reqDate) {
+//       const [yyyy, mm, dd] = reqDate.split("-");
+//       filterDate = `${yyyy}-${mm}-${dd}`;
+//     } else {
+//       filterDate = null;
+//     }
 
-    console.log("filterDate", filterDate);
+//     console.log("filterDate", filterDate);
 
-    const sql = `
-SELECT 
-    bus.id,
-    bus.busName,
-    bus.busNo,
-    bus.status,
-    bus.createdAt,
-    bus.updatedAt,
-    bus.isFixed,
+//     const sql = `
+// SELECT 
+//     bus.id,
+//     bus.busName,
+//     bus.busNo,
+//     bus.status,
+//     bus.createdAt,
+//     bus.updatedAt,
+//     bus.isFixed,
 
 
-    cm.conductor_name as conductorName,
-    cm.conductor_id as conductorId,
-    cm.contact_no as conductorContactNo,
-    cm.id as conductor_actual_id,
+//     cm.conductor_name as conductorName,
+//     cm.conductor_id as conductorId,
+//     cm.contact_no as conductorContactNo,
+//     cm.id as conductor_actual_id,
     
-    dm.driver_name as driverName,
-    dm.contact_no as driverContactNo,
-    dm.driver_id as driverId,
-    dm.id as driver_actual_id,
+//     dm.driver_name as driverName,
+//     dm.contact_no as driverContactNo,
+//     dm.driver_id as driverId,
+//     dm.id as driver_actual_id,
 
-    -- Route fields
-    routes.id AS routeId,
-    routes.routeNo AS routeNo,
-    routes.depot AS routeDepot,
-    routes.start AS routeStart,
-    routes.end AS routeEnd,
-    routes.via AS routeVia,
-    routes.routeDistance AS routeDistance,
+//     -- Route fields
+//     routes.id AS routeId,
+//     routes.routeNo AS routeNo,
+//     routes.depot AS routeDepot,
+//     routes.start AS routeStart,
+//     routes.end AS routeEnd,
+//     routes.via AS routeVia,
+//     routes.routeDistance AS routeDistance,
 
-    du.currentStatus AS currentStatus,
-    du.noOfTrip AS noOfTrip,
-    du.id AS dailyUpdateId,
+//     du.currentStatus AS currentStatus,
+//     du.noOfTrip AS noOfTrip,
+//     du.id AS dailyUpdateId,
 
-    cm.status AS conductorStatus
+//     cm.status AS conductorStatus
+
+// FROM busMasters AS bus
+
+// JOIN busRoutesMasters AS routes 
+//     ON bus.allotedRouteNo = routes.id
+
+// LEFT JOIN conductorMasters AS cm
+//     ON cm.id = bus.conductorId
+
+
+// LEFT JOIN driverMasters as dm
+//     ON bus.driverId = dm.id
+
+//     LEFT JOIN (
+//       SELECT d1.*
+//       FROM dailyUpdates d1
+//       INNER JOIN (
+//           SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+//           FROM dailyUpdates
+//           GROUP BY busId
+//       ) d2 
+//       ON d1.busId = d2.busId 
+//       AND d1.createdAt = d2.latestCreated
+//   ) du 
+//   ON du.busId = bus.id
+
+// WHERE bus.status = 'Active'
+//   AND routes.status = 'Active'
+
+// ORDER BY bus.id DESC;
+// `;
+
+//     const replacements = filterDate ? [filterDate, filterDate] : [];
+
+//     sequelize
+//       .query(sql, {
+//         replacements,
+//         type: sequelize.QueryTypes.SELECT,
+//       })
+//       .then((bus) => {
+//         return res.status(200).send(bus);
+//       })
+//       .catch((error) => {
+//         console.log(error);
+//         return res.status(400).send(error);
+//       });
+//   },
+
+getBusList(req, res) {
+  const reqDate = req.query.date;
+  let filterDate = null;
+
+  if (reqDate) {
+    const [yyyy, mm, dd] = reqDate.split("-");
+    filterDate = `${yyyy}-${mm}-${dd}`;
+  }
+
+  console.log("filterDate", filterDate);
+
+  const sql = `
+SELECT 
+  bus.id,
+  bus.busName,
+  bus.busNo,
+  bus.status,
+  bus.createdAt,
+  bus.updatedAt,
+  bus.isFixed,
+
+  cm.conductor_name as conductorName,
+  cm.conductor_id as conductorId,
+  cm.contact_no as conductorContactNo,
+  cm.id as conductor_actual_id,
+  cm.status AS conductorStatus,
+
+  dm.driver_name as driverName,
+  dm.contact_no as driverContactNo,
+  dm.driver_id as driverId,
+  dm.id as driver_actual_id,
+
+  routes.id AS routeId,
+  routes.routeNo AS routeNo,
+  routes.depot AS routeDepot,
+  routes.start AS routeStart,
+  routes.end AS routeEnd,
+  routes.via AS routeVia,
+  routes.routeDistance AS routeDistance,
+
+  du.currentStatus AS currentStatus,
+  du.noOfTrip AS noOfTrip,
+  du.id AS dailyUpdateId,
+  du.date AS dailyUpdateDate,
+
+
+  (
+    SELECT d2.currentStatus
+    FROM dailyUpdates d2
+    WHERE d2.busId = bus.id
+      AND DATE(d2.date) < :filterDate
+    ORDER BY d2.date DESC
+    LIMIT 1
+  ) AS previousStatus,
+
+
+
+  (
+    SELECT d2.id
+    FROM dailyUpdates d2
+    WHERE d2.busId = bus.id
+      AND DATE(d2.date) < :filterDate
+    ORDER BY d2.date DESC
+    LIMIT 1
+  ) AS previousDailyUpdateId
+  
 
 FROM busMasters AS bus
 
 JOIN busRoutesMasters AS routes 
-    ON bus.allotedRouteNo = routes.id
+  ON bus.allotedRouteNo = routes.id
 
 LEFT JOIN conductorMasters AS cm
-    ON cm.id = bus.conductorId
-
+  ON cm.id = bus.conductorId
 
 LEFT JOIN driverMasters as dm
-    ON bus.driverId = dm.id
+  ON bus.driverId = dm.id
 
-    LEFT JOIN (
-      SELECT d1.*
-      FROM dailyUpdates d1
-      INNER JOIN (
-          SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
-          FROM dailyUpdates
-          GROUP BY busId
-      ) d2 
-      ON d1.busId = d2.busId 
-      AND d1.createdAt = d2.latestCreated
-  ) du 
+LEFT JOIN dailyUpdates du 
   ON du.busId = bus.id
+  AND DATE(du.date) = :filterDate
 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
@@ -951,21 +1057,21 @@ WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
 
-    const replacements = filterDate ? [filterDate, filterDate] : [];
+  const replacements = { filterDate };
 
-    sequelize
-      .query(sql, {
-        replacements,
-        type: sequelize.QueryTypes.SELECT,
-      })
-      .then((bus) => {
-        return res.status(200).send(bus);
-      })
-      .catch((error) => {
-        console.log(error);
-        return res.status(400).send(error);
-      });
-  },
+  sequelize
+    .query(sql, {
+      replacements,
+      type: sequelize.QueryTypes.SELECT,
+    })
+    .then((bus) => {
+      return res.status(200).send(bus);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(400).send(error);
+    });
+},
 
   // *****************************************
 
