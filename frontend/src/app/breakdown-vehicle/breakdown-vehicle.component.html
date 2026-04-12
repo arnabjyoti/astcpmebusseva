@@ -254,6 +254,7 @@
                 <th>Trip Completed</th>
                 <th>Kilometres Driven</th>
                 <th>Km Driven at Breakdown Time</th>
+                <th>Loss Km</th>
                 <th>Place of Breakdown</th>
                 <th>Date of Breakdown</th>
                 <th>Time of Breakdown</th>
@@ -273,6 +274,7 @@
                 <td>{{ record?.conductor?.conductor_name }}</td>
                 <td>{{ record.noOfTrip }}</td>
                 <td>{{ record.totalOperated }}</td>
+                <td>{{ record.totalOperatedAtBreakdown }}</td>
                 <td>{{ record.totalOperatedAtBreakdown }}</td>
                 <td>{{ record.placeOfBreakdown }}</td>
                 <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>

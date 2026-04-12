@@ -250,6 +250,7 @@ export class BreakdownVehicleComponent implements OnInit {
       'Trip Completed': bus.noOfTrip || 'N/A',
       'Kilometres Driven': bus.totalOperated || 'N/A',
       'Km operated at Breakdown': bus.totalOperatedAtBreakdown || 'N/A',
+      'Loss Km': bus.totalOperatedAtBreakdown || 'N/A',
       'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
       'Date of Breakdown': bus.date || 'N/A',
       'Time of Breakdown': bus.stopTime || 'N/A',

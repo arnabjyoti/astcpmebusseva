@@ -11,3 +11,30 @@
     display: none !important;
   }
   
+/* Smooth zoom effect */
+.custom-modal .modal-dialog {
+  transform: scale(0.9);
+  transition: all 0.25s ease;
+}
+
+.custom-modal.show .modal-dialog {
+  transform: scale(1);
+}
+
+/* Better input feel */
+.form-control {
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  border-color: #007bff;
+}
+
+/* Optional blur background */
+.modal-backdrop.show {
+  backdrop-filter: blur(4px);
+  background-color: rgba(0,0,0,0.4);
+}
+  

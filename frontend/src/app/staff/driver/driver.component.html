@@ -9,7 +9,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item active">
-                            <button *ngIf="activeTabName == 'Driver'" class="btn btn-default btn-sm" data-toggle="modal"
+                            <button *ngIf="activeTabName == 'Driver'" class="btn btn-primary btn-sm" data-toggle="modal"
                                 data-target="#formModal" (click)="openNewDriverDialog()">
                                 <i class="fas fa-plus"></i> New Driver
                             </button>
@@ -36,9 +36,12 @@
                                 <thead>
                                     <tr>
                                         <th>Sl No.</th>
-                                        <th>Driver ID</th>
-                                        <th>Driver Name</th>
-                                        <th>Driver Contact No</th>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>License No</th>
+                                        <th>License Validity</th>
+                                        <th>Contact No</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -47,6 +50,9 @@
                                         <td>{{ i + 1 }}</td>
                                         <td>{{ data.driver_id }}</td>
                                         <td>{{ data.driver_name }}</td>
+                                        <td>{{ data.dl }}</td>
+                                        <td>{{ data.dl_validity | date }}</td>
+                                        <td>{{ data.contact_no }}</td>
                                         <td>{{ data.contact_no }}</td>
                                         <td>
                                             <button class="btn btn-default" data-toggle="modal" data-target="#viewModal"
@@ -63,113 +69,135 @@
                                                 data-target="#deleteDriverModal" (click)="openConfirmationDialog(data)">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            <button class="btn btn-default" data-toggle="modal" data-target="">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
 
-                            <!-- Form Modal -->
-                            <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-backdrop="static"
-                                id="formModal" tabindex="-1">
-                                <div class="modal-dialog modal-md">
-                                    <div class="modal-content">
+                            <!-- ================= FORM MODAL ================= -->
+                            <div class="modal fade custom-modal" id="formModal" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content shadow border-0 rounded">
+
+                                        <!-- HEADER -->
                                         <div class="modal-header">
-                                            <h2 class="modal-title">Driver Details</h2>
-                                            <button type="button" class="close" (click)="closeForm()"
-                                                data-dismiss="modal">
+                                            <h5 class="modal-title">
+                                                {{ isEdit ? 'Edit Driver' : 'Add Driver' }}
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal">
                                                 &times;
                                             </button>
                                         </div>
+
+                                        <!-- BODY -->
                                         <div class="modal-body">
                                             <form #driverForm="ngForm" novalidate>
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <label>Driver ID *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.driver_id" name="driver_id"
-                                                                required />
-                                                        </div>
 
-                                                        <div class="col-md-6">
-                                                            <label>Driver Name *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.driver_name" name="driver_name"
-                                                                required />
-                                                        </div>
+                                                <div class="row">
 
-                                                        <div class="col-md-6">
-                                                            <label>Driver Contact No *</label>
-                                                            <input type="number" class="form-control"
-                                                                [(ngModel)]="form1.contact_no" name="contact_no"
-                                                                required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>AADHAAR *</label>
-                                                            <input type="number" class="form-control"
-                                                                [(ngModel)]="form1.aadhaar" name="aadhaar" required />
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <label>PAN No *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.pan" name="pan" required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>Voter ID *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.voter" name="voter" required />
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <label>Driving License *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.dl" name="dl" required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>Address *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.address" name="address" required />
-                                                        </div>
+                                                    <!-- Driver ID -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver ID *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.driver_id" name="driver_id" required>
                                                     </div>
 
-                                                    <div class="row pt-3">
-                                                        <div class="col-md-12">
-                                                            <label>Driver Photo *</label>
-                                                            <input type="file" class="form-control" accept="image/*"
-                                                                (change)="onPhotoChange($event)" />
-                                                        </div>
-
-                                                        <div class="col-md-12" *ngIf="imagePreview">
-                                                            <label>Preview</label><br />
-                                                            <img [src]="imagePreview" style="
-                                    width: 120px;
-                                    height: 120px;
-                                    object-fit: cover;
-                                    border: 1px solid #ccc;
-                                    padding: 4px;
-                                  " />
-                                                        </div>
+                                                    <!-- Name -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver Name *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.driver_name" name="driver_name" required>
                                                     </div>
+
+                                                    <!-- Contact -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Contact No *</label>
+                                                        <input type="number" class="form-control"
+                                                            [(ngModel)]="form1.contact_no" name="contact_no" required>
+                                                    </div>
+
+                                                    <!-- VOTER ID -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Voter ID *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.voter" name="voter" required>
+                                                    </div>
+
+                                                    <!-- License No -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>License No *</label>
+                                                        <input type="text" class="form-control" [(ngModel)]="form1.dl"
+                                                            name="license_no" required>
+                                                    </div>
+
+                                                    <!-- ✅ LICENSE VALIDITY -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>License Validity *</label>
+                                                        <input type="date" class="form-control"
+                                                            [(ngModel)]="form1.dl_validity" name="dl_validity" required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>AADHAAR *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.aadhaar" name="aadhaar" maxlength="12"
+                                                            required>
+                                                    </div>
+
+                                                    <!-- PAN -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>PAN No *</label>
+                                                        <input type="text" class="form-control" [(ngModel)]="form1.pan"
+                                                            name="pan" required>
+                                                    </div>
+
+                                                    <!-- Address -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Address</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.address" name="address">
+                                                    </div>
+
+                                                    <!-- PHOTO -->
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver Photo</label>
+                                                        <input type="file" class="form-control"
+                                                            (change)="onPhotoChange($event)">
+                                                    </div>
+
+                                                    <!-- PREVIEW -->
+                                                    <div class="col-md-12" *ngIf="imagePreview">
+                                                        <label>Preview</label><br>
+                                                        <img [src]="imagePreview"
+                                                            style="width:120px;height:120px;object-fit:cover;border:1px solid #ccc;">
+                                                    </div>
+
                                                 </div>
 
-                                                <button *ngIf="!isEdit" type="button" class="btn btn-info float-right"
-                                                    [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
-                                                    data-dismiss="modal">
-                                                    Save
-                                                </button>
-
-                                                <button *ngIf="isEdit" type="button" class="btn btn-info float-right"
-                                                    (click)="updateData()" data-dismiss="modal">
-                                                    Update
-                                                </button>
-
-                                                <button type="button" (click)="closeForm()"
-                                                    class="btn btn-default float-right mr-2" data-dismiss="modal">
-                                                    Cancel
-                                                </button>
                                             </form>
                                         </div>
+
+                                        <!-- FOOTER -->
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-dismiss="modal">
+                                                Cancel
+                                            </button>
+
+                                            <button *ngIf="!isEdit" class="btn btn-primary"
+                                                [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
+                                                data-dismiss="modal">
+                                                Save
+                                            </button>
+
+                                            <button *ngIf="isEdit" class="btn btn-success" (click)="updateData()"
+                                                data-dismiss="modal">
+                                                Update
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -217,6 +245,10 @@
                                                                     <td>{{ selectedData.dl }}</td>
                                                                 </tr>
                                                                 <tr>
+                                                                    <th class="text-muted">License Validity</th>
+                                                                    <td>{{ selectedData.dl_validity }}</td>
+                                                                </tr>
+                                                                <tr>
                                                                     <th class="text-muted">Address</th>
                                                                     <td>{{ selectedData.address }}</td>
                                                                 </tr>
@@ -261,6 +293,42 @@
                                             </h4>
                                             <button type="button" class="btn btn-primary float-sm-right"
                                                 (click)="handleDeleteDriver()" data-dismiss="modal">
+                                                Yes
+                                            </button>
+                                            <button type="button" class="btn btn-default float-sm-right"
+                                                data-dismiss="modal">
+                                                No
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="blockDriverModal" tabindex="-1">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2 class="modal-title">Confirmation Message</h2>
+                                            <button type="button" class="close" data-dismiss="modal">
+                                                &times;
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>
+                                                Are you sure ! You want to
+                                                {{
+                                                toBeDeletedDriverRecord.status == "Block"
+                                                ? "unblock"
+                                                : "block"
+                                                }}
+                                                driver
+                                                <strong><i>"{{
+                                                        toBeDeletedDriverRecord.driver_name
+                                                        }}-{{ toBeDeletedDriverRecord.contact_no }}"</i></strong>
+                                                ?
+                                            </h4>
+                                            <button type="button" class="btn btn-primary float-sm-right"
+                                                 data-dismiss="modal">
                                                 Yes
                                             </button>
                                             <button type="button" class="btn btn-default float-sm-right"
