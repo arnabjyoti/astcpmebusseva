@@ -179,6 +179,7 @@ export class BusesComponent {
 };
 
 
+dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
 
@@ -186,6 +187,7 @@ export class BusesComponent {
       (response) => {
         console.log('busList response ', response);
         this.busList = response;
+        this.dateForStatus = this.dataForDate;
       },
       (error) => {
         console.log('error here ', error);
@@ -535,10 +537,15 @@ export class BusesComponent {
     const updateDate = data.dailyUpdateDate
       ? new Date(data.dailyUpdateDate).toISOString().split('T')[0]
       : null;
-  
+
+      // console.log("status ", data.currentStatus, data.previousStatus, updateDate, today);
+      
+      
+      
     // ✅ Case 1:
     if (
       // today === updateDate &&
+      data.startDate <= this.dateForStatus &&
       !data.currentStatus &&
       data.previousStatus === 'running'
     ) {
