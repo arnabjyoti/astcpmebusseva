@@ -72,6 +72,7 @@ module.exports = {
 
   updateBus(req, res) {
     let data = req.body.requestObject;
+    console.log("data => ", data);
     busModel
       .update(
         {
@@ -85,6 +86,7 @@ module.exports = {
           conductorContactNo: data?.conductorContactNo,
           baseDepot: data?.baseDepot,
           allotedRouteNo: data?.allotedRouteNo,
+          isFixed: data?.isFixed || "no",
         },
         { where: { id: data.id } }
       )
@@ -890,6 +892,7 @@ SELECT
     bus.status,
     bus.createdAt,
     bus.updatedAt,
+    bus.isFixed,
 
 
     cm.conductor_name as conductorName,
@@ -929,15 +932,18 @@ LEFT JOIN conductorMasters AS cm
 LEFT JOIN driverMasters as dm
     ON bus.driverId = dm.id
 
-LEFT JOIN dailyUpdates AS du
-    ON du.busId = bus.id
-   AND du.date = ${filterDate ? "?" : "CURDATE()"}
-   AND du.createdAt = (
-        SELECT MAX(createdAt)
-        FROM dailyUpdates
-        WHERE busId = bus.id
-          AND date = ${filterDate ? "?" : "CURDATE()"}
-   )
+    LEFT JOIN (
+      SELECT d1.*
+      FROM dailyUpdates d1
+      INNER JOIN (
+          SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+          FROM dailyUpdates
+          GROUP BY busId
+      ) d2 
+      ON d1.busId = d2.busId 
+      AND d1.createdAt = d2.latestCreated
+  ) du 
+  ON du.busId = bus.id
 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
