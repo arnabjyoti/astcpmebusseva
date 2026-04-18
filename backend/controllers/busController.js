@@ -1029,7 +1029,6 @@ module.exports = {
 
 //     console.log("filterDate", filterDate);
 
-<<<<<<< HEAD
 //     const sql = `
 // SELECT 
 //     bus.id,
@@ -1039,17 +1038,6 @@ module.exports = {
 //     bus.createdAt,
 //     bus.updatedAt,
 //     bus.isFixed,
-=======
-    const sql = `
-SELECT 
-    bus.id,
-    bus.busName,
-    bus.busNo,
-    bus.status,
-    bus.remarks,
-    bus.createdAt,
-    bus.updatedAt,
->>>>>>> 21b6bbbd7012e595f78144f38e9755f3476dd2f3
 
 
 //     cm.conductor_name as conductorName,
