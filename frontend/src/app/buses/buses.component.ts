@@ -558,6 +558,9 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     }
   
     // ✅ Case 2:
+    if (!data.currentStatus && data.previousStatus === 'running') {
+      return 'running';
+    }
     if (!data.currentStatus) {
       return 'idle';
     }

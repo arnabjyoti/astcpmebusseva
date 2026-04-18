@@ -1223,7 +1223,188 @@ getBusList(req, res) {
 
   console.log("filterDate", filterDate);
 
-  const sql = `
+//   const sql = `
+// SELECT 
+//   bus.id,
+//   bus.busName,
+//   bus.busNo,
+//   bus.status,
+//   bus.createdAt,
+//   bus.updatedAt,
+//   bus.isFixed,
+
+//   cm.conductor_name as conductorName,
+//   cm.conductor_id as conductorId,
+//   cm.contact_no as conductorContactNo,
+//   cm.id as conductor_actual_id,
+//   cm.status AS conductorStatus,
+
+//   dm.driver_name as driverName,
+//   dm.contact_no as driverContactNo,
+//   dm.driver_id as driverId,
+//   dm.id as driver_actual_id,
+
+//   routes.id AS routeId,
+//   routes.routeNo AS routeNo,
+//   routes.depot AS routeDepot,
+//   routes.start AS routeStart,
+//   routes.end AS routeEnd,
+//   routes.via AS routeVia,
+//   routes.routeDistance AS routeDistance,
+
+//   du.currentStatus AS currentStatus,
+//   du.noOfTrip AS noOfTrip,
+//   du.id AS dailyUpdateId,
+//   du.date AS dailyUpdateDate,
+//   du.stopDate AS dailyUpdateStopDate,
+//   du.date AS startDate,
+
+//   -- Previous status (based on stopDate logic)
+//   (
+//     SELECT d2.currentStatus
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+//     ORDER BY d2.date DESC
+//     LIMIT 1
+//   ) AS previousStatus,
+
+//   (
+//     SELECT d2.date
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+//     ORDER BY d2.date DESC
+//     LIMIT 1
+//   ) AS startDate,
+
+//   (
+//     SELECT d2.id
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+//     ORDER BY d2.date DESC
+//     LIMIT 1
+//   ) AS previousDailyUpdateId
+
+// FROM busMasters AS bus
+
+// JOIN busRoutesMasters AS routes 
+//   ON bus.allotedRouteNo = routes.id
+
+// LEFT JOIN conductorMasters AS cm
+//   ON cm.id = bus.conductorId
+
+// LEFT JOIN driverMasters as dm
+//   ON bus.driverId = dm.id
+
+// -- 🔥 Main fix: range-based join
+// LEFT JOIN dailyUpdates du 
+//   ON du.busId = bus.id
+//   AND DATE(:filterDate) BETWEEN DATE(du.date) 
+//                           AND DATE(IFNULL(du.stopDate, du.date))
+
+// WHERE bus.status = 'Active'
+//   AND routes.status = 'Active'
+
+// ORDER BY bus.id DESC;
+// `;
+
+
+// working  2
+// const sql = `
+// SELECT 
+//   bus.id,
+//   bus.busName,
+//   bus.busNo,
+//   bus.status,
+//   bus.createdAt,
+//   bus.updatedAt,
+//   bus.isFixed,
+
+//   cm.conductor_name AS conductorName,
+//   cm.conductor_id AS conductorId,
+//   cm.contact_no AS conductorContactNo,
+//   cm.id AS conductor_actual_id,
+//   cm.status AS conductorStatus,
+
+//   dm.driver_name AS driverName,
+//   dm.contact_no AS driverContactNo,
+//   dm.driver_id AS driverId,
+//   dm.id AS driver_actual_id,
+
+//   routes.id AS routeId,
+//   routes.routeNo AS routeNo,
+//   routes.depot AS routeDepot,
+//   routes.start AS routeStart,
+//   routes.end AS routeEnd,
+//   routes.via AS routeVia,
+//   routes.routeDistance AS routeDistance,
+
+//   -- ✅ CURRENT (latest for same date)
+//   du.currentStatus AS currentStatus,
+//   du.noOfTrip AS noOfTrip,
+//   du.id AS dailyUpdateId,
+//   du.date AS currentStartDate,
+//   du.stopDate AS currentStopDate,
+
+//   -- ✅ PREVIOUS (latest before date)
+//   (
+//     SELECT d2.currentStatus
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(d2.date) < :filterDate
+//     ORDER BY d2.id DESC
+//     LIMIT 1
+//   ) AS previousStatus,
+
+//   (
+//     SELECT d2.date
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(d2.date) < :filterDate
+//     ORDER BY d2.id DESC
+//     LIMIT 1
+//   ) AS previousStartDate,
+
+//   (
+//     SELECT d2.id
+//     FROM dailyUpdates d2
+//     WHERE d2.busId = bus.id
+//       AND DATE(d2.date) < :filterDate
+//     ORDER BY d2.id DESC
+//     LIMIT 1
+//   ) AS previousDailyUpdateId
+
+// FROM busMasters AS bus
+
+// JOIN busRoutesMasters AS routes 
+//   ON bus.allotedRouteNo = routes.id
+
+// LEFT JOIN conductorMasters AS cm
+//   ON cm.id = bus.conductorId
+
+// LEFT JOIN driverMasters AS dm
+//   ON dm.id = bus.driverId
+
+// -- ✅ FIXED JOIN (same date + latest id)
+// LEFT JOIN (
+//   SELECT d1.*
+//   FROM dailyUpdates d1
+//   INNER JOIN (
+//     SELECT busId, MAX(id) AS maxId
+//     FROM dailyUpdates
+//     WHERE DATE(date) = :filterDate
+//     GROUP BY busId
+//   ) d2 ON d1.id = d2.maxId
+// ) du ON du.busId = bus.id
+
+// WHERE bus.status = 'Active'
+//   AND routes.status = 'Active'
+
+// ORDER BY bus.id DESC;
+// `;
+const sql = `
 SELECT 
   bus.id,
   bus.busName,
@@ -1233,16 +1414,16 @@ SELECT
   bus.updatedAt,
   bus.isFixed,
 
-  cm.conductor_name as conductorName,
-  cm.conductor_id as conductorId,
-  cm.contact_no as conductorContactNo,
-  cm.id as conductor_actual_id,
+  cm.conductor_name AS conductorName,
+  cm.conductor_id AS conductorId,
+  cm.contact_no AS conductorContactNo,
+  cm.id AS conductor_actual_id,
   cm.status AS conductorStatus,
 
-  dm.driver_name as driverName,
-  dm.contact_no as driverContactNo,
-  dm.driver_id as driverId,
-  dm.id as driver_actual_id,
+  dm.driver_name AS driverName,
+  dm.contact_no AS driverContactNo,
+  dm.driver_id AS driverId,
+  dm.id AS driver_actual_id,
 
   routes.id AS routeId,
   routes.routeNo AS routeNo,
@@ -1252,20 +1433,20 @@ SELECT
   routes.via AS routeVia,
   routes.routeDistance AS routeDistance,
 
+  -- ✅ CURRENT STATUS (range + same-day fallback)
   du.currentStatus AS currentStatus,
-  du.noOfTrip AS noOfTrip,
+  du.noOfTrip,
   du.id AS dailyUpdateId,
-  du.date AS dailyUpdateDate,
-  du.stopDate AS dailyUpdateStopDate,
-  du.date AS startDate,
+  du.date AS currentStartDate,
+  du.stopDate AS currentStopDate,
 
-  -- Previous status (based on stopDate logic)
+  -- ✅ PREVIOUS STATUS
   (
     SELECT d2.currentStatus
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
   ) AS previousStatus,
 
@@ -1273,43 +1454,62 @@ SELECT
     SELECT d2.date
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
-  ) AS startDate,
+  ) AS previousStartDate,
 
   (
     SELECT d2.id
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
   ) AS previousDailyUpdateId
 
-FROM busMasters AS bus
+FROM busMasters bus
 
-JOIN busRoutesMasters AS routes 
+JOIN busRoutesMasters routes 
   ON bus.allotedRouteNo = routes.id
 
-LEFT JOIN conductorMasters AS cm
+LEFT JOIN conductorMasters cm
   ON cm.id = bus.conductorId
 
-LEFT JOIN driverMasters as dm
-  ON bus.driverId = dm.id
+LEFT JOIN driverMasters dm
+  ON dm.id = bus.driverId
 
--- 🔥 Main fix: range-based join
-LEFT JOIN dailyUpdates du 
-  ON du.busId = bus.id
-  AND DATE(:filterDate) BETWEEN DATE(du.date) 
-                          AND DATE(IFNULL(du.stopDate, du.date))
+-- ✅ MAIN LOGIC (range OR same date → latest id wins)
+LEFT JOIN (
+  SELECT d.*
+  FROM dailyUpdates d
+  WHERE d.id = (
+    SELECT d2.id
+    FROM dailyUpdates d2
+    WHERE d2.busId = d.busId
+      AND (
+        DATE(d2.date) = :filterDate
+        OR (
+          d2.stopDate IS NOT NULL
+          AND :filterDate >= d2.date
+          AND :filterDate <= d2.stopDate
+        )
+      )
+    ORDER BY 
+      CASE 
+        WHEN DATE(d2.date) = :filterDate THEN 1   -- ✅ highest priority
+        ELSE 2
+      END,
+      d2.id DESC
+    LIMIT 1
+  )
+) du ON du.busId = bus.id
 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
 
 ORDER BY bus.id DESC;
 `;
-
   const replacements = { filterDate };
 
   sequelize
