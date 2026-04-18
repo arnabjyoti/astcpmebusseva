@@ -3,10 +3,29 @@
     background-color: green;
     color: white;
 }
-/* .absent{
+.absent{
     background-color: red;
     color: white;
-} */
+}
+
+.manual {
+    box-shadow: inset 0 0 0 2px #ffc107;
+}
+
+.manual-badge {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background-color: #ffc107;
+    color: #212529;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.attendance-select {
+    min-width: 88px;
+}
 
 .exporting .no-export {
     display: none !important;

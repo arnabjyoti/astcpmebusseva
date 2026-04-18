@@ -16,6 +16,7 @@ import * as XLSX from 'xlsx';
 })
 export class AttendanceComponent {
   public endpoint: string;
+  attendanceEditMode = false;
   constructor(
     private appService: AppService,
     private http: HttpClient,
@@ -92,9 +93,6 @@ export class AttendanceComponent {
     //   return;
     // }
 
-    const [year, month] = this.attendanceMonth.split('-').map(Number);
-
-    // const ENDPOINT = `${environment.BASE_URL}/api/getConductorAttendance?month=${year}-${month}-01`;
     const ENDPOINT = `${environment.BASE_URL}/api/getConductorAttendance?from=${this.attendanceFrom}&to=${this.attendanceTo}`;
 
     this.http.get<any[]>(ENDPOINT).subscribe(
@@ -119,17 +117,17 @@ export class AttendanceComponent {
             typeof item.attendance === 'string'
               ? JSON.parse(item.attendance)
               : item.attendance;
-        
-          const values = Object.values(attendance);
-        
-          const total_present = values.filter(v => v === 'P').length;
-          const total_absent = values.filter(v => v === 'A').length;
-        
+
+          const manualAttendance =
+            typeof item.manualAttendance === 'string'
+              ? JSON.parse(item.manualAttendance)
+              : item.manualAttendance || {};
+
           return {
             ...item,
             attendance,
-            total_present,
-            total_absent
+            manualAttendance,
+            ...this.calculateTotals(attendance)
           };
         });
         
@@ -165,6 +163,63 @@ export class AttendanceComponent {
   
       start.setDate(start.getDate() + 1);
     }
+  }
+
+  calculateTotals(attendance: any) {
+    const values = Object.values(attendance || {});
+
+    return {
+      total_present: values.filter((value) => value === 'P').length,
+      total_absent: values.filter((value) => value === 'A').length,
+    };
+  }
+
+  onAttendanceStatusChange(record: any, day: string, event: Event) {
+    const status = (event.target as HTMLSelectElement).value;
+    const ENDPOINT = `${environment.BASE_URL}/api/saveConductorAttendanceOverride`;
+    const requestOptions = {
+      requestObject: {
+        conductorId: record.conductorId,
+        attendanceDate: day,
+        status,
+      },
+    };
+
+    this.http.post<any>(ENDPOINT, requestOptions).subscribe(
+      () => {
+        if (status === 'P' || status === 'A') {
+          record.manualAttendance = {
+            ...(record.manualAttendance || {}),
+            [day]: 'manual',
+          };
+          record.attendance[day] = status;
+        } else {
+          if (record.manualAttendance) {
+            delete record.manualAttendance[day];
+          }
+          this.getConductorAttendance();
+          this.toastr.success('Attendance reset to auto logic', 'Success');
+          return;
+        }
+
+        Object.assign(record, this.calculateTotals(record.attendance));
+        this.toastr.success('Attendance updated successfully', 'Success');
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong !', 'Warning');
+      }
+    );
+  }
+
+  getAttendanceOptionValue(record: any, day: string) {
+    return record?.manualAttendance?.[day] === 'manual'
+      ? record?.attendance?.[day] || ''
+      : '';
+  }
+
+  isManualAttendance(record: any, day: string) {
+    return record?.manualAttendance?.[day] === 'manual';
   }
   
 }
