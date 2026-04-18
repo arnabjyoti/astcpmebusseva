@@ -1481,30 +1481,33 @@ LEFT JOIN driverMasters dm
 
 -- ✅ MAIN LOGIC (range OR same date → latest id wins)
 LEFT JOIN (
-  SELECT d.*
-  FROM dailyUpdates d
-  WHERE d.id = (
-    SELECT d2.id
-    FROM dailyUpdates d2
-    WHERE d2.busId = d.busId
-      AND (
-        DATE(d2.date) = :filterDate
+  SELECT *
+  FROM (
+    SELECT 
+      d.*,
+      ROW_NUMBER() OVER (
+        PARTITION BY d.busId
+        ORDER BY 
+          CASE 
+            WHEN DATE(d.date) = :filterDate THEN 1
+            ELSE 2
+          END,
+          d.id DESC
+      ) AS rn
+    FROM dailyUpdates d
+    WHERE 
+      (
+        DATE(d.date) = :filterDate
         OR (
-          d2.stopDate IS NOT NULL
-          AND :filterDate >= d2.date
-          AND :filterDate <= d2.stopDate
+          d.stopDate IS NOT NULL
+          AND :filterDate >= d.date
+          AND :filterDate <= d.stopDate
         )
       )
-    ORDER BY 
-      CASE 
-        WHEN DATE(d2.date) = :filterDate THEN 1   -- ✅ highest priority
-        ELSE 2
-      END,
-      d2.id DESC
-    LIMIT 1
-  )
+  ) x
+  WHERE x.rn = 1
 ) du ON du.busId = bus.id
-
+ 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
 
