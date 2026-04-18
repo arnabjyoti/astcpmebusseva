@@ -44,12 +44,21 @@
                     [(ngModel)]="attendanceTo"
                     id=""
                   />
-                  <div>
+                <div>
                     <button
                       class="btn btn-primary"
                       (click)="getConductorAttendance()"
                     >
                       Get Attendance
+                    </button>
+                  </div>
+                  <div class="ml-2 d-flex align-items-center">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="attendanceEditMode = !attendanceEditMode"
+                    >
+                      {{ attendanceEditMode ? "Stop Manual Edit" : "Manual Edit" }}
                     </button>
                   </div>
                 </div>
@@ -138,10 +147,26 @@
                           *ngFor="let day of daysInMonth"
                           [ngClass]="{
                             present: data.attendance[day] === 'P',
-                            absent: data.attendance[day] === 'A'
+                            absent: data.attendance[day] === 'A',
+                            manual: isManualAttendance(data, day)
                           }"
                         >
-                          {{ data.attendance[day] || "A" }}
+                          <ng-container *ngIf="!attendanceEditMode; else editAttendanceCell">
+                            <span>{{ data.attendance[day] || "A" }}</span>
+                            <small class="manual-badge" *ngIf="isManualAttendance(data, day)">M</small>
+                          </ng-container>
+
+                          <ng-template #editAttendanceCell>
+                            <select
+                              class="form-control form-control-sm attendance-select"
+                              [ngModel]="getAttendanceOptionValue(data, day)"
+                              (change)="onAttendanceStatusChange(data, day, $event)"
+                            >
+                              <option value="">Auto</option>
+                              <option value="P">Present</option>
+                              <option value="A">Absent</option>
+                            </select>
+                          </ng-template>
                         </td>
                         <td>{{ data.total_present }}</td>
                         <td>{{ data.total_absent }}</td>

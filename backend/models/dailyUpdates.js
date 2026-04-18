@@ -23,8 +23,9 @@ module.exports = (sequelize, type) => {
         currentStatus: type.STRING,
         startTime: type.STRING,
         stopTime: type.STRING,
-        driverId: type.INTEGER,
-        conductorId: type.INTEGER,
+        stopDate: type.STRING,
+        driverId: type.STRING,
+        conductorId: type.STRING,
 
 
         chaloTicketNo: type.STRING,

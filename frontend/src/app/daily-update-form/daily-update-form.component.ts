@@ -70,11 +70,13 @@ export class DailyUpdateFormComponent {
     tragetedEarning: 0,
     amountToBeDeposited: 0,
     currentStatus: '',
+    stopDate: '',
   };
 
   routeNo: any;
   triptId: any;
   formtype: string | null = null;
+  stopDate: string | null = null;
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -84,9 +86,12 @@ export class DailyUpdateFormComponent {
       this.form.noOfTrip = params['noOfTrip'];
       this.triptId = params['triptId'];
       this.formtype = params['type'];
+      
 
       if (this.triptId) {
         console.log('update');
+        console.log("params['stopDate']", params['stopDate']);
+        this.stopDate = params['stopDate'];
 
         this.tripDetails(this.triptId);
       } else {
@@ -122,6 +127,7 @@ export class DailyUpdateFormComponent {
         this.form.routeEnd = data.end;
         this.form.driverId = data.driverId;
         this.form.conductorId = data.conductorId;
+        this.form.stopDate = this.stopDate;
 
         (this.form.conductor_actual_id = data.conductor_actual_id),
           (this.form.driver_actual_id = data.driver_actual_id),
