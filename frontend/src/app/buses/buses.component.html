@@ -62,8 +62,8 @@
                   <th>Conductor Contact</th>
                   <th>Depot</th>
                   <th>Route</th>
-                  <th>Is fixed</th>
-                  <th>Current Status</th>
+                  <th>Status</th>
+                  <th>Remarks</th>
                   <th class="text-center">Action</th>
                 </tr>
               </thead>
@@ -107,44 +107,20 @@
                   <td>{{ data.routeDepot || '-' }}</td>
                   <td>{{ data.routeNo || '-' }}</td>
 
-                  <td>
-                    <label class=" switch">
-                      <input type="checkbox" [checked]="data.isFixed === 'yes'" (change)="toggleFixed(data, $event)">
-                      <span class="slider"></span>
-                    </label>
-
-                    <span class="status-badge" [ngClass]="{
-                'status-running': data.isFixed === 'yes',
-                'status-finished': data.isFixed === 'no'
-              }">
-                      {{ (data.isFixed || 'no') | titlecase }}
-                    </span>
-                  </td>
-
                   <!-- Status -->
                   <td>
                     <span class="status-badge" [ngClass]="{
-                'status-running': getStatus(data) === 'running',
-                'status-still': getStatus(data) === 'still',
-                'status-finished': getStatus(data) === 'finished'
+                'status-running': data.currentStatus === 'running',
+                'status-still': data.currentStatus === 'still',
+                'status-finished': data.currentStatus === 'finished'
               }">
-                      <!-- {{data.dailyUpdateDate}} -->
-
-                      {{ getStatus(data) | titlecase }}
-
-
-                      <span *ngIf="getStatus(data) === 'running' && data.noOfTrip">
+                      {{ data.currentStatus || 'idle' | titlecase }}
+                      <span *ngIf="data.currentStatus === 'running'">
                         ({{ data.noOfTrip }})
                       </span>
-
                     </span>
-                    <div *ngIf="getStatus(data) === 'running'" style="font-size: x-small;">
-                      <small>
-                        From {{data.startDate | date}}
-                      </small>
-                    </div>
                   </td>
-
+                  <td>{{ data.remarks }}</td>
                   <!-- Actions -->
                   <td class="text-center action-cell">
 
@@ -173,7 +149,7 @@
                       </button>
                     </div>
 
-                    <div *ngIf="getStatus(data) === 'running'" class="mb-1">
+                    <div *ngIf="data.currentStatus === 'running'" class="mb-1">
                       <button class="btn btn-danger btn-sm btn-block" data-toggle="modal"
                         (click)="redirectToUpdateForm(data)">
                         <i class="fas fa-stop"></i> Stop Trip
