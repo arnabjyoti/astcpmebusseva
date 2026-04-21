@@ -374,6 +374,7 @@ module.exports = {
         pan: req.body.pan,
         voter: req.body.voter,
         dl: req.body.dl,
+        dl_validity: req.body.dl_validity,
         address: req.body.address,
         status: "Active",
         photo: req.file ? `image/driver/${req.file.filename}` : null,
@@ -405,6 +406,7 @@ module.exports = {
         pan,
         voter,
         dl,
+        dl_validity,
         address,
         old_photo,
       } = req.body;
@@ -438,6 +440,7 @@ module.exports = {
         pan,
         voter,
         dl,
+        dl_validity,
         address,
         photo: photoPath,
       };
@@ -485,6 +488,7 @@ module.exports = {
         "pan",
         "voter",
         "dl",
+        "dl_validity",
         "address",
         "photo",
         "status",
@@ -568,12 +572,12 @@ module.exports = {
       const data = {
         conductor_id: req.body.conductor_id,
         conductorLicenseNo: req.body.conductorLicenseNo,
+        conductorLicenseValidity: req.body.conductorLicenseValidity,
         conductor_name: req.body.conductor_name,
         contact_no: req.body.contact_no,
         aadhaar: req.body.aadhaar,
         pan: req.body.pan,
         voter: req.body.voter,
-        dl: req.body.dl,
         address: req.body.address,
         status: "Active",
         photo: req.file ? `image/conductor/${req.file.filename}` : null,
@@ -601,12 +605,12 @@ module.exports = {
         id,
         conductor_id,
         conductorLicenseNo,
+        conductorLicenseValidity,
         conductor_name,
         contact_no,
         aadhaar,
         pan,
         voter,
-        dl,
         address,
         old_photo,
       } = req.body;
@@ -635,12 +639,12 @@ module.exports = {
       const updateData = {
         conductor_id,
         conductorLicenseNo,
+        conductorLicenseValidity,
         conductor_name,
         contact_no,
         aadhaar,
         pan,
         voter,
-        dl,
         address,
         photo: photoPath,
       };
@@ -1233,16 +1237,16 @@ SELECT
   bus.updatedAt,
   bus.isFixed,
 
-  cm.conductor_name as conductorName,
-  cm.conductor_id as conductorId,
-  cm.contact_no as conductorContactNo,
-  cm.id as conductor_actual_id,
+  cm.conductor_name AS conductorName,
+  cm.conductor_id AS conductorId,
+  cm.contact_no AS conductorContactNo,
+  cm.id AS conductor_actual_id,
   cm.status AS conductorStatus,
 
-  dm.driver_name as driverName,
-  dm.contact_no as driverContactNo,
-  dm.driver_id as driverId,
-  dm.id as driver_actual_id,
+  dm.driver_name AS driverName,
+  dm.contact_no AS driverContactNo,
+  dm.driver_id AS driverId,
+  dm.id AS driver_actual_id,
 
   routes.id AS routeId,
   routes.routeNo AS routeNo,
@@ -1252,20 +1256,20 @@ SELECT
   routes.via AS routeVia,
   routes.routeDistance AS routeDistance,
 
+  -- ✅ CURRENT STATUS (range + same-day fallback)
   du.currentStatus AS currentStatus,
-  du.noOfTrip AS noOfTrip,
+  du.noOfTrip,
   du.id AS dailyUpdateId,
-  du.date AS dailyUpdateDate,
-  du.stopDate AS dailyUpdateStopDate,
-  du.date AS startDate,
+  du.date AS currentStartDate,
+  du.stopDate AS currentStopDate,
 
-  -- Previous status (based on stopDate logic)
+  -- ✅ PREVIOUS STATUS
   (
     SELECT d2.currentStatus
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
   ) AS previousStatus,
 
@@ -1273,26 +1277,26 @@ SELECT
     SELECT d2.date
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
-  ) AS startDate,
+  ) AS previousStartDate,
 
   (
     SELECT d2.id
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-    ORDER BY d2.date DESC
+      AND d2.date < :filterDate
+    ORDER BY d2.id DESC
     LIMIT 1
   ) AS previousDailyUpdateId
 
-FROM busMasters AS bus
+FROM busMasters bus
 
-JOIN busRoutesMasters AS routes 
+JOIN busRoutesMasters routes 
   ON bus.allotedRouteNo = routes.id
 
-LEFT JOIN conductorMasters AS cm
+LEFT JOIN conductorMasters cm
   ON cm.id = bus.conductorId
 
 LEFT JOIN driverMasters as dm
@@ -1311,6 +1315,35 @@ LEFT JOIN driverMasters as dm
   ) du 
   ON du.busId = bus.id
 
+-- ✅ MAIN LOGIC (range OR same date → latest id wins)
+LEFT JOIN (
+  SELECT *
+  FROM (
+    SELECT 
+      d.*,
+      ROW_NUMBER() OVER (
+        PARTITION BY d.busId
+        ORDER BY 
+          CASE 
+            WHEN DATE(d.date) = :filterDate THEN 1
+            ELSE 2
+          END,
+          d.id DESC
+      ) AS rn
+    FROM dailyUpdates d
+    WHERE 
+      (
+        DATE(d.date) = :filterDate
+        OR (
+          d.stopDate IS NOT NULL
+          AND :filterDate >= d.date
+          AND :filterDate <= d.stopDate
+        )
+      )
+  ) x
+  WHERE x.rn = 1
+) du ON du.busId = bus.id
+ 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
 

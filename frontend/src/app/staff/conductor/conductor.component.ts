@@ -28,13 +28,13 @@ export class ConductorComponent {
   
     form2: any = {
     conductor_id: '',
-    conductorLicenseNo: '',
     conductor_name: '',
     contact_no: '',
     aadhaar: '',
     pan: '',
     voter: '',
-    dl: '',
+    conductorLicenseNo: '',
+    conductorLicenseValidity: '',
     address: '',
     photo: null,
   };
@@ -77,6 +77,7 @@ isConductorEdit: boolean = false;
     this.form2 = {
       conductor_id: '',
       conductorLicenseNo: '',
+      conductorLicenseValidity: '',
       conductor_name: '',
       contact_no: '',
       aadhaar: '',
@@ -102,6 +103,7 @@ isConductorEdit: boolean = false;
   const formData = new FormData();
   formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductorLicenseNo', this.form2.conductorLicenseNo);
+  formData.append('conductorLicenseValidity', this.form2.conductorLicenseValidity);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);
@@ -132,6 +134,7 @@ isConductorEdit: boolean = false;
   this.form2 = {
     conductor_id: data?.conductor_id,
     conductorLicenseNo: data?.conductorLicenseNo,
+    conductorLicenseValidity: data?.conductorLicenseValidity,
     id: data?.id,
     conductor_name: data?.conductor_name,
     contact_no: data?.contact_no,
@@ -165,6 +168,7 @@ isConductorEdit: boolean = false;
   formData.append('id', this.form2.id);
   formData.append('conductor_id', this.form2.conductor_id);
   formData.append('conductorLicenseNo', this.form2.conductorLicenseNo);
+  formData.append('conductorLicenseValidity', this.form2.conductorLicenseValidity);
   formData.append('conductor_name', this.form2.conductor_name);
   formData.append('contact_no', this.form2.contact_no);
   formData.append('aadhaar', this.form2.aadhaar);

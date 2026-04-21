@@ -8,16 +8,15 @@ import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-driver',
   templateUrl: './driver.component.html',
-  styleUrls: ['./driver.component.css']
+  styleUrls: ['./driver.component.css'],
 })
 export class DriverComponent {
-
   public endpoint: string;
   constructor(
     private appService: AppService,
     private http: HttpClient,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
   ) {
     this.endpoint = environment.BASE_URL;
   }
@@ -32,6 +31,7 @@ export class DriverComponent {
     pan: '',
     voter: '',
     dl: '',
+    dl_validity: '',
     address: '',
     photo: null,
   };
@@ -42,7 +42,6 @@ export class DriverComponent {
   ngOnInit(): void {
     this.getDrivers();
   }
-
 
   isEdit: boolean = false;
   openNewDriverDialog = () => {
@@ -55,6 +54,7 @@ export class DriverComponent {
       pan: '',
       voter: '',
       dl: '',
+      dl_validity: '',
       address: '',
       photo: null,
     };
@@ -75,7 +75,6 @@ export class DriverComponent {
 
     this.form1.photo = file;
 
-
     // preview
     const reader = new FileReader();
     reader.onload = () => {
@@ -84,12 +83,11 @@ export class DriverComponent {
     reader.readAsDataURL(file);
   }
 
-
   saveData = (form: any) => {
     if (form.invalid || !this.form1.photo) {
       this.toastr.warning(
         'Please fill-up all fields and upload photo',
-        'Warning'
+        'Warning',
       );
       return;
     }
@@ -102,6 +100,7 @@ export class DriverComponent {
     formData.append('pan', this.form1.pan);
     formData.append('voter', this.form1.voter);
     formData.append('dl', this.form1.dl);
+    formData.append('dl_validity', this.form1.dl_validity);
     formData.append('address', this.form1.address);
     formData.append('photo', this.form1.photo); // ✅ IMPORTANT
 
@@ -120,7 +119,7 @@ export class DriverComponent {
         console.log('error here ', error);
         this.toastr.error('Something went wrong !', 'Error');
         this.imagePreview = null;
-      }
+      },
     );
   };
 
@@ -145,9 +144,10 @@ export class DriverComponent {
       pan: data?.pan,
       voter: data?.voter,
       dl: data?.dl,
+      dl_validity: data?.dl_validity,
       address: data?.address,
-      photo: null,              // NEW FILE (optional)
-      old_photo: data?.photo    // EXISTING IMAGE PATH
+      photo: null, // NEW FILE (optional)
+      old_photo: data?.photo, // EXISTING IMAGE PATH
     };
 
     // show existing photo preview
@@ -155,7 +155,6 @@ export class DriverComponent {
       this.imagePreview = `${environment.BASE_URL}/docs/${data.photo}`;
     }
   };
-
 
   updateData = () => {
     if (!this.form1.id) {
@@ -177,6 +176,7 @@ export class DriverComponent {
     formData.append('pan', this.form1.pan || '');
     formData.append('voter', this.form1.voter || '');
     formData.append('dl', this.form1.dl || '');
+    formData.append('dl_validity', this.form1.dl_validity || '');
     formData.append('address', this.form1.address || '');
 
     // send old photo path
@@ -199,10 +199,9 @@ export class DriverComponent {
       },
       () => {
         this.toastr.error('Something went wrong!', 'Error');
-      }
+      },
     );
   };
-
 
   getDrivers = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getDriver`;
@@ -217,14 +216,14 @@ export class DriverComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
   toBeDeletedDriverRecord: any = {};
   openConfirmationDialog = (data: any) => {
     this.toBeDeletedDriverRecord = data;
-  }
+  };
 
   handleDeleteDriver = () => {
     if (this.toBeDeletedDriverRecord.id != '') {
@@ -235,21 +234,23 @@ export class DriverComponent {
       this.http.post(ENDPOINT, requestOptions).subscribe(
         (response) => {
           this.getDrivers();
-          this.toastr.success("Driver deleted successfully", "Success Message");
+          this.toastr.success('Driver deleted successfully', 'Success Message');
         },
         (error) => {
-          console.log("error here ", error);
-          this.toastr.error("Something went wrong !", "Warning");
-
+          console.log('error here ', error);
+          this.toastr.error('Something went wrong !', 'Warning');
         },
         () => {
           console.log('Observable is now completed.');
-        }
+        },
       );
     } else {
-      this.toastr.warning("Please enter data properly before proceed", "Warning Message");
+      this.toastr.warning(
+        'Please enter data properly before proceed',
+        'Warning Message',
+      );
     }
-  }
+  };
 
   selectedData: any;
   viewDriverData = (id: any) => {

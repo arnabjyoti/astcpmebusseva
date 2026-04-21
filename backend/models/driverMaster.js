@@ -13,7 +13,7 @@ module.exports = (sequelize, type) => {
         pan: type.STRING,
         voter: type.STRING,
         dl: type.STRING,
-        licenseExpiryDriver: type.STRING,
+        dl_validity: type.STRING,
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING
