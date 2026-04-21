@@ -448,7 +448,7 @@
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
                 <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
-                  name="omr" [readonly]="formtype === 'update'" />
+                  name="omr" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>CMR Closing Km</label>
@@ -464,7 +464,7 @@
               <div class="col-md-4 pt-3">
                 <label>Opening SOC %</label>
                 <input type="number" class="form-control" [(ngModel)]="form.osoc" (change)="calculateTotalCosumed()"
-                  name="osoc" [readonly]="formtype === 'update'" />
+                  name="osoc" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Closing SOC %</label>
