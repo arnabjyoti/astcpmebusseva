@@ -19,7 +19,8 @@
   padding: 4px;
 }
 
-h3, h4 {
+h3,
+h4 {
   margin: 6px 0;
 }
 
@@ -31,20 +32,19 @@ h3, h4 {
   overflow-x: auto;
 }
 
-
 /* heder logo and title */
 .pdf-header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  /* width: 100%; */
+  width: 100%;
+  justify-content: center;
   margin-bottom: 3px;
 }
 
 .left-logo-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 5px;
@@ -53,12 +53,8 @@ h3, h4 {
 .logo-left {
   width: 50px; /* fixed width so title stays centered */
 }
-.logo-right {
-  width: 200px; /* fixed width so title stays centered */
-}
 
-.logo-left img,
-.logo-right img {
+.logo-left img {
   max-width: 100%;
   height: auto;
 }
@@ -88,15 +84,8 @@ h3, h4 {
   height: auto;
 }
 
-
-
-
-
-
-
-
 .sheet {
-  width: 190mm;   /* exact printable width */
+  width: 190mm; /* exact printable width */
   margin: auto;
   font-family: Arial, sans-serif;
   font-size: 10px;
@@ -109,7 +98,8 @@ h3, h4 {
   margin-top: 6px;
 }
 
-.tbl th, .tbl td {
+.tbl th,
+.tbl td {
   border: 1px solid #000;
   padding: 4px;
   text-align: center;
@@ -117,7 +107,8 @@ h3, h4 {
   line-height: 1.2;
 }
 
-.no-border td, .no-border th {
+.no-border td,
+.no-border th {
   border: none !important;
 }
 
@@ -129,9 +120,24 @@ h3, h4 {
   text-align: right;
 }
 
+.footer-container-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.footer-container-end-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.footer-container-end-logo img {
+  max-width: 200px; /* fixed width so title stays centered */
+}
 
 @media print {
-
   .sheet {
     width: 190mm !important;
     font-size: 10px !important;
@@ -144,8 +150,10 @@ h3, h4 {
     line-height: 1.2 !important;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     margin: 2px 0 !important;
   }
-
 }

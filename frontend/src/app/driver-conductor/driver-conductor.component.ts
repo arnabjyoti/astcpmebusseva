@@ -134,6 +134,7 @@ export class DriverConductorComponent {
       pan: '',
       voter: '',
       dl: '',
+      licenseExpiry: '',
       address: '',
       photo: null,
     };

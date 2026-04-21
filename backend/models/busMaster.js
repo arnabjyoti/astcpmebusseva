@@ -7,7 +7,7 @@ module.exports = (sequelize, type) => {
             autoIncrement: true
         },
         busName: type.STRING,
-        busNo: type.STRING,
+        busNo: type.STRING(255),
         driverId: type.STRING,
         conductorId: type.STRING,
         driverName: type.STRING,
@@ -20,14 +20,14 @@ module.exports = (sequelize, type) => {
         isFixed: type.STRING
     }, {});
 
-    busMaster.associate = function(models) {
+    busMaster.associate = function (models) {
         // associations can be defined here
         // busMaster.hasMany(models.trip);
 
         // ✅ ADD THIS
         busMaster.hasMany(models.dailyUpdates, {
             foreignKey: "busId",
-            as: "busId"
+            as: "dailyUpdates"
         });
     };
 
