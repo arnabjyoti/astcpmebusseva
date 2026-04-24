@@ -1,15 +1,18 @@
 <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
+    <div class="content-header" style="background-color:rgb(230, 227, 224)">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Driver details</h1>
+                    <h3 class="m-0">DRIVER DETAILS</h3>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item active">
-                            <button *ngIf="activeTabName == 'Driver'" class="btn btn-default btn-sm" data-toggle="modal"
+                        <li class="breadcrumb-item active" style="display: flex; gap: 5px;">
+                            <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal"
+                                (click)="openNewDriverDialog()">
+                                <i class="fas fa-download"></i> Download Records
+                            </button>
+                            <button *ngIf="activeTabName == 'Driver'" class="btn btn-primary btn-sm" data-toggle="modal"
                                 data-target="#formModal" (click)="openNewDriverDialog()">
                                 <i class="fas fa-plus"></i> New Driver
                             </button>
@@ -17,13 +20,8 @@
                     </ol>
                 </div>
             </div>
-            <!-- /.row -->
         </div>
-        <!-- /.container-fluid -->
     </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
     <section class="content card p-2">
         <div class="container-fluid">
 
@@ -31,150 +29,172 @@
 
                 <div class="row">
                     <div class="col-lg-12 col-12">
-                        <div>
-                            <table class="table table-bordered">
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-nowrap align-middle">
                                 <thead>
-                                    <tr>
-                                        <th>Sl No.</th>
-                                        <th>Driver ID</th>
-                                        <th>Driver Name</th>
-                                        <th>Driver Contact No</th>
-                                        <th>Action</th>
+                                    <tr style="background-color: #adbccb;">
+                                        <th>#</th>
+                                        <th>ID</th>
+                                        <th>NAME</th>
+                                        <th>LICENSE</th>
+                                        <th>VALIDITY</th>
+                                        <th>PAN</th>
+                                        <th>AADHAAR</th>
+                                        <th>VOTER ID</th>
+                                        <th>CONTACT</th>
+                                        <th>ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let data of driverList; let i = index">
+                                    <tr *ngFor="let data of driverList; let i = index"
+                                        style="background-color: #b0b5ba;">
                                         <td>{{ i + 1 }}</td>
                                         <td>{{ data.driver_id }}</td>
                                         <td>{{ data.driver_name }}</td>
+                                        <td>{{ data.license_no }} </td>
+                                        <td>{{ data.license_validity }}</td>
+                                        <td>{{ data.pan }}</td>
+                                        <td>{{ data.aadhar }}</td>
+                                        <td>{{ data.voter }}</td>
                                         <td>{{ data.contact_no }}</td>
                                         <td>
-                                            <button class="btn btn-default" data-toggle="modal" data-target="#viewModal"
-                                                (click)="viewDriverData(i)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                            <!-- (click)="openEditDialog(data)" -->
-                                            <button class="btn btn-default" data-toggle="modal" data-target="#formModal"
-                                                (click)="openEditDriverDialog(data)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <!-- (click)="openConfirmationDialog(data)" -->
-                                            <button class="btn btn-default" data-toggle="modal"
-                                                data-target="#deleteDriverModal" (click)="openConfirmationDialog(data)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#viewModal" (click)="viewDriverData(i)">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#formModal" (click)="openEditDriverDialog(data)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#deleteDriverModal"
+                                                    (click)="openConfirmationDialog(data)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#blockDriverModal"
+                                                    (click)="openConfirmationDialog(data)">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
 
-                            <!-- Form Modal -->
-                            <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-backdrop="static"
-                                id="formModal" tabindex="-1">
-                                <div class="modal-dialog modal-md">
-                                    <div class="modal-content">
+                            <div class="modal fade" id="formModal" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content shadow border-0 rounded">
+
                                         <div class="modal-header">
-                                            <h2 class="modal-title">Driver Details</h2>
-                                            <button type="button" class="close" (click)="closeForm()"
-                                                data-dismiss="modal">
+                                            <h5 class="modal-title">
+                                                {{ isEdit ? 'Edit Driver' : 'Add Driver' }}
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal">
                                                 &times;
                                             </button>
                                         </div>
+
                                         <div class="modal-body">
                                             <form #driverForm="ngForm" novalidate>
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <label>Driver ID *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.driver_id" name="driver_id"
-                                                                required />
-                                                        </div>
 
-                                                        <div class="col-md-6">
-                                                            <label>Driver Name *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.driver_name" name="driver_name"
-                                                                required />
-                                                        </div>
+                                                <div class="row">
 
-                                                        <div class="col-md-6">
-                                                            <label>Driver Contact No *</label>
-                                                            <input type="number" class="form-control"
-                                                                [(ngModel)]="form1.contact_no" name="contact_no"
-                                                                required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>AADHAAR *</label>
-                                                            <input type="number" class="form-control"
-                                                                [(ngModel)]="form1.aadhaar" name="aadhaar" required />
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <label>PAN No *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.pan" name="pan" required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>Voter ID *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.voter" name="voter" required />
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <label>Driving License *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.dl" name="dl" required />
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label>Address *</label>
-                                                            <input type="text" class="form-control"
-                                                                [(ngModel)]="form1.address" name="address" required />
-                                                        </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver ID *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.driver_id" name="driver_id" required>
                                                     </div>
 
-                                                    <div class="row pt-3">
-                                                        <div class="col-md-12">
-                                                            <label>Driver Photo *</label>
-                                                            <input type="file" class="form-control" accept="image/*"
-                                                                (change)="onPhotoChange($event)" />
-                                                        </div>
-
-                                                        <div class="col-md-12" *ngIf="imagePreview">
-                                                            <label>Preview</label><br />
-                                                            <img [src]="imagePreview" style="
-                                    width: 120px;
-                                    height: 120px;
-                                    object-fit: cover;
-                                    border: 1px solid #ccc;
-                                    padding: 4px;
-                                  " />
-                                                        </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver Name *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.driver_name" name="driver_name" required>
                                                     </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>License No *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.license_no" name="license_no" required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>License Validity *</label>
+                                                        <input type="date" class="form-control"
+                                                            [(ngModel)]="form1.license_validity" name="license_validity"
+                                                            required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Contact No *</label>
+                                                        <input type="number" class="form-control"
+                                                            [(ngModel)]="form1.contact_no" name="contact_no" required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>AADHAAR *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.aadhar" name="aadhar" maxlength="12"
+                                                            required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>PAN No *</label>
+                                                        <input type="text" class="form-control" [(ngModel)]="form1.pan"
+                                                            name="pan" required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Voter ID *</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.voter" name="voter" required>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Address</label>
+                                                        <input type="text" class="form-control"
+                                                            [(ngModel)]="form1.address" name="address">
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Driver Photo</label>
+                                                        <input type="file" class="form-control"
+                                                            (change)="onPhotoChange($event)">
+                                                    </div>
+
+                                                    <div class="col-md-12" *ngIf="imagePreview">
+                                                        <label>Preview</label><br>
+                                                        <img [src]="imagePreview"
+                                                            style="width:120px;height:120px;object-fit:cover;border:1px solid #ccc;">
+                                                    </div>
+
                                                 </div>
 
-                                                <button *ngIf="!isEdit" type="button" class="btn btn-info float-right"
-                                                    [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
-                                                    data-dismiss="modal">
-                                                    Save
-                                                </button>
-
-                                                <button *ngIf="isEdit" type="button" class="btn btn-info float-right"
-                                                    (click)="updateData()" data-dismiss="modal">
-                                                    Update
-                                                </button>
-
-                                                <button type="button" (click)="closeForm()"
-                                                    class="btn btn-default float-right mr-2" data-dismiss="modal">
-                                                    Cancel
-                                                </button>
                                             </form>
                                         </div>
+
+                                        <div class="modal-footer">
+                                            <button class="btn btn-warning" data-dismiss="modal">
+                                                Cancel
+                                            </button>
+
+                                            <button *ngIf="!isEdit" class="btn btn-primary"
+                                                [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
+                                                data-dismiss="modal">
+                                                Save
+                                            </button>
+
+                                            <button *ngIf="isEdit" class="btn btn-success" (click)="updateData()"
+                                                data-dismiss="modal">
+                                                Update
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- View Modal -->
                             <div class="modal fade" id="viewModal" tabindex="-1">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -187,34 +207,47 @@
                                         <div class="modal-body" *ngIf="selectedData">
                                             <div class="container-fluid">
                                                 <div class="row">
-                                                    <!-- LEFT: DETAILS -->
                                                     <div class="col-md-8">
                                                         <table class="table table-borderless table-sm mb-0">
                                                             <tbody>
                                                                 <tr>
-                                                                    <th class="text-muted w-50">Driver ID</th>
+                                                                    <th class="text-muted w-50">ID</th>
                                                                     <td>{{ selectedData.driver_id }}</td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th class="text-muted w-50">Name</th>
+                                                                    <td>{{ selectedData.driver_name }}</td>
                                                                 </tr>
 
                                                                 <tr>
                                                                     <th class="text-muted">Contact No</th>
                                                                     <td>{{ selectedData.contact_no }}</td>
                                                                 </tr>
+
                                                                 <tr>
                                                                     <th class="text-muted">AADHAAR</th>
-                                                                    <td>{{ selectedData.aadhaar }}</td>
+                                                                    <td>{{ selectedData.aadhar }}</td>
                                                                 </tr>
+                                                                
                                                                 <tr>
                                                                     <th class="text-muted">PAN No</th>
                                                                     <td>{{ selectedData.pan }}</td>
                                                                 </tr>
+
                                                                 <tr>
                                                                     <th class="text-muted">Voter ID</th>
                                                                     <td>{{ selectedData.voter }}</td>
                                                                 </tr>
+
                                                                 <tr>
-                                                                    <th class="text-muted">Driving License</th>
-                                                                    <td>{{ selectedData.dl }}</td>
+                                                                    <th class="text-muted">License</th>
+                                                                    <td>{{ selectedData.license_no }}</td>
+                                                                </tr>
+                                                                
+                                                                <tr>
+                                                                    <th class="text-muted">License Validity</th>
+                                                                    <td>{{ selectedData.license_validity }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <th class="text-muted">Address</th>
@@ -224,9 +257,8 @@
                                                         </table>
                                                     </div>
 
-                                                    <!-- RIGHT: PHOTO -->
                                                     <div class="col-md-4 text-center">
-                                                        <label class="text-muted d-block mb-2">Driver Photo</label>
+                                                        <label class="text-muted d-block mb-2">Photo</label>
 
                                                         <img [src]="endpoint + '/docs/' + selectedData.photo"
                                                             class="img-thumbnail shadow-sm" style="

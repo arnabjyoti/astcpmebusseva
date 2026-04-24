@@ -7,14 +7,13 @@ module.exports = (sequelize, type) => {
             autoIncrement: true
         },
         conductor_id: type.STRING(255),
-        conductorLicenseNo: type.STRING,
         conductor_name: type.STRING,
+        license_no: type.STRING,
+        license_validity: type.STRING,
         contact_no: type.STRING,
-        aadhaar: type.STRING,
+        aadhar: type.STRING,
         pan: type.STRING,
         voter: type.STRING,
-        dl: type.STRING,
-        licenseExpiryConductor: type.STRING,
         address: type.STRING,
         photo: type.STRING,
         status: type.STRING

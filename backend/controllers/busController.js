@@ -400,11 +400,12 @@ module.exports = {
         id,
         driver_id,
         driver_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         old_photo,
       } = req.body;
@@ -433,11 +434,12 @@ module.exports = {
       const updateData = {
         driver_id,
         driver_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         photo: photoPath,
       };
@@ -480,11 +482,12 @@ module.exports = {
         "id",
         "driver_id",
         "driver_name",
+        "license_no",
+        "license_validity",
         "contact_no",
-        "aadhaar",
+        "aadhar",
         "pan",
         "voter",
-        "dl",
         "address",
         "photo",
         "status",
@@ -523,13 +526,13 @@ module.exports = {
       attributes: [
         "id",
         "conductor_id",
-        "conductorLicenseNo",
+        "license_no",
+        "license_validity",
         "conductor_name",
         "contact_no",
-        "aadhaar",
+        "aadhar",
         "pan",
         "voter",
-        "dl",
         "address",
         "photo",
         "status",
@@ -567,13 +570,13 @@ module.exports = {
     try {
       const data = {
         conductor_id: req.body.conductor_id,
-        conductorLicenseNo: req.body.conductorLicenseNo,
         conductor_name: req.body.conductor_name,
+        license_no: req.body.license_no,
+        license_validity: req.body.license_validity,
         contact_no: req.body.contact_no,
-        aadhaar: req.body.aadhaar,
+        aadhar: req.body.aadhar,
         pan: req.body.pan,
         voter: req.body.voter,
-        dl: req.body.dl,
         address: req.body.address,
         status: "Active",
         photo: req.file ? `image/conductor/${req.file.filename}` : null,
@@ -600,13 +603,13 @@ module.exports = {
       const {
         id,
         conductor_id,
-        conductorLicenseNo,
         conductor_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         old_photo,
       } = req.body;
@@ -634,13 +637,13 @@ module.exports = {
 
       const updateData = {
         conductor_id,
-        conductorLicenseNo,
         conductor_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         photo: photoPath,
       };
@@ -1012,399 +1015,218 @@ module.exports = {
 
 
   // *****************************************
-//   getBusList(req, res) {
-//     const reqDate = req.query.date;
-//     let filterDate;
-
-//     if (reqDate) {
-//       const [yyyy, mm, dd] = reqDate.split("-");
-//       filterDate = `${yyyy}-${mm}-${dd}`;
-//     } else {
-//       filterDate = null;
-//     }
-
-//     console.log("filterDate", filterDate);
-
-//     const sql = `
-// SELECT 
-//     bus.id,
-//     bus.busName,
-//     bus.busNo,
-//     bus.status,
-//     bus.createdAt,
-//     bus.updatedAt,
-//     bus.isFixed,
-
-
-//     cm.conductor_name as conductorName,
-//     cm.conductor_id as conductorId,
-//     cm.contact_no as conductorContactNo,
-//     cm.id as conductor_actual_id,
-    
-//     dm.driver_name as driverName,
-//     dm.contact_no as driverContactNo,
-//     dm.driver_id as driverId,
-//     dm.id as driver_actual_id,
-
-//     -- Route fields
-//     routes.id AS routeId,
-//     routes.routeNo AS routeNo,
-//     routes.depot AS routeDepot,
-//     routes.start AS routeStart,
-//     routes.end AS routeEnd,
-//     routes.via AS routeVia,
-//     routes.routeDistance AS routeDistance,
-
-//     du.currentStatus AS currentStatus,
-//     du.noOfTrip AS noOfTrip,
-//     du.id AS dailyUpdateId,
-
-//     cm.status AS conductorStatus
-
-// FROM busMasters AS bus
-
-// JOIN busRoutesMasters AS routes 
-//     ON bus.allotedRouteNo = routes.id
-
-// LEFT JOIN conductorMasters AS cm
-//     ON cm.id = bus.conductorId
-
-
-// LEFT JOIN driverMasters as dm
-//     ON bus.driverId = dm.id
-
-//     LEFT JOIN (
-//       SELECT d1.*
-//       FROM dailyUpdates d1
-//       INNER JOIN (
-//           SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
-//           FROM dailyUpdates
-//           GROUP BY busId
-//       ) d2 
-//       ON d1.busId = d2.busId 
-//       AND d1.createdAt = d2.latestCreated
-//   ) du 
-//   ON du.busId = bus.id
-
-// WHERE bus.status = 'Active'
-//   AND routes.status = 'Active'
-
-// ORDER BY bus.id DESC;
-// `;
-
-//     const replacements = filterDate ? [filterDate, filterDate] : [];
-
-//     sequelize
-//       .query(sql, {
-//         replacements,
-//         type: sequelize.QueryTypes.SELECT,
-//       })
-//       .then((bus) => {
-//         return res.status(200).send(bus);
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//         return res.status(400).send(error);
-//       });
-//   },
-
-// getBusList(req, res) {
-//   const reqDate = req.query.date;
-//   let filterDate = null;
-
-//   if (reqDate) {
-//     const [yyyy, mm, dd] = reqDate.split("-");
-//     filterDate = `${yyyy}-${mm}-${dd}`;
-//   }
-
-//   console.log("filterDate", filterDate);
-
-//   const sql = `
-// SELECT 
-//   bus.id,
-//   bus.busName,
-//   bus.busNo,
-//   bus.status,
-//   bus.createdAt,
-//   bus.updatedAt,
-//   bus.isFixed,
-
-//   cm.conductor_name as conductorName,
-//   cm.conductor_id as conductorId,
-//   cm.contact_no as conductorContactNo,
-//   cm.id as conductor_actual_id,
-//   cm.status AS conductorStatus,
-
-//   dm.driver_name as driverName,
-//   dm.contact_no as driverContactNo,
-//   dm.driver_id as driverId,
-//   dm.id as driver_actual_id,
-
-//   routes.id AS routeId,
-//   routes.routeNo AS routeNo,
-//   routes.depot AS routeDepot,
-//   routes.start AS routeStart,
-//   routes.end AS routeEnd,
-//   routes.via AS routeVia,
-//   routes.routeDistance AS routeDistance,
-
-//   du.currentStatus AS currentStatus,
-//   du.noOfTrip AS noOfTrip,
-//   du.id AS dailyUpdateId,
-//   du.date AS dailyUpdateDate,
-
-
-//   (
-//     SELECT d2.currentStatus
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(d2.date) < :filterDate
-//     ORDER BY d2.date DESC
-//     LIMIT 1
-//   ) AS previousStatus,
-
-
-
-//   (
-//     SELECT d2.id
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(d2.date) < :filterDate
-//     ORDER BY d2.date DESC
-//     LIMIT 1
-//   ) AS previousDailyUpdateId
-  
-
-// FROM busMasters AS bus
-
-// JOIN busRoutesMasters AS routes 
-//   ON bus.allotedRouteNo = routes.id
-
-// LEFT JOIN conductorMasters AS cm
-//   ON cm.id = bus.conductorId
-
-// LEFT JOIN driverMasters as dm
-//   ON bus.driverId = dm.id
-
-// LEFT JOIN dailyUpdates du 
-//   ON du.busId = bus.id
-//   AND DATE(du.date) = :filterDate
-
-// WHERE bus.status = 'Active'
-//   AND routes.status = 'Active'
-
-// ORDER BY bus.id DESC;
-// `;
-
-//   const replacements = { filterDate };
-
-//   sequelize
-//     .query(sql, {
-//       replacements,
-//       type: sequelize.QueryTypes.SELECT,
-//     })
-//     .then((bus) => {
-//       return res.status(200).send(bus);
-//     })
-//     .catch((error) => {
-//       console.error(error);
-//       return res.status(400).send(error);
-//     });
-// },
-
-getBusList(req, res) {
-  const reqDate = req.query.date;
-  let filterDate = null;
-
-  if (reqDate) {
-    const [yyyy, mm, dd] = reqDate.split("-");
-    filterDate = `${yyyy}-${mm}-${dd}`;
-  }
-
-  console.log("filterDate", filterDate);
-
-//   const sql = `
-// SELECT 
-//   bus.id,
-//   bus.busName,
-//   bus.busNo,
-//   bus.status,
-//   bus.createdAt,
-//   bus.updatedAt,
-//   bus.isFixed,
-
-//   cm.conductor_name as conductorName,
-//   cm.conductor_id as conductorId,
-//   cm.contact_no as conductorContactNo,
-//   cm.id as conductor_actual_id,
-//   cm.status AS conductorStatus,
-
-//   dm.driver_name as driverName,
-//   dm.contact_no as driverContactNo,
-//   dm.driver_id as driverId,
-//   dm.id as driver_actual_id,
-
-//   routes.id AS routeId,
-//   routes.routeNo AS routeNo,
-//   routes.depot AS routeDepot,
-//   routes.start AS routeStart,
-//   routes.end AS routeEnd,
-//   routes.via AS routeVia,
-//   routes.routeDistance AS routeDistance,
-
-//   du.currentStatus AS currentStatus,
-//   du.noOfTrip AS noOfTrip,
-//   du.id AS dailyUpdateId,
-//   du.date AS dailyUpdateDate,
-//   du.stopDate AS dailyUpdateStopDate,
-//   du.date AS startDate,
-
-//   -- Previous status (based on stopDate logic)
-//   (
-//     SELECT d2.currentStatus
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-//     ORDER BY d2.date DESC
-//     LIMIT 1
-//   ) AS previousStatus,
-
-//   (
-//     SELECT d2.date
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-//     ORDER BY d2.date DESC
-//     LIMIT 1
-//   ) AS startDate,
-
-//   (
-//     SELECT d2.id
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
-//     ORDER BY d2.date DESC
-//     LIMIT 1
-//   ) AS previousDailyUpdateId
-
-// FROM busMasters AS bus
-
-// JOIN busRoutesMasters AS routes 
-//   ON bus.allotedRouteNo = routes.id
-
-// LEFT JOIN conductorMasters AS cm
-//   ON cm.id = bus.conductorId
-
-// LEFT JOIN driverMasters as dm
-//   ON bus.driverId = dm.id
-
-// -- 🔥 Main fix: range-based join
-// LEFT JOIN dailyUpdates du 
-//   ON du.busId = bus.id
-//   AND DATE(:filterDate) BETWEEN DATE(du.date) 
-//                           AND DATE(IFNULL(du.stopDate, du.date))
-
-// WHERE bus.status = 'Active'
-//   AND routes.status = 'Active'
-
-// ORDER BY bus.id DESC;
-// `;
-
-
-// working  2
-// const sql = `
-// SELECT 
-//   bus.id,
-//   bus.busName,
-//   bus.busNo,
-//   bus.status,
-//   bus.createdAt,
-//   bus.updatedAt,
-//   bus.isFixed,
-
-//   cm.conductor_name AS conductorName,
-//   cm.conductor_id AS conductorId,
-//   cm.contact_no AS conductorContactNo,
-//   cm.id AS conductor_actual_id,
-//   cm.status AS conductorStatus,
-
-//   dm.driver_name AS driverName,
-//   dm.contact_no AS driverContactNo,
-//   dm.driver_id AS driverId,
-//   dm.id AS driver_actual_id,
-
-//   routes.id AS routeId,
-//   routes.routeNo AS routeNo,
-//   routes.depot AS routeDepot,
-//   routes.start AS routeStart,
-//   routes.end AS routeEnd,
-//   routes.via AS routeVia,
-//   routes.routeDistance AS routeDistance,
-
-//   -- ✅ CURRENT (latest for same date)
-//   du.currentStatus AS currentStatus,
-//   du.noOfTrip AS noOfTrip,
-//   du.id AS dailyUpdateId,
-//   du.date AS currentStartDate,
-//   du.stopDate AS currentStopDate,
-
-//   -- ✅ PREVIOUS (latest before date)
-//   (
-//     SELECT d2.currentStatus
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(d2.date) < :filterDate
-//     ORDER BY d2.id DESC
-//     LIMIT 1
-//   ) AS previousStatus,
-
-//   (
-//     SELECT d2.date
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(d2.date) < :filterDate
-//     ORDER BY d2.id DESC
-//     LIMIT 1
-//   ) AS previousStartDate,
-
-//   (
-//     SELECT d2.id
-//     FROM dailyUpdates d2
-//     WHERE d2.busId = bus.id
-//       AND DATE(d2.date) < :filterDate
-//     ORDER BY d2.id DESC
-//     LIMIT 1
-//   ) AS previousDailyUpdateId
-
-// FROM busMasters AS bus
-
-// JOIN busRoutesMasters AS routes 
-//   ON bus.allotedRouteNo = routes.id
-
-// LEFT JOIN conductorMasters AS cm
-//   ON cm.id = bus.conductorId
-
-// LEFT JOIN driverMasters AS dm
-//   ON dm.id = bus.driverId
-
-// -- ✅ FIXED JOIN (same date + latest id)
-// LEFT JOIN (
-//   SELECT d1.*
-//   FROM dailyUpdates d1
-//   INNER JOIN (
-//     SELECT busId, MAX(id) AS maxId
-//     FROM dailyUpdates
-//     WHERE DATE(date) = :filterDate
-//     GROUP BY busId
-//   ) d2 ON d1.id = d2.maxId
-// ) du ON du.busId = bus.id
-
-// WHERE bus.status = 'Active'
-//   AND routes.status = 'Active'
-
-// ORDER BY bus.id DESC;
-// `;
-const sql = `
+  //   getBusList(req, res) {
+  //     const reqDate = req.query.date;
+  //     let filterDate;
+
+  //     if (reqDate) {
+  //       const [yyyy, mm, dd] = reqDate.split("-");
+  //       filterDate = `${yyyy}-${mm}-${dd}`;
+  //     } else {
+  //       filterDate = null;
+  //     }
+
+  //     console.log("filterDate", filterDate);
+
+  //     const sql = `
+  // SELECT 
+  //     bus.id,
+  //     bus.busName,
+  //     bus.busNo,
+  //     bus.status,
+  //     bus.createdAt,
+  //     bus.updatedAt,
+  //     bus.isFixed,
+
+
+  //     cm.conductor_name as conductorName,
+  //     cm.conductor_id as conductorId,
+  //     cm.contact_no as conductorContactNo,
+  //     cm.id as conductor_actual_id,
+
+  //     dm.driver_name as driverName,
+  //     dm.contact_no as driverContactNo,
+  //     dm.driver_id as driverId,
+  //     dm.id as driver_actual_id,
+
+  //     -- Route fields
+  //     routes.id AS routeId,
+  //     routes.routeNo AS routeNo,
+  //     routes.depot AS routeDepot,
+  //     routes.start AS routeStart,
+  //     routes.end AS routeEnd,
+  //     routes.via AS routeVia,
+  //     routes.routeDistance AS routeDistance,
+
+  //     du.currentStatus AS currentStatus,
+  //     du.noOfTrip AS noOfTrip,
+  //     du.id AS dailyUpdateId,
+
+  //     cm.status AS conductorStatus
+
+  // FROM busMasters AS bus
+
+  // JOIN busRoutesMasters AS routes 
+  //     ON bus.allotedRouteNo = routes.id
+
+  // LEFT JOIN conductorMasters AS cm
+  //     ON cm.id = bus.conductorId
+
+
+  // LEFT JOIN driverMasters as dm
+  //     ON bus.driverId = dm.id
+
+  //     LEFT JOIN (
+  //       SELECT d1.*
+  //       FROM dailyUpdates d1
+  //       INNER JOIN (
+  //           SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+  //           FROM dailyUpdates
+  //           GROUP BY busId
+  //       ) d2 
+  //       ON d1.busId = d2.busId 
+  //       AND d1.createdAt = d2.latestCreated
+  //   ) du 
+  //   ON du.busId = bus.id
+
+  // WHERE bus.status = 'Active'
+  //   AND routes.status = 'Active'
+
+  // ORDER BY bus.id DESC;
+  // `;
+
+  //     const replacements = filterDate ? [filterDate, filterDate] : [];
+
+  //     sequelize
+  //       .query(sql, {
+  //         replacements,
+  //         type: sequelize.QueryTypes.SELECT,
+  //       })
+  //       .then((bus) => {
+  //         return res.status(200).send(bus);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //         return res.status(400).send(error);
+  //       });
+  //   },
+
+  // getBusList(req, res) {
+  //   const reqDate = req.query.date;
+  //   let filterDate = null;
+
+  //   if (reqDate) {
+  //     const [yyyy, mm, dd] = reqDate.split("-");
+  //     filterDate = `${yyyy}-${mm}-${dd}`;
+  //   }
+
+  //   console.log("filterDate", filterDate);
+
+  //   const sql = `
+  // SELECT 
+  //   bus.id,
+  //   bus.busName,
+  //   bus.busNo,
+  //   bus.status,
+  //   bus.createdAt,
+  //   bus.updatedAt,
+  //   bus.isFixed,
+
+  //   cm.conductor_name as conductorName,
+  //   cm.conductor_id as conductorId,
+  //   cm.contact_no as conductorContactNo,
+  //   cm.id as conductor_actual_id,
+  //   cm.status AS conductorStatus,
+
+  //   dm.driver_name as driverName,
+  //   dm.contact_no as driverContactNo,
+  //   dm.driver_id as driverId,
+  //   dm.id as driver_actual_id,
+
+  //   routes.id AS routeId,
+  //   routes.routeNo AS routeNo,
+  //   routes.depot AS routeDepot,
+  //   routes.start AS routeStart,
+  //   routes.end AS routeEnd,
+  //   routes.via AS routeVia,
+  //   routes.routeDistance AS routeDistance,
+
+  //   du.currentStatus AS currentStatus,
+  //   du.noOfTrip AS noOfTrip,
+  //   du.id AS dailyUpdateId,
+  //   du.date AS dailyUpdateDate,
+
+
+  //   (
+  //     SELECT d2.currentStatus
+  //     FROM dailyUpdates d2
+  //     WHERE d2.busId = bus.id
+  //       AND DATE(d2.date) < :filterDate
+  //     ORDER BY d2.date DESC
+  //     LIMIT 1
+  //   ) AS previousStatus,
+
+
+
+  //   (
+  //     SELECT d2.id
+  //     FROM dailyUpdates d2
+  //     WHERE d2.busId = bus.id
+  //       AND DATE(d2.date) < :filterDate
+  //     ORDER BY d2.date DESC
+  //     LIMIT 1
+  //   ) AS previousDailyUpdateId
+
+
+  // FROM busMasters AS bus
+
+  // JOIN busRoutesMasters AS routes 
+  //   ON bus.allotedRouteNo = routes.id
+
+  // LEFT JOIN conductorMasters AS cm
+  //   ON cm.id = bus.conductorId
+
+  // LEFT JOIN driverMasters as dm
+  //   ON bus.driverId = dm.id
+
+  // LEFT JOIN dailyUpdates du 
+  //   ON du.busId = bus.id
+  //   AND DATE(du.date) = :filterDate
+
+  // WHERE bus.status = 'Active'
+  //   AND routes.status = 'Active'
+
+  // ORDER BY bus.id DESC;
+  // `;
+
+  //   const replacements = { filterDate };
+
+  //   sequelize
+  //     .query(sql, {
+  //       replacements,
+  //       type: sequelize.QueryTypes.SELECT,
+  //     })
+  //     .then((bus) => {
+  //       return res.status(200).send(bus);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //       return res.status(400).send(error);
+  //     });
+  // },
+
+  getBusList(req, res) {
+    const reqDate = req.query.date;
+    let filterDate = null;
+
+    if (reqDate) {
+      const [yyyy, mm, dd] = reqDate.split("-");
+      filterDate = `${yyyy}-${mm}-${dd}`;
+    }
+
+    console.log("filterDate", filterDate);
+
+    const sql = `
 SELECT 
   bus.id,
   bus.busName,
@@ -1476,8 +1298,21 @@ JOIN busRoutesMasters routes
 LEFT JOIN conductorMasters cm
   ON cm.id = bus.conductorId
 
-LEFT JOIN driverMasters dm
-  ON dm.id = bus.driverId
+LEFT JOIN driverMasters as dm
+  ON bus.driverId = dm.id
+
+    LEFT JOIN (
+      SELECT d1.*
+      FROM dailyUpdates d1
+      INNER JOIN (
+          SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+          FROM dailyUpdates
+          GROUP BY busId
+      ) d2 
+      ON d1.busId = d2.busId 
+      AND d1.createdAt = d2.latestCreated
+  ) du 
+  ON du.busId = bus.id
 
 -- ✅ MAIN LOGIC (range OR same date → latest id wins)
 LEFT JOIN (
@@ -1513,21 +1348,22 @@ WHERE bus.status = 'Active'
 
 ORDER BY bus.id DESC;
 `;
-  const replacements = { filterDate };
 
-  sequelize
-    .query(sql, {
-      replacements,
-      type: sequelize.QueryTypes.SELECT,
-    })
-    .then((bus) => {
-      return res.status(200).send(bus);
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(400).send(error);
-    });
-},
+    const replacements = { filterDate };
+
+    sequelize
+      .query(sql, {
+        replacements,
+        type: sequelize.QueryTypes.SELECT,
+      })
+      .then((bus) => {
+        return res.status(200).send(bus);
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(400).send(error);
+      });
+  },
 
   // *****************************************
 

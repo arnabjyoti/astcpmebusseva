@@ -54,8 +54,22 @@
                         <div class="row">
                           <div class="sheet">
                             <!-- Header -->
-                            <div class="pdf-header pb-3">
-                              <div class="header-container">
+                            <div class="pdf-header py-1.5">
+                              <div class="left-logo-container">
+                                <span><img src="../../../assets/image/login/astc.png" alt="Left Logo"
+                                    class="logo-left" /></span>
+                                <span style="
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                    font-family: 'Times New Roman', Times;
+                                    margin-left: 1px;
+                                  ">
+                                  <b>ASSAM STATE TRANSPORT CORPORATION</b>
+                                </span>
+                              </div>
+                              <div class="right-logo-container">
+                                <img src="../../../assets/image/logo.png" alt="Skaplink Logo" class="logo-right" />
+                              </div>
 
                                 <!-- Left Logo -->
                                 <div class="left-logo-container">
@@ -372,7 +386,7 @@
                             </table>
                             <div class="footer-container-end">
                               <span class="footer-container-end-text">
-                                Design and developed by -
+                                Designed and Developed by -
                               </span>
                               <span class="footer-container-end-logo">
                                 <img src="../../../assets/image/logo.png" alt="Skaplink Logo" />
@@ -449,7 +463,7 @@
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
                 <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
-                  name="omr" [readonly]="formtype === 'update'" />
+                  name="omr" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>CMR Closing Km</label>
@@ -465,7 +479,7 @@
               <div class="col-md-4 pt-3">
                 <label>Opening SOC %</label>
                 <input type="number" class="form-control" [(ngModel)]="form.osoc" (change)="calculateTotalCosumed()"
-                  name="osoc" [readonly]="formtype === 'update'" />
+                  name="osoc" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Closing SOC %</label>
@@ -571,12 +585,7 @@
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop Date</label>
-                <input
-                  type="date"
-                  class="form-control"
-                  [(ngModel)]="form.stopDate"
-                  name="stopDate"
-                />
+                <input type="date" class="form-control" [(ngModel)]="form.stopDate" name="stopDate" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
