@@ -2525,6 +2525,8 @@ END AS estimated_time,
           "totalOperated",
           "placeOfBreakdown",
           "causeOfBreakdown",
+          "kmAtBreakdown",
+          "lossKm",
           "stopTime",
           "date",
           "remarks"

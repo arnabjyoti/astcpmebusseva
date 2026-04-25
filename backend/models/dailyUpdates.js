@@ -14,7 +14,6 @@ module.exports = (sequelize, type) => {
         omr: type.STRING,
         cmr: type.STRING,
         totalOperated: type.STRING,
-        totalOperatedAtBreakdown: type.STRING,
 
         osoc: type.STRING,
         csoc: type.STRING,
@@ -41,8 +40,12 @@ module.exports = (sequelize, type) => {
         netAmountDeposited: type.STRING,
         tragetedEarning: type.STRING,
         amountToBeDeposited: type.STRING,
+
         placeOfBreakdown: type.STRING,
         causeOfBreakdown: type.STRING,
+        kmAtBreakdown: type.STRING,
+        lossKm: type.STRING,
+
         remarks: type.STRING,
         status: type.STRING
 

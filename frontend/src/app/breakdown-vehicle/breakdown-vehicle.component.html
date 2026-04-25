@@ -114,7 +114,7 @@
                 Place of breakdown is required
               </small>
             </div>
-            
+
             <!-- Cause of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="causeOfBreakdown">Cause of Breakdown <span class="required">*</span></label>
@@ -186,46 +186,40 @@
 
 
         <div>
-         
+
           <div class="card mb-3">
             <div class="card-body">
               <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
                 <div class="row align-items-end">
-          
+
                   <!-- From Date -->
                   <div class="col-md-3 form-group">
                     <label>From Date</label>
                     <input type="date" class="form-control" formControlName="fromDate">
                   </div>
-          
+
                   <!-- To Date -->
                   <div class="col-md-3 form-group">
                     <label>To Date</label>
                     <input type="date" class="form-control" formControlName="toDate">
                   </div>
-          
+
                   <!-- Vehicle Number -->
                   <div class="col-md-3 form-group">
                     <label>Vehicle Number</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter vehicle number"
+                    <input type="text" class="form-control" placeholder="Enter vehicle number"
                       formControlName="vehicleNumber">
                   </div>
-          
+
                   <!-- Route Number -->
                   <div class="col-md-3 form-group">
                     <label>Route Number</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter route number"
+                    <input type="text" class="form-control" placeholder="Enter route number"
                       formControlName="routeNumber">
                   </div>
-          
+
                 </div>
-          
+
                 <div class="text-right mt-3">
                   <button type="submit" class="btn btn-primary mr-2">
                     <i class="fa fa-search"></i> Search
@@ -237,7 +231,7 @@
               </form>
             </div>
           </div>
-          
+
         </div>
 
         <div class="table-responsive">
@@ -245,21 +239,22 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Vehicle Number</th>
-                <th>Route Number</th>
-                <th>Driver ID</th>
-                <th>Driver Name</th>
-                <th>Conductor ID</th>
-                <th>Conductor Name</th>
-                <th>Trip Completed</th>
-                <th>Kilometres Driven</th>
-                <th>Km Driven at Breakdown Time</th>
-                <th>Place of Breakdown</th>
-                <th>Date of Breakdown</th>
-                <th>Time of Breakdown</th>
-                <th>Cause of Breakdown</th>
-                <th>Remarks</th>
-                <th>Action</th>
+                <th>VEHICLE NO</th>
+                <th>ROUTE NO</th>
+                <th>DRIVER ID</th>
+                <th>DRIVER NAME</th>
+                <th>CONDUCTOR ID</th>
+                <th>CONDUCTOR NAME</th>
+                <th>TRIP COMPLETED</th>
+                <th>KM DRIVEN</th>
+                <th>KM AT BREAKDOWN TIME</th>
+                <th>LOSS KM</th>
+                <th>BREAKDOWN PLACE</th>
+                <th>BREAKDOWN DATE</th>
+                <th>BREAKDOWN TIME</th>
+                <th>BREAKDOWN CAUSE</th>
+                <th>REMARKS</th>
+                <th>ACTION</th>
               </tr>
             </thead>
             <tbody>
@@ -273,7 +268,9 @@
                 <td>{{ record?.conductor?.conductor_name }}</td>
                 <td>{{ record.noOfTrip }}</td>
                 <td>{{ record.totalOperated }}</td>
-                <td>{{ record.totalOperatedAtBreakdown }}</td>
+                <td>{{ record.kmAtBreakdown }}</td>
+                <td>{{ record.lossKm }}</td>
+                <!-- <td>{{ record.totalOperated > 180 ? 0 : 180 - record.kmAtBreakdown }}</td> -->
                 <td>{{ record.placeOfBreakdown }}</td>
                 <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>
                 <td>{{ record.stopTime }}</td>
