@@ -13,8 +13,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
-  isLoading: boolean = false;
-
   constructor(
     private appService: AppService,
     private http: HttpClient,
@@ -185,13 +183,10 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
 
-    this.isLoading = true;
-
     this.http.get(ENDPOINT).subscribe(
       (response) => {
         console.log('busList response ', response);
         this.busList = response;
-        this.isLoading = false;
         this.dateForStatus = this.dataForDate;
       },
       (error) => {
@@ -558,9 +553,6 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     }
   
     // ✅ Case 2:
-    if (!data.currentStatus && data.previousStatus === 'running') {
-      return 'running';
-    }
     if (!data.currentStatus) {
       return 'idle';
     }

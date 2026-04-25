@@ -10,7 +10,6 @@ import { NgxSpinnerService } from 'ngx-spinner';
 // import {userInfo} from '../../helper/userinfo';
 
 import { Chart } from 'chart.js/auto';
-import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -46,8 +45,7 @@ export class HomeComponent implements OnInit {
   totalPages: number = 0;
   Math = Math; // To use Math.min in template
 
-  barChart?: Chart;
-  pieChart?: Chart;
+  barChart!: Chart;
 
   public user: any;
   public tokenData: any;
@@ -69,9 +67,6 @@ export class HomeComponent implements OnInit {
     schedule_time: '',
   };
   tripList: any[] = [];
-
-  dashboardSub!: Subscription;
-
   constructor(
     private spinner: NgxSpinnerService,
     private homeService: HomeService,
@@ -97,15 +92,8 @@ export class HomeComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.getDashboardData(); // first call
-  this.dashboardSub = interval(30000).subscribe(() => {
     this.getDashboardData();
-  });
   }
-
-  ngOnDestroy() {
-  this.dashboardSub?.unsubscribe();
-}
 
   // private getCurrentTime(): string {
   //   const now = new Date();
@@ -149,8 +137,8 @@ export class HomeComponent implements OnInit {
       this.stillBus = res.stillBus;
       this.stillBusData = res.stillBusData;
 
-      this.todayEarning = res.todayEarning?.toLocaleString('en-IN');
-      this.yesterdayEarning = res.yesterdayEarning?.toLocaleString('en-IN');
+      this.todayEarning = res.todayEarning;
+      this.yesterdayEarning = res.yesterdayEarning;
 
       console.log('idle', this.idleBus);
 
@@ -171,95 +159,64 @@ export class HomeComponent implements OnInit {
   }
 
   loadBarChart() {
-  // ✅ If chart already exists → update data only
-  if (this.barChart) {
-    this.barChart.data.datasets[0].data = [
-      this.totalBus,
-      this.totalDriver,
-      this.totalConductor,
-      this.totalRoute,
-    ];
-    this.barChart.update();
-    return;
-  }
-
-  // ✅ Create chart first time only
-  this.barChart = new Chart('transportBarChart', {
-    type: 'bar',
-    data: {
-      labels: ['Buses', 'Drivers', 'Conductors', 'Routes'],
-      datasets: [
-        {
-          label: 'Count',
-          data: [
-            this.totalBus,
-            this.totalDriver,
-            this.totalConductor,
-            this.totalRoute,
-          ],
-          backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' },
+    new Chart('transportBarChart', {
+      type: 'bar',
+      data: {
+        labels: ['Buses', 'Drivers', 'Conductors', 'Routes'],
+        datasets: [
+          {
+            label: 'Count',
+            data: [
+              this.totalBus,
+              this.totalDriver,
+              this.totalConductor,
+              this.totalRoute,
+            ],
+            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+          },
+        ],
       },
-    },
-  });
-}
-
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+      },
+    });
+  }
 
   loadPieChart() {
-
-  // ✅ If already created → just update data
-  if (this.pieChart) {
-    this.pieChart.data.datasets[0].data = [
-      this.runningBus,
-      this.idleBusCount,
-      this.finishedBus,
-      this.stillBus,
-    ];
-    this.pieChart.update();
-    return;
-  }
-
-  // ✅ Create chart first time only
-  this.pieChart = new Chart('transportPieChart', {
-    type: 'pie',
-    data: {
-      labels: [
-        'Running Today',
-        'Idle Today',
-        'Finished Today',
-        'Breakdown',
-      ],
-      datasets: [
-        {
-          data: [
-            this.runningBus,
-            this.idleBusCount,
-            this.finishedBus,
-            this.stillBus,
-          ],
-          backgroundColor: ['#1cc88a', '#f6c23e', '#17a2b8', '#6c757d'],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' },
+    new Chart('transportPieChart', {
+      type: 'pie',
+      data: {
+        labels: [
+          'Running Today',
+          'Idle Today',
+          'Finished Today',
+          'Not Started',
+        ],
+        datasets: [
+          {
+            data: [
+              this.runningBus,
+              this.idleBusCount,
+              this.finishedBus,
+              this.stillBus,
+            ],
+            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+            borderWidth: 1,
+          },
+        ],
       },
-    },
-  });
-}
-
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+        },
+      },
+    });
+  }
 
   // Update pagination when data changes
   updatePagination() {
@@ -386,7 +343,7 @@ export class HomeComponent implements OnInit {
 
     // console.log("data", data);
     // console.log("stillBusData", this.stillBusData);
-
+    
     // return;
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);

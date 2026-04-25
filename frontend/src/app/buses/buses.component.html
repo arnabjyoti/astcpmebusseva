@@ -16,12 +16,7 @@
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item active">
-              <button
-                class="btn btn-default"
-                data-toggle="modal"
-                data-target="#formModal"
-                (click)="openNewDialog()"
-              >
+              <button class="btn btn-default" data-toggle="modal" data-target="#formModal" (click)="openNewDialog()">
                 <i class="fas fa-plus"></i> New Bus
               </button>
             </li>
@@ -112,16 +107,6 @@
                   <td>{{ data.routeDepot || '-' }}</td>
                   <td>{{ data.routeNo || '-' }}</td>
 
-                    <span
-                      class="status-badge"
-                      [ngClass]="{
-                        'status-running': data.isFixed === 'yes',
-                        'status-finished': data.isFixed === 'no',
-                      }"
-                    >
-                      {{ data.isFixed || "no" | titlecase }}
-                    </span>
-                  </td>
 
                   <td>
                     <label class="switch">
@@ -216,17 +201,6 @@
               </tbody>
             </table>
 
-                      <ng-template #tripNotAllowed>
-                        <span class="text-muted small">
-                          <i class="fas fa-exclamation-circle"></i>
-                          Driver / Conductor not allotted
-                        </span>
-                      </ng-template>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
 
             <!-- Form Modal -->
             <div class="modal fade" id="formModal" tabindex="-1">
@@ -234,12 +208,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <h2 class="modal-title">Vehicle Info</h2>
-                    <button
-                      type="button"
-                      class="close"
-                      data-dismiss="modal"
-                      id="modalClose"
-                    >
+                    <button type="button" class="close" data-dismiss="modal" id="modalClose">
                       &times;
                     </button>
                   </div>
@@ -269,43 +238,30 @@
                           </div> -->
 
                           <div class="col-md-6 pt-3">
-                            <label>Driver Name {{ form.isFixed }}</label>
+                            <label>Driver Name {{form.isFixed}}</label>
 
                             <select class="form-control" name="driverName" [disabled]="form.isFixed === 'yes'"
                               [(ngModel)]="form.driverName" (change)="manageDrive()">
                               <option value="">Select a Driver</option>
                               <option value="REMOVE">❌ Remove Driver</option>
 
-                              <option
-                                *ngFor="let driver of driverList"
-                                [value]="driver.id"
-                                [disabled]="
-                                  driver.allotmentStatus === 'Allotted'
-                                "
-                                [ngClass]="{
-                                  'driver-allotted':
-                                    driver.allotmentStatus === 'Allotted',
-                                }"
-                              >
+                              <option *ngFor="let driver of driverList" [value]="driver.id"
+                                [disabled]="driver.allotmentStatus === 'Allotted'" [ngClass]="{
+                                  'driver-allotted': driver.allotmentStatus === 'Allotted'
+                                }">
                                 {{ driver.driver_name }} - {{ driver.id }}
-                                <span
-                                  *ngIf="driver.allotmentStatus === 'Allotted'"
-                                >
+                                <span *ngIf="driver.allotmentStatus === 'Allotted'">
                                   (Already Allotted)
                                 </span>
                               </option>
                             </select>
                           </div>
 
+
                           <div class="col-md-6 pt-3">
                             <label>Driver Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.driverContactNo"
-                              name="driverContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.driverContactNo"
+                              name="driverContactNo" readonly />
                           </div>
 
                           <div class="col-md-6 pt-3">
@@ -314,43 +270,25 @@
                             <select class="form-control" name="conductorName" [disabled]="form.isFixed === 'yes'"
                               [(ngModel)]="form.conductorName" (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
-                              <option value="REMOVE">
-                                ❌ Remove Conductor
-                              </option>
+                              <option value="REMOVE">❌ Remove Conductor</option>
 
-                              <option
-                                *ngFor="let conductor of conductorList"
-                                [value]="conductor.id"
-                                [disabled]="
-                                  conductor.allotmentStatus === 'Allotted'
-                                "
-                                [ngClass]="{
-                                  'driver-allotted':
-                                    conductor.allotmentStatus === 'Allotted',
-                                }"
-                              >
-                                {{ conductor.conductor_name }} -
-                                {{ conductor.id }}
-                                <span
-                                  *ngIf="
-                                    conductor.allotmentStatus === 'Allotted'
-                                  "
-                                >
+                              <option *ngFor="let conductor of conductorList" [value]="conductor.id"
+                                [disabled]="conductor.allotmentStatus === 'Allotted'" [ngClass]="{
+                                  'driver-allotted': conductor.allotmentStatus === 'Allotted'
+                                }">
+                                {{ conductor.conductor_name }} - {{ conductor.id }}
+                                <span *ngIf="conductor.allotmentStatus === 'Allotted'">
                                   (Already Allotted)
                                 </span>
                               </option>
                             </select>
                           </div>
 
+
                           <div class="col-md-6 pt-3">
                             <label>Conductor Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.conductorContactNo"
-                              name="conductorContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.conductorContactNo"
+                              name="conductorContactNo" readonly />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -372,10 +310,7 @@
                             <select class="form-control" name="allotedRouteNo" [disabled]="form.isFixed === 'yes'"
                               [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
-                              <option
-                                *ngFor="let route of routeList"
-                                [value]="route.id"
-                              >
+                              <option *ngFor="let route of routeList" [value]="route.id">
                                 {{ route.routeNo }}
                               </option>
                             </select>
@@ -392,25 +327,16 @@
                         </div>
                       </div>
 
-                      <button
-                        style="float: right"
-                        *ngIf="!isEdit"
-                        type="button"
-                        class="btn btn-info"
-                        (click)="saveData()"
-                      >
+                      <button style="float: right" *ngIf="!isEdit" type="button" class="btn btn-info"
+                        (click)="saveData()">
                         Save
                       </button>
                       <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
                         [disabled]="form.isFixed === 'yes'" (click)="updateData()">
                         Update
                       </button>
-                      <button
-                        style="float: right; margin-right: 5px"
-                        type="button"
-                        class="btn btn-default"
-                        data-dismiss="modal"
-                      >
+                      <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"
+                        data-dismiss="modal">
                         Cancel
                       </button>
                     </form>
@@ -486,11 +412,7 @@
 
                     <!-- <p> -->
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        (click)="redirectToAddForm()"
-                      >
+                      <button class="btn btn-primary" data-dismiss="modal" (click)="redirectToAddForm()">
                         Start Trip
                       </button>
                     </div>
@@ -520,20 +442,11 @@
 
                     <p>
                       <label for="">Update Trip:</label>
-                      <input
-                        type="text"
-                        name="newRoundTrip"
-                        [(ngModel)]="newRoundTrip"
-                        class="form-control col-md-4"
-                      />
+                      <input type="text" name="newRoundTrip" [(ngModel)]="newRoundTrip" class="form-control col-md-4" />
                     </p>
 
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        (click)="updateTrip()"
-                      >
+                      <button class="btn btn-primary" data-dismiss="modal" (click)="updateTrip()">
                         Update Trip
                       </button>
                     </div>
@@ -554,34 +467,24 @@
                   <div class="modal-body">
                     <h4>
                       Are you sure ! You want to delete bus
-                      <strong
-                        ><i
-                          >"{{ toBeDeletedRecord.busName }}-{{
-                            toBeDeletedRecord.busNo
-                          }}"</i
-                        ></strong
-                      >
+                      <strong><i>"{{ toBeDeletedRecord.busName }}-{{
+                          toBeDeletedRecord.busNo
+                          }}"</i></strong>
                       ?
                     </h4>
-                    <button
-                      type="button"
-                      class="btn btn-primary float-sm-right"
-                      (click)="handleDeleteBus()"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteBus()"
+                      data-dismiss="modal">
                       Yes
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-default float-sm-right"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
                       No
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+
+
 
             <!-- conductors remaining amount Modal -->
             <div class="modal fade" id="conductorRemainModal" tabindex="-1">
@@ -612,17 +515,20 @@
                         {{ selectedData.conductorContactNo }}
                       </div>
 
+
+
                       <div class="col-md-12 pt-4">
                         <div class="text-center">
-                          <h2>
-                            Remaining Amount:
-                            {{
-                              amountToBeDeposited > 0 ? amountToBeDeposited : 0
-                            }}
+
+                          <h2>Remaining Amount:
+                            {{ amountToBeDeposited > 0 ? amountToBeDeposited : 0 }}
                           </h2>
                         </div>
                       </div>
+
+
                     </div>
+
                   </div>
                 </div>
               </div>

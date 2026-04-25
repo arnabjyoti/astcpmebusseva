@@ -1236,16 +1236,16 @@ SELECT
   bus.updatedAt,
   bus.isFixed,
 
-  cm.conductor_name AS conductorName,
-  cm.conductor_id AS conductorId,
-  cm.contact_no AS conductorContactNo,
-  cm.id AS conductor_actual_id,
+  cm.conductor_name as conductorName,
+  cm.conductor_id as conductorId,
+  cm.contact_no as conductorContactNo,
+  cm.id as conductor_actual_id,
   cm.status AS conductorStatus,
 
-  dm.driver_name AS driverName,
-  dm.contact_no AS driverContactNo,
-  dm.driver_id AS driverId,
-  dm.id AS driver_actual_id,
+  dm.driver_name as driverName,
+  dm.contact_no as driverContactNo,
+  dm.driver_id as driverId,
+  dm.id as driver_actual_id,
 
   routes.id AS routeId,
   routes.routeNo AS routeNo,
@@ -1255,20 +1255,20 @@ SELECT
   routes.via AS routeVia,
   routes.routeDistance AS routeDistance,
 
-  -- ✅ CURRENT STATUS (range + same-day fallback)
   du.currentStatus AS currentStatus,
-  du.noOfTrip,
+  du.noOfTrip AS noOfTrip,
   du.id AS dailyUpdateId,
-  du.date AS currentStartDate,
-  du.stopDate AS currentStopDate,
+  du.date AS dailyUpdateDate,
+  du.stopDate AS dailyUpdateStopDate,
+  du.date AS startDate,
 
-  -- ✅ PREVIOUS STATUS
+  -- Previous status (based on stopDate logic)
   (
     SELECT d2.currentStatus
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND d2.date < :filterDate
-    ORDER BY d2.id DESC
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
     LIMIT 1
   ) AS previousStatus,
 
@@ -1276,26 +1276,26 @@ SELECT
     SELECT d2.date
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND d2.date < :filterDate
-    ORDER BY d2.id DESC
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
     LIMIT 1
-  ) AS previousStartDate,
+  ) AS startDate,
 
   (
     SELECT d2.id
     FROM dailyUpdates d2
     WHERE d2.busId = bus.id
-      AND d2.date < :filterDate
-    ORDER BY d2.id DESC
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
     LIMIT 1
   ) AS previousDailyUpdateId
 
-FROM busMasters bus
+FROM busMasters AS bus
 
-JOIN busRoutesMasters routes 
+JOIN busRoutesMasters AS routes 
   ON bus.allotedRouteNo = routes.id
 
-LEFT JOIN conductorMasters cm
+LEFT JOIN conductorMasters AS cm
   ON cm.id = bus.conductorId
 
 LEFT JOIN driverMasters as dm
@@ -1314,35 +1314,6 @@ LEFT JOIN driverMasters as dm
   ) du 
   ON du.busId = bus.id
 
--- ✅ MAIN LOGIC (range OR same date → latest id wins)
-LEFT JOIN (
-  SELECT *
-  FROM (
-    SELECT 
-      d.*,
-      ROW_NUMBER() OVER (
-        PARTITION BY d.busId
-        ORDER BY 
-          CASE 
-            WHEN DATE(d.date) = :filterDate THEN 1
-            ELSE 2
-          END,
-          d.id DESC
-      ) AS rn
-    FROM dailyUpdates d
-    WHERE 
-      (
-        DATE(d.date) = :filterDate
-        OR (
-          d.stopDate IS NOT NULL
-          AND :filterDate >= d.date
-          AND :filterDate <= d.stopDate
-        )
-      )
-  ) x
-  WHERE x.rn = 1
-) du ON du.busId = bus.id
- 
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
 
@@ -1523,9 +1494,6 @@ LIMIT 1;
           "routeNo",
           "omr",
           "cmr",
-          "osoc",
-          "csoc",
-          "consumedSOC",
           "totalOperated",
           "noOfTrip",
           "chaloPassengersNo",
