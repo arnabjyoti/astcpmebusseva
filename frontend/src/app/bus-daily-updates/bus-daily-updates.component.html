@@ -2,10 +2,9 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row mb-2 align-items-center">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Earning Records
-                    </h1>
+                    <h3 class="m-0">EARNING RECORDS</h3>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -21,7 +20,17 @@
     <section class="content card">
         <div class="container-fluid mt-4">
 
-            <div class="float-right">
+            <div class="d-flex align-items-center justify-content-end w-100 p-2">
+                <div class="d-flex">
+                    <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span
+                        class="px-2 d-flex align-items-center">to</span>
+                    <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id="">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-info" (click)="search()"> <i class="fas fa-search"
+                            style="color:aliceblue"></i>
+                        Search
+                    </button>
+                </div>
 
                 <div class="d-flex align-items-center justify-content-end w-100 p-2">
                     <!-- PDF -->
@@ -58,97 +67,85 @@
                     </button>
                 </div>
 
+            </div>
 
-                <!-- <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
+            <!-- <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
                         style="color:aliceblue"></i> Download CSV</button> &nbsp;&nbsp;&nbsp;
                 <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
                         style="color:aliceblue"></i> Download PDF</button> &nbsp;&nbsp;&nbsp;
                 <button class="btn btn-primary mb-3" (click)="redirectTo()"> <i class="fas fa-plus"
                         style="color:aliceblue"></i> Add Data</button> -->
-                <!-- <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#formModal">Add Data</button> -->
-            </div>
+            <!-- <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#formModal">Add Data</button> -->
 
-            <div class="d-flex">
-                <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span
-                    class="px-2 d-flex align-items-center">to</span>
-                <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id="">
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <button class="btn btn-info" (click)="search()"> <i class="fas fa-search" style="color:aliceblue"></i>
-                    Search</button>
-            </div>
+            <div class="" #reportSection id="reportSection">
+                <table class="table table-hover text-nowrap table-responsive align-middle" id="dataTable">
 
-            <div>
-
-            </div>
-            <div class="table-responsive" #reportSection id="reportSection">
-                <table class="table table-bordered table-striped table-hover table-sm text-nowrap" id="dataTable">
-
-                    <thead class="thead-dark">
-                        <tr class="text-center align-middle">
+                    <thead class="professional-thead bg-dark text-white">
+                        <tr class="text-center align-middle" >
                             <th>#</th>
-                            <th>Date</th>
-                            <th>Vehicle No</th>
-                            <th>Driver ID</th>
-                            <th>Conductor ID</th>
-                            <th>Timesheet No</th>
-                            <th>Route</th>
-                            <th>Start</th>
+                            <th>DATE</th>
+                            <th>VEHICLE NO</th>
+                            <th>DRIVER ID</th>
+                            <th>CONDUCTOR ID</th>
+                            <th>TIMESHEET NO</th>
+                            <th>ROUTE</th>
+                            <th>START TIME</th>
                             <th>OMR</th>
                             <th>CMR</th>
-                            <th>Total Km</th>
-                            <th>Trips</th>
-                            <th>Chalo Pax</th>
-                            <th>Chalo Tkt</th>
-                            <th>Chalo Amt (₹)</th>
-                            <th>Cash (₹)</th>
+                            <th>TOTAL KMS</th>
+                            <th>TRIPS</th>
+                            <th>CHALO PAX</th>
+                            <th>CHALO TKT</th>
+                            <th>CHALO AMT (₹)</th>
+                            <th>CASH (₹)</th>
                             <th>UPI (₹)</th>
-                            <th>Additional Amount (₹)</th>
-                            <th>Net Deposit (₹)</th>
-                            <th>Target (₹)</th>
-                            <th>To Deposit (₹)</th>
-                            <th>End</th>
-                            <th>Status</th>
-                            <th>Remarks</th>
-                            <th>Action</th>
+                            <th>ADDITIONAL AMOUNT (₹)</th>
+                            <th>NET DEPOSIT (₹)</th>
+                            <th>TARGET (₹)</th>
+                            <th>PENDING AMOUNT (₹)</th>
+                            <th>END</th>
+                            <th>STATUS</th>
+                            <th>REMARKS</th>
+                            <th>ACTION</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         <tr *ngFor="let value of dataList; let i = index" class="align-middle">
 
-                            <td class="text-center">{{ i + 1 }}</td>
-                            <td class="text-center">{{ value?.date }}</td>
+                            <td class="text-center align-middle">{{ i + 1 }}</td>
+                            <td class="text-center align-middle">{{ value?.date }}</td>
 
-                            <td>{{ value?.bus?.busNo }}</td>
-                            <td>{{ value?.driver?.driver_id }}</td>
-                            <td>{{ value?.conductor?.conductor_id }}</td>
+                            <td class="text-center align-middle">{{ value?.bus?.busNo }}</td>
+                            <td class="text-center align-middle">{{ value?.driver?.driver_id }}</td>
+                            <td class="text-center align-middle">{{ value?.conductor?.conductor_id }}</td>
 
-                            <td class="text-center font-weight-bold">{{ value.timesheetNo }}</td>
+                            <td class="text-center font-weight-bold align-middle">{{ value.timesheetNo }}</td>
 
-                            <td>{{ value.routeNo }} - {{ value.routeName }}</td>
+                            <td class="text-center align-middle">{{ value.routeNo }} - {{ value.routeName }}</td>
 
-                            <td class="text-center">{{ value.startTime }}</td>
+                            <td class="text-center align-middle">{{ value.startTime }}</td>
 
-                            <td class="text-right">{{ value.omr }}</td>
-                            <td class="text-right">{{ value.cmr }}</td>
-                            <td class="text-right font-weight-bold">{{ value.totalOperated }}</td>
+                            <td class="text-right align-middle">{{ value.omr }}</td>
+                            <td class="text-right align-middle">{{ value.cmr }}</td>
+                            <td class="text-right font-weight-bold align-middle">{{ value.totalOperated }}</td>
 
-                            <td class="text-center">{{ value.noOfTrip }}</td>
-                            <td class="text-center">{{ value.chaloPassengersNo }}</td>
-                            <td class="text-center">{{ value.chaloTicketNo }}</td>
+                            <td class="text-center align-middle">{{ value.noOfTrip }}</td>
+                            <td class="text-center align-middle">{{ value.chaloPassengersNo }}</td>
+                            <td class="text-center align-middle">{{ value.chaloTicketNo }}</td>
 
-                            <td class="text-right">{{ value.chaloTicketAmount }}</td>
-                            <td class="text-right">{{ value.cashCollection }}</td>
-                            <td class="text-right">{{ value.upi }}</td>
-                            <td class="text-right">{{ value.additionalAmount }}</td>
+                            <td class="text-right align-middle">{{ value.chaloTicketAmount }}</td>
+                            <td class="text-right align-middle">{{ value.cashCollection }}</td>
+                            <td class="text-right align-middle">{{ value.upi }}</td>
+                            <td class="text-right align-middle">{{ value.additionalAmount }}</td>
 
-                            <td class="text-right font-weight-bold text-success">{{ value.netAmountDeposited }}</td>
-                            <td class="text-right">{{ value.tragetedEarning }}</td>
-                            <td class="text-right text-danger">{{ value.amountToBeDeposited }}</td>
+                            <td class="text-right font-weight-bold text-success align-middle">{{ value.netAmountDeposited }}</td>
+                            <td class="text-right align-middle">{{ value.tragetedEarning }}</td>
+                            <td class="text-right text-danger align-middle">{{ value.amountToBeDeposited }}</td>
 
-                            <td class="text-center">{{ value.stopTime }}</td>
+                            <td class="text-center align-middle">{{ value.stopTime }}</td>
 
-                            <td class="text-center">
+                            <td class="text-center align-middle">
                                 <span class="badge" [ngClass]="{
                                     'badge-success': value.currentStatus === 'approved',
                                     'badge-warning': value.currentStatus === 'pending',
@@ -158,11 +155,11 @@
                                 </span>
                             </td>
 
-                            <td class="text-truncate" style="max-width:150px" title="{{value.remarks}}">
+                            <td class="text-truncate align-middle" style="max-width:150px" title="{{value.remarks}}">
                                 {{ value.remarks }}
                             </td>
 
-                            <td class="text-center">
+                            <td class="text-center align-middle">
                                 <button class="btn btn-sm btn-outline-danger" data-toggle="modal"
                                     data-target="#deleteModal" (click)="openDeleteConfirmationDialog(value)">
                                     <i class="fa fa-trash"></i>

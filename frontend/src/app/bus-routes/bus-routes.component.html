@@ -7,16 +7,22 @@
 <div class="content-wrapper">
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
+      <div class="row mb-2 align-items-center">
         <div class="col-sm-6">
-          <h1 class="m-0">Vehicle Routes</h1>
+          <h3 class="m-0">VEHICLE ROUTES</h3>
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item active"><button (click)="openNewRouteDialog()" class="btn btn-default"
-                data-toggle="modal" data-target="#formModal">
+            <li class="breadcrumb-item active" style="display: flex; gap: 5px;">
+              <button (click)="openNewRouteDialog()" class="btn btn-success" data-toggle="modal"
+                data-target="#formModal">
+                <i class="fas fa-download"></i> Download Record
+              </button>
+              <button (click)="openNewRouteDialog()" class="btn btn-primary" data-toggle="modal"
+                data-target="#formModal">
                 <i class="fas fa-plus"></i> New Route
-              </button></li>
+              </button>
+            </li>
           </ol>
         </div>
       </div>
@@ -31,20 +37,20 @@
           <div>
 
 
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-responsive text-nowrap align-middle">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Depot</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th>Via</th>
-                  <th>Route No</th>
-                  <th>Route Name</th>
-                  <th>Distance</th>
-                  <th>Targeted Earnings</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <th>DEPOT</th>
+                  <th>START</th>
+                  <th>END</th>
+                  <th>VIA</th>
+                  <th>ROUTE NO</th>
+                  <th>ROUTE NAME</th>
+                  <th>DISTANCE</th>
+                  <th>EARNINGS</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,13 +62,14 @@
                   <td>{{ data.via }}</td>
                   <td>{{ data.routeNo }}</td>
                   <td>{{ data.routeName }}</td>
-                  <td>{{distanceConvert(data.routeDistance, data.depot_to_start_distance, data.end_to_depot_distance) }}</td>
+                  <td>{{distanceConvert(data.routeDistance, data.depot_to_start_distance, data.end_to_depot_distance) }}
+                  </td>
                   <td>{{ data.estimated_collection }}</td>
                   <td>
                     <span class="badge badge-success" *ngIf="data.status=='Active'">Active</span>
                     <span class="badge badge-danger" *ngIf="data.status!='Active'">Inactive</span>
                   </td>
-                  <td>
+                  <td style="display: flex; gap: 5px;">
                     <button class="btn btn-sm btn-default" (click)="openEditDialog(data)" data-toggle="modal"
                       data-target="#formModal">
                       <i class="fas fa-edit"></i>
@@ -154,7 +161,7 @@
                   <option *ngFor="let rn of routeNameSuggestions" [value]="rn"></option>
                 </datalist>
               </div>
-              
+
 
               <div class="col-md-6 pt-2">
                 <label>Route Distance (KM)</label>

@@ -2,15 +2,14 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
+      <div class="row mb-0 px-2 align-items-center justify-content-between">
         <div class="col-sm-6">
-          <h1 class="m-0">Vehicle Breakdown Tab
-          </h1>
+          <h3 class="m-0">BREAKDOWN VEHICLE TAB</h3>
         </div><!-- /.col -->
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item active"><a href="#">Home</a></li>
-          </ol>
+        <div class="header-buttons">
+          <button class="btn btn-success" (click)="downloadReport()">
+            <i class="fa fa-download"></i> Download Report
+          </button>
         </div><!-- /.col -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -175,15 +174,6 @@
 
       <!-- Breakdown Table Records -->
       <div class="breakdown-container" *ngIf="!isOpen_form">
-        <div class="table-header">
-          <h3 class="mb-0">Breakdown Records</h3>
-          <div class="header-buttons">
-            <button class="btn btn-success" (click)="downloadReport()">
-              <i class="fa fa-download"></i> Download Report
-            </button>
-          </div>
-        </div>
-
 
         <div>
 
@@ -259,22 +249,22 @@
             </thead>
             <tbody>
               <tr *ngFor="let record of BreakdownData; let i = index">
-                <td>{{ getActualIndex(i) }}</td>
-                <td>{{ record?.bus?.busNo }}</td>
-                <td>{{ record.routeNo }}</td>
-                <td>{{ record?.driver?.driver_id }}</td>
-                <td>{{ record?.driver?.driver_name }}</td>
-                <td>{{ record?.conductor?.conductor_id }}</td>
-                <td>{{ record?.conductor?.conductor_name }}</td>
-                <td>{{ record.noOfTrip }}</td>
-                <td>{{ record.totalOperated }}</td>
-                <td>{{ record.kmAtBreakdown }}</td>
-                <td>{{ record.lossKm }}</td>
+                <td class="text-center">{{ getActualIndex(i) }}</td>
+                <td class="text-center">{{ record?.bus?.busNo }}</td>
+                <td class="text-center">{{ record.routeNo }}</td>
+                <td class="text-center">{{ record?.driver?.driver_id }}</td>
+                <td class="text-center">{{ record?.driver?.driver_name }}</td>
+                <td class="text-center">{{ record?.conductor?.conductor_id }}</td>
+                <td class="text-center">{{ record?.conductor?.conductor_name }}</td>
+                <td class="text-right">{{ record.noOfTrip }}</td>
+                <td class="text-right">{{ record.totalOperated }}</td>
+                <td class="text-right">{{ record.kmAtBreakdown }}</td>
+                <td class="text-right">{{ record.lossKm }}</td>
                 <!-- <td>{{ record.totalOperated > 180 ? 0 : 180 - record.kmAtBreakdown }}</td> -->
-                <td>{{ record.placeOfBreakdown }}</td>
-                <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ record.stopTime }}</td>
-                <td>{{ record.causeOfBreakdown }}</td>
+                <td class="text-center">{{ record.placeOfBreakdown }}</td>
+                <td class="text-center">{{ record.date | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-center">{{ record.stopTime }}</td>
+                <td class="text-center">{{ record.causeOfBreakdown }}
                 <td>{{ record.remarks }}</td>
                 <td>
                   <button class="btn btn-sm btn-primary mr-1" (click)="open_breakdown_form()" title="Edit">
@@ -286,7 +276,7 @@
                 </td>
               </tr>
               <tr *ngIf="BreakdownData.length === 0">
-                <td colspan="13" class="text-center text-muted">No breakdown records found</td>
+                <td colspan="17" class="text-center text-muted align-middle">No breakdown records found</td>
               </tr>
             </tbody>
           </table>

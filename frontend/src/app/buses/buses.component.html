@@ -10,13 +10,13 @@
     <div class="container-fluid">
       <div class="row mb-2 d-flex align-items-center">
         <div class="col-sm-6">
-          <h1 class="m-0">Vehicle Info</h1>
+          <h3 class="m-0">VEHICLE INFO</h3>
         </div>
         <!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item active">
-              <button class="btn btn-default" data-toggle="modal" data-target="#formModal" (click)="openNewDialog()">
+              <button class="btn btn-primary" data-toggle="modal" data-target="#formModal" (click)="openNewDialog()">
                 <i class="fas fa-plus"></i> New Bus
               </button>
             </li>
@@ -36,19 +36,20 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div>
-            <div class="d-flex align-items-end gap-2 mb-3 filter-bar">
+            <div class="d-flex align-items-end gap-2 mb-4">
               <div class="form-group mb-0">
-                <label class="form-label fw-semibold">Select Date</label>
+                <label class="form-label fw-bold small mb-1">Select Date</label>
                 <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate"
-                  max="{{ today | date: 'yyyy-MM-dd' }}" />
+                  [max]="today | date: 'yyyy-MM-dd'" style="height: 38px;">
               </div>
 
-              <button class="btn btn-success premium-btn" (click)="getBuses()">
-                <i class="fas fa-search me-1"></i> Get
+              <button class="btn btn-success premium-btn d-flex align-items-center justify-content-center"
+                (click)="getBuses()" style="height: 38px; padding: 0 20px;">
+                <i class="fas fa-search me-2"></i> Get Buses
               </button>
             </div>
 
-            <table class="table table-hover professional-table">
+            <table class="table table-hover table-responsive text-nowrap align-middle">
               <thead class="professional-thead">
                 <tr>
                   <th>#</th>
@@ -75,15 +76,15 @@
           'row-finished': data.currentStatus === 'finished'
         }">
 
-                  <td>{{ i + 1 }}</td>
-                  <td class="font-weight-bold">{{ data.busName }}</td>
-                  <td>{{ data.busNo }}</td>
-                  <td>{{ data.driverId || '-' }}</td>
-                  <td>{{ data.driverName || '-' }}</td>
-                  <td>{{ data.driverContactNo || '-' }}</td>
+                  <td class="align-middle">{{ i + 1 }}</td>
+                  <td class="font-weight-bold align-middle">{{ data.busName }}</td>
+                  <td class="align-middle">{{ data.busNo }}</td>
+                  <td class="align-middle">{{ data.driverId || '-' }}</td>
+                  <td class="align-middle">{{ data.driverName || '-' }}</td>
+                  <td class="align-middle">{{ data.driverContactNo || '-' }}</td>
 
                   <!-- Conductor -->
-                  <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+                  <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }" class="align-middle">
                     <div class="d-flex align-items-center gap-2">
                       <span>{{ data.conductorId || '-' }}</span>
 
@@ -102,13 +103,13 @@
                     </div>
                   </td>
 
-                  <td>{{ data.conductorName || '-' }}</td>
-                  <td>{{ data.conductorContactNo || '-' }}</td>
-                  <td>{{ data.routeDepot || '-' }}</td>
-                  <td>{{ data.routeNo || '-' }}</td>
+                  <td class="align-middle">{{ data.conductorName || '-' }}</td>
+                  <td class="align-middle">{{ data.conductorContactNo || '-' }}</td>
+                  <td class="align-middle">{{ data.routeDepot || '-' }}</td>
+                  <td class="align-middle">{{ data.routeNo || '-' }}</td>
 
 
-                  <td>
+                  <td class="align-middle">
                     <label class="switch">
                       <input type="checkbox" [checked]="data.isFixed === 'yes'" (change)="toggleFixed(data, $event)">
                       <span class="slider"></span>
@@ -123,7 +124,7 @@
                   </td>
 
                   <!-- Status -->
-                  <td>
+                  <td class="align-middle">
                     <span class="status-badge" [ngClass]="{
                 'status-running': getStatus(data) === 'running',
                 'status-still': getStatus(data) === 'still',
@@ -147,7 +148,7 @@
                   </td>
 
                   <!-- Actions -->
-                  <td class="text-center action-cell">
+                  <td class="text-center action-cell align-middle">
 
                     <div class="btn-group mb-2">
                       <button class="btn btn-light btn-sm" data-toggle="modal" data-target="#viewModal"
