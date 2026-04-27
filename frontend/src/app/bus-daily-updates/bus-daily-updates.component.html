@@ -1,73 +1,51 @@
-<div class="content-wrapper">
+<div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center my-5 fade-in">
+    <div class="spinner-grow text-success" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+    <p class="mt-3 text-muted fw-semibold small text-uppercase tracking-wider">
+        Fetching Bus Data...
+    </p>
+</div>
+
+<div class="content-wrapper p-1">
     <!-- Content Header (Page header) -->
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2 align-items-center">
-                <div class="col-sm-6">
-                    <h3 class="m-0">EARNING RECORDS</h3>
-                </div><!-- /.col -->
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item active"><a href="#">Home</a></li>
-                    </ol>
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+    <div class="content-header w-100">
+        <div class="d-flex row mb-1 px-0 align-items-center w-100 justify-content-between">
+            <div class="d-flex col-md-3 justify-content-start">
+                <h3 class="m-0">EARNING RECORDS</h3>
+            </div><!-- /.col -->
+
+            <div class="d-flex col-md-6 justify-content-center">
+                <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id="">
+                <span class="px-2 d-flex align-items-center">to</span>
+                <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id="">
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button class="btn btn-info" (click)="search()"> <i class="fas fa-search" style="color:aliceblue"></i>
+                    Search
+                </button>
+            </div>
+
+            <div class="d-flex col-md-3 justify-content-end">
+                <button class="btn btn-success" (click)="downloadExcel()" [disabled]="isExportingExcel">
+                    <ng-container *ngIf="!isExportingExcel; else excelLoading">
+                        <i class="fas fa-download" style="color:aliceblue"></i> Download Excel
+                    </ng-container>
+
+                    <ng-template #excelLoading>
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Generating Excel...
+                    </ng-template>
+                </button>
+            </div><!-- /.col -->
+
+        </div><!-- /.row -->
     </div>
     <!-- /.content-header -->
 
     <!-- Main content -->
     <section class="content card">
         <div class="container-fluid mt-4">
-
-            <div class="d-flex align-items-center justify-content-end w-100 p-2">
-                <div class="d-flex">
-                    <input type="date" class="form-control col-2" [(ngModel)]="dateFrom" name="dateFrom" id=""> <span
-                        class="px-2 d-flex align-items-center">to</span>
-                    <input type="date" class="form-control col-2" [(ngModel)]="dateTo" name="dateTo" id="">
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button class="btn btn-info" (click)="search()"> <i class="fas fa-search"
-                            style="color:aliceblue"></i>
-                        Search
-                    </button>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-end w-100 p-2">
-                    <!-- PDF -->
-                    <!-- <button
-                  class="btn btn-primary"
-                  (click)="downloadPDF()"
-                  [disabled]="isExportingPDF"
-                >
-                  <ng-container *ngIf="!isExportingPDF; else pdfLoading">
-                    <i class="fas fa-download"
-                    style="color:aliceblue"></i> Download PDF
-                  </ng-container>
-
-                  <ng-template #pdfLoading>
-                    <span
-                      class="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Generating PDF...
-                  </ng-template>
-                </button> &nbsp;&nbsp; -->
-
-                    <!-- Excel -->
-                    <button class="btn btn-success" (click)="downloadExcel()" [disabled]="isExportingExcel">
-                        <ng-container *ngIf="!isExportingExcel; else excelLoading">
-                            <i class="fas fa-download" style="color:aliceblue"></i> Download Excel
-                        </ng-container>
-
-                        <ng-template #excelLoading>
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            Generating Excel...
-                        </ng-template>
-                    </button>
-                </div>
-
-            </div>
 
             <!-- <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
                         style="color:aliceblue"></i> Download CSV</button> &nbsp;&nbsp;&nbsp;
@@ -81,7 +59,7 @@
                 <table class="table table-hover text-nowrap table-responsive align-middle" id="dataTable">
 
                     <thead class="professional-thead bg-dark text-white">
-                        <tr class="text-center align-middle" >
+                        <tr class="text-center align-middle">
                             <th>#</th>
                             <th>DATE</th>
                             <th>VEHICLE NO</th>
@@ -139,7 +117,8 @@
                             <td class="text-right align-middle">{{ value.upi }}</td>
                             <td class="text-right align-middle">{{ value.additionalAmount }}</td>
 
-                            <td class="text-right font-weight-bold text-success align-middle">{{ value.netAmountDeposited }}</td>
+                            <td class="text-right font-weight-bold text-success align-middle">{{
+                                value.netAmountDeposited }}</td>
                             <td class="text-right align-middle">{{ value.tragetedEarning }}</td>
                             <td class="text-right text-danger align-middle">{{ value.amountToBeDeposited }}</td>
 
@@ -172,8 +151,6 @@
                 </table>
 
             </div>
-
-
 
             <div class="modal fade" id="deleteModal" tabindex="-1">
                 <div class="modal-dialog modal-sm">

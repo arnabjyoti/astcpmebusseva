@@ -13,6 +13,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
+
+  isLoading: boolean = false;
+
   constructor(
     private appService: AppService,
     private http: HttpClient,

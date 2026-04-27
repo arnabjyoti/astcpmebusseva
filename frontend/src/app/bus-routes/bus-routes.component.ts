@@ -6,6 +6,7 @@ import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
 import { ToastrService } from "ngx-toastr";
 import { Router } from '@angular/router';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-bus-routes',
@@ -229,6 +230,28 @@ export class BusRoutesComponent {
     return Number(a) + Number(b) + Number(c);
   
   }
+
+  downloadRecord = () => {
+    const dataTOExport = this.busRoutesList.map((route: any) => ({
+      depot: route.depot,
+      start: route.start,
+      end: route.end,
+      via: route.via,
+      routeNo: route.routeNo,
+      routeName: route.routeName,
+      routeDistance: route.routeDistance,
+      depot_to_start_distance: route.depot_to_start_distance,
+      end_to_depot_distance: route.end_to_depot_distance,
+      estimated_collection: route.estimated_collection,
+      status: route.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataTOExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bus Routes");
+    XLSX.writeFile(wb, "bus_routes.xlsx");
+  }
+
 }
 
 

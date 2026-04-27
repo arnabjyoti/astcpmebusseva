@@ -1,313 +1,328 @@
-<div class="content-wrapper">
-    <div class="content-header" style="background-color:rgb(230, 227, 224)">
-        <div class="container-fluid">
-            <div class="row mb-2 align-items-center">
-                <div class="col-sm-6">
-                    <h3 class="m-0">DRIVER DETAILS</h3>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item active" style="display: flex; gap: 5px;">
-                            <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal"
-                                (click)="openNewDriverDialog()">
-                                <i class="fas fa-download"></i> Download Records
-                            </button>
-                            <button *ngIf="activeTabName == 'Driver'" class="btn btn-primary btn-sm" data-toggle="modal"
-                                data-target="#formModal" (click)="openNewDriverDialog()">
-                                <i class="fas fa-plus"></i> New Driver
-                            </button>
-                        </li>
-                    </ol>
+<div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center my-5 fade-in">
+    <div class="spinner-grow text-success" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+    <p class="mt-3 text-muted fw-semibold small text-uppercase tracking-wider">
+        Fetching Bus Data...
+    </p>
+</div>
+
+<div *ngIf="!isLoading">
+
+    <div class="content-wrapper p-1">
+        <div class="content-header" style="background-color:rgb(230, 227, 224)">
+            <div class="container-fluid">
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-6">
+                        <h3 class="m-0">DRIVER DETAILS</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item active" style="display: flex; gap: 5px;">
+                                <button class="btn btn-success btn-sm" (click)="downloadRecords()">
+                                    <i class="fas fa-download"></i> Download Records
+                                </button>
+                                <button *ngIf="activeTabName == 'Driver'" class="btn btn-primary btn-sm"
+                                    data-toggle="modal" data-target="#formModal" (click)="openNewDriverDialog()">
+                                    <i class="fas fa-plus"></i> New Driver
+                                </button>
+                            </li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <section class="content card p-2">
-        <div class="container-fluid">
+        <section class="content card p-2">
+            <div class="container-fluid">
 
-            <div class="tab-content">
+                <div class="tab-content">
 
-                <div class="row">
-                    <div class="col-lg-12 col-12">
-                        <div class="table-responsive">
-                            <table class="table table-bordered text-nowrap align-middle">
-                                <thead>
-                                    <tr style="background-color: #adbccb;">
-                                        <th>#</th>
-                                        <th>ID</th>
-                                        <th>NAME</th>
-                                        <th>LICENSE</th>
-                                        <th>VALIDITY</th>
-                                        <th>PAN</th>
-                                        <th>AADHAAR</th>
-                                        <th>VOTER ID</th>
-                                        <th>CONTACT</th>
-                                        <th>ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let data of driverList; let i = index"
-                                        style="background-color: #b0b5ba;">
-                                        <td>{{ i + 1 }}</td>
-                                        <td>{{ data.driver_id }}</td>
-                                        <td>{{ data.driver_name }}</td>
-                                        <td>{{ data.license_no }} </td>
-                                        <td>{{ data.license_validity }}</td>
-                                        <td>{{ data.pan }}</td>
-                                        <td>{{ data.aadhar }}</td>
-                                        <td>{{ data.voter }}</td>
-                                        <td>{{ data.contact_no }}</td>
-                                        <td>
-                                            <div style="display: flex; gap: 5px;">
-                                                <button class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#viewModal" (click)="viewDriverData(i)">
-                                                    <i class="fa fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#formModal" (click)="openEditDriverDialog(data)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#deleteDriverModal"
-                                                    (click)="openConfirmationDialog(data)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                <button class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#blockDriverModal"
-                                                    (click)="openConfirmationDialog(data)">
-                                                    <i class="fas fa-ban"></i>
+                    <div class="row">
+                        <div class="col-lg-12 col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-nowrap align-middle">
+                                    <thead>
+                                        <tr style="background-color: #adbccb;">
+                                            <th>#</th>
+                                            <th>ID</th>
+                                            <th>NAME</th>
+                                            <th>LICENSE</th>
+                                            <th>VALIDITY</th>
+                                            <th>PAN</th>
+                                            <th>AADHAAR</th>
+                                            <th>VOTER ID</th>
+                                            <th>CONTACT</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let data of driverList; let i = index"
+                                            style="background-color: #b0b5ba;">
+                                            <td>{{ i + 1 }}</td>
+                                            <td>{{ data.driver_id }}</td>
+                                            <td>{{ data.driver_name }}</td>
+                                            <td>{{ data.license_no }} </td>
+                                            <td>{{ data.license_validity }}</td>
+                                            <td>{{ data.pan }}</td>
+                                            <td>{{ data.aadhar }}</td>
+                                            <td>{{ data.voter }}</td>
+                                            <td>{{ data.contact_no }}</td>
+                                            <td>
+                                                <div style="display: flex; gap: 5px;">
+                                                    <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#viewModal" (click)="viewDriverData(i)">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#formModal" (click)="openEditDriverDialog(data)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#deleteDriverModal"
+                                                        (click)="openConfirmationDialog(data)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <button class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#blockDriverModal"
+                                                        (click)="openConfirmationDialog(data)">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="modal fade" id="formModal" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                        <div class="modal-content shadow border-0 rounded">
+
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    {{ isEdit ? 'Edit Driver' : 'Add Driver' }}
+                                                </h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    &times;
                                                 </button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
 
-                            <div class="modal fade" id="formModal" tabindex="-1" role="dialog">
-                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                    <div class="modal-content shadow border-0 rounded">
+                                            <div class="modal-body">
+                                                <form #driverForm="ngForm" novalidate>
 
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">
-                                                {{ isEdit ? 'Edit Driver' : 'Add Driver' }}
-                                            </h5>
-                                            <button type="button" class="close" data-dismiss="modal">
-                                                &times;
-                                            </button>
+                                                    <div class="row">
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Driver ID *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.driver_id" name="driver_id" required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Driver Name *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.driver_name" name="driver_name"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>License No *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.license_no" name="license_no"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>License Validity *</label>
+                                                            <input type="date" class="form-control"
+                                                                [(ngModel)]="form1.license_validity"
+                                                                name="license_validity" required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Contact No *</label>
+                                                            <input type="number" class="form-control"
+                                                                [(ngModel)]="form1.contact_no" name="contact_no"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>AADHAAR *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.aadhar" name="aadhar" maxlength="12"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>PAN No *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.pan" name="pan" required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Voter ID *</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.voter" name="voter" required>
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Address</label>
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="form1.address" name="address">
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Driver Photo</label>
+                                                            <input type="file" class="form-control"
+                                                                (change)="onPhotoChange($event)">
+                                                        </div>
+
+                                                        <div class="col-md-12" *ngIf="imagePreview">
+                                                            <label>Preview</label><br>
+                                                            <img [src]="imagePreview"
+                                                                style="width:120px;height:120px;object-fit:cover;border:1px solid #ccc;">
+                                                        </div>
+
+                                                    </div>
+
+                                                </form>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button class="btn btn-warning" data-dismiss="modal">
+                                                    Cancel
+                                                </button>
+
+                                                <button *ngIf="!isEdit" class="btn btn-primary"
+                                                    [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
+                                                    data-dismiss="modal">
+                                                    Save
+                                                </button>
+
+                                                <button *ngIf="isEdit" class="btn btn-success" (click)="updateData()"
+                                                    data-dismiss="modal">
+                                                    Update
+                                                </button>
+                                            </div>
+
                                         </div>
-
-                                        <div class="modal-body">
-                                            <form #driverForm="ngForm" novalidate>
-
-                                                <div class="row">
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Driver ID *</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.driver_id" name="driver_id" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Driver Name *</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.driver_name" name="driver_name" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>License No *</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.license_no" name="license_no" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>License Validity *</label>
-                                                        <input type="date" class="form-control"
-                                                            [(ngModel)]="form1.license_validity" name="license_validity"
-                                                            required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Contact No *</label>
-                                                        <input type="number" class="form-control"
-                                                            [(ngModel)]="form1.contact_no" name="contact_no" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>AADHAAR *</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.aadhar" name="aadhar" maxlength="12"
-                                                            required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>PAN No *</label>
-                                                        <input type="text" class="form-control" [(ngModel)]="form1.pan"
-                                                            name="pan" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Voter ID *</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.voter" name="voter" required>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Address</label>
-                                                        <input type="text" class="form-control"
-                                                            [(ngModel)]="form1.address" name="address">
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <label>Driver Photo</label>
-                                                        <input type="file" class="form-control"
-                                                            (change)="onPhotoChange($event)">
-                                                    </div>
-
-                                                    <div class="col-md-12" *ngIf="imagePreview">
-                                                        <label>Preview</label><br>
-                                                        <img [src]="imagePreview"
-                                                            style="width:120px;height:120px;object-fit:cover;border:1px solid #ccc;">
-                                                    </div>
-
-                                                </div>
-
-                                            </form>
-                                        </div>
-
-                                        <div class="modal-footer">
-                                            <button class="btn btn-warning" data-dismiss="modal">
-                                                Cancel
-                                            </button>
-
-                                            <button *ngIf="!isEdit" class="btn btn-primary"
-                                                [disabled]="driverForm.invalid" (click)="saveData(driverForm)"
-                                                data-dismiss="modal">
-                                                Save
-                                            </button>
-
-                                            <button *ngIf="isEdit" class="btn btn-success" (click)="updateData()"
-                                                data-dismiss="modal">
-                                                Update
-                                            </button>
-                                        </div>
-
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="modal fade" id="viewModal" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">View Details</h5>
-                                            <button type="button" class="close" data-dismiss="modal">
-                                                &times;
-                                            </button>
-                                        </div>
-                                        <div class="modal-body" *ngIf="selectedData">
-                                            <div class="container-fluid">
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <table class="table table-borderless table-sm mb-0">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <th class="text-muted w-50">ID</th>
-                                                                    <td>{{ selectedData.driver_id }}</td>
-                                                                </tr>
+                                <div class="modal fade" id="viewModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">View Details</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                            <div class="modal-body" *ngIf="selectedData">
+                                                <div class="container-fluid">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <table class="table table-borderless table-sm mb-0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th class="text-muted w-50">ID</th>
+                                                                        <td>{{ selectedData.driver_id }}</td>
+                                                                    </tr>
 
-                                                                <tr>
-                                                                    <th class="text-muted w-50">Name</th>
-                                                                    <td>{{ selectedData.driver_name }}</td>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th class="text-muted w-50">Name</th>
+                                                                        <td>{{ selectedData.driver_name }}</td>
+                                                                    </tr>
 
-                                                                <tr>
-                                                                    <th class="text-muted">Contact No</th>
-                                                                    <td>{{ selectedData.contact_no }}</td>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th class="text-muted">Contact No</th>
+                                                                        <td>{{ selectedData.contact_no }}</td>
+                                                                    </tr>
 
-                                                                <tr>
-                                                                    <th class="text-muted">AADHAAR</th>
-                                                                    <td>{{ selectedData.aadhar }}</td>
-                                                                </tr>
-                                                                
-                                                                <tr>
-                                                                    <th class="text-muted">PAN No</th>
-                                                                    <td>{{ selectedData.pan }}</td>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th class="text-muted">AADHAAR</th>
+                                                                        <td>{{ selectedData.aadhar }}</td>
+                                                                    </tr>
 
-                                                                <tr>
-                                                                    <th class="text-muted">Voter ID</th>
-                                                                    <td>{{ selectedData.voter }}</td>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th class="text-muted">PAN No</th>
+                                                                        <td>{{ selectedData.pan }}</td>
+                                                                    </tr>
 
-                                                                <tr>
-                                                                    <th class="text-muted">License</th>
-                                                                    <td>{{ selectedData.license_no }}</td>
-                                                                </tr>
-                                                                
-                                                                <tr>
-                                                                    <th class="text-muted">License Validity</th>
-                                                                    <td>{{ selectedData.license_validity }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th class="text-muted">Address</th>
-                                                                    <td>{{ selectedData.address }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
+                                                                    <tr>
+                                                                        <th class="text-muted">Voter ID</th>
+                                                                        <td>{{ selectedData.voter }}</td>
+                                                                    </tr>
 
-                                                    <div class="col-md-4 text-center">
-                                                        <label class="text-muted d-block mb-2">Photo</label>
+                                                                    <tr>
+                                                                        <th class="text-muted">License</th>
+                                                                        <td>{{ selectedData.license_no }}</td>
+                                                                    </tr>
 
-                                                        <img [src]="endpoint + '/docs/' + selectedData.photo"
-                                                            class="img-thumbnail shadow-sm" style="
+                                                                    <tr>
+                                                                        <th class="text-muted">License Validity</th>
+                                                                        <td>{{ selectedData.license_validity }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="text-muted">Address</th>
+                                                                        <td>{{ selectedData.address }}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                        <div class="col-md-4 text-center">
+                                                            <label class="text-muted d-block mb-2">Photo</label>
+
+                                                            <img [src]="endpoint + '/docs/' + selectedData.photo"
+                                                                class="img-thumbnail shadow-sm" style="
                                   width: 150px;
                                   height: 180px;
                                   object-fit: cover;
                                 " alt="Driver Photo" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="modal fade" id="deleteDriverModal" tabindex="-1">
-                                <div class="modal-dialog modal-sm">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h2 class="modal-title">Confirmation Message</h2>
-                                            <button type="button" class="close" data-dismiss="modal">
-                                                &times;
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h4>
-                                                Are you sure ! You want to delete driver
-                                                <strong><i>"{{ toBeDeletedDriverRecord.driver_name }}-{{
-                                                        toBeDeletedDriverRecord.contact_no
-                                                        }}"</i></strong>
-                                                ?
-                                            </h4>
-                                            <button type="button" class="btn btn-primary float-sm-right"
-                                                (click)="handleDeleteDriver()" data-dismiss="modal">
-                                                Yes
-                                            </button>
-                                            <button type="button" class="btn btn-default float-sm-right"
-                                                data-dismiss="modal">
-                                                No
-                                            </button>
+                                <div class="modal fade" id="deleteDriverModal" tabindex="-1">
+                                    <div class="modal-dialog modal-sm">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h2 class="modal-title">Confirmation Message</h2>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h4>
+                                                    Are you sure ! You want to delete driver
+                                                    <strong><i>"{{ toBeDeletedDriverRecord.driver_name }}-{{
+                                                            toBeDeletedDriverRecord.contact_no
+                                                            }}"</i></strong>
+                                                    ?
+                                                </h4>
+                                                <button type="button" class="btn btn-primary float-sm-right"
+                                                    (click)="handleDeleteDriver()" data-dismiss="modal">
+                                                    Yes
+                                                </button>
+                                                <button type="button" class="btn btn-default float-sm-right"
+                                                    data-dismiss="modal">
+                                                    No
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 </div>

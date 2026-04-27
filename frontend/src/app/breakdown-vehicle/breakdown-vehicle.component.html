@@ -1,6 +1,6 @@
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
-  <div class="content-header">
+  <div class="content-header" *ngIf="!isOpen_form">
     <div class="container-fluid">
       <div class="row mb-0 px-2 align-items-center justify-content-between">
         <div class="col-sm-6">
@@ -23,7 +23,7 @@
       <!-- Breakdown Vehicle Form -->
       <div class="breakdown-form-container breakdown_form" id="vehicle_breakdown_form" *ngIf="isOpen_form">
         <div class="form-header">
-          <h4>Update Vehicle Breakdown Form</h4>
+          <h4>UPDATE BREAKDOWN VEHICLE</h4>
           <button type="button" class="close" aria-label="Close" (click)="close_breakdown_form()">
             <span aria-hidden="true">&times;</span>
           </button>
