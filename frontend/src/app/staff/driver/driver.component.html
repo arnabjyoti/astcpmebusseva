@@ -40,8 +40,8 @@
 
                     <div class="row">
                         <div class="col-lg-12 col-12">
-                            <div class="table-responsive">
-                                <table class="table table-bordered text-nowrap align-middle">
+                            <div class="p-1">
+                                <table class="table table-bordered text-nowrap table-responsive align-middle">
                                     <thead>
                                         <tr style="background-color: #adbccb;">
                                             <th>#</th>
@@ -92,7 +92,35 @@
                                             </td>
                                         </tr>
                                     </tbody>
+
                                 </table>
+
+                                <!-- Table Pagination Section -->
+                                <div class="pagination-container">
+                                    <div class="pagination-info pl-2">
+                                        <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                                    </div>
+
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination mb-0">
+                                            <li class="page-item">
+                                                <a class="page-link" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            <li class="page-item">
+                                                <a class="page-link">{{ 0 }}</a>
+                                            </li>
+
+                                            <li class="page-item">
+                                                <a class="page-link" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
 
                                 <div class="modal fade" id="formModal" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">

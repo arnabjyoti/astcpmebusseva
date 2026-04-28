@@ -2,7 +2,7 @@
     <div class="spinner-grow text-success" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Loading...</span>
     </div>
-    
+
     <p class="mt-3 text-muted fw-semibold small text-uppercase tracking-wider">
         Fetching Bus Data...
     </p>
@@ -25,8 +25,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item active" style="display: flex; gap: 5px;">
-                                <button class="btn btn-success btn-sm"
-                                    (click)="downloadRecords()">
+                                <button class="btn btn-success btn-sm" (click)="downloadRecords()">
                                     <i class="fas fa-download"></i> Download Records
                                 </button>
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#conductorModal"
@@ -55,8 +54,8 @@
                     <div class="row">
                         <div class="col-lg-12 col-12">
                             <div>
-                                <div #reportSection id="reportSection" class="table-responsive">
-                                    <table class="table table-bordered text-nowrap align-middle">
+                                <div #reportSection id="reportSection" class="p-1">
+                                    <table class="table table-bordered table-responsive text-nowrap align-middle">
                                         <thead>
                                             <tr style="background-color: #adbccb;">
                                                 <th>#</th>
@@ -121,6 +120,34 @@
                                             </tr>
                                         </tbody>
                                     </table>
+
+                                    <!-- Table Pagination Section -->
+                                    <div class="pagination-container">
+                                        <div class="pagination-info pl-2">
+                                            <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                                        </div>
+
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0">
+                                                <li class="page-item">
+                                                    <a class="page-link" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+
+                                                <li class="page-item">
+                                                    <a class="page-link">{{ 0 }}</a>
+                                                </li>
+
+                                                <li class="page-item">
+                                                    <a class="page-link" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+
                                 </div>
 
 
@@ -166,8 +193,8 @@
                                                         <div class="col-md-6 mb-3">
                                                             <label>License No *</label>
                                                             <input type="text" class="form-control"
-                                                                [(ngModel)]="form2.license_no"
-                                                                name="conductorLicenseNo" required>
+                                                                [(ngModel)]="form2.license_no" name="conductorLicenseNo"
+                                                                required>
                                                         </div>
 
                                                         <!-- License Validity -->
@@ -182,8 +209,8 @@
                                                         <div class="col-md-6 mb-3">
                                                             <label>AADHAAR *</label>
                                                             <input type="text" class="form-control"
-                                                                [(ngModel)]="form2.aadhar" name="aadhar"
-                                                                maxlength="12" required>
+                                                                [(ngModel)]="form2.aadhar" name="aadhar" maxlength="12"
+                                                                required>
                                                         </div>
 
                                                         <!-- PAN -->

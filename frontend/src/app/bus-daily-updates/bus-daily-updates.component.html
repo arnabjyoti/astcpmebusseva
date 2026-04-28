@@ -45,7 +45,7 @@
 
     <!-- Main content -->
     <section class="content card">
-        <div class="container-fluid mt-4">
+        <div class="container-fluid mt-4 p-1">
 
             <!-- <button class="btn btn-secondary mb-3" (click)="downloadCSV()"><i class="fas fa-download"
                         style="color:aliceblue"></i> Download CSV</button> &nbsp;&nbsp;&nbsp;
@@ -71,6 +71,7 @@
                             <th>OMR</th>
                             <th>CMR</th>
                             <th>TOTAL KMS</th>
+                            <th>LOSS KMS</th>
                             <th>TRIPS</th>
                             <th>CHALO PAX</th>
                             <th>CHALO TKT</th>
@@ -107,6 +108,7 @@
                             <td class="text-right align-middle">{{ value.omr }}</td>
                             <td class="text-right align-middle">{{ value.cmr }}</td>
                             <td class="text-right font-weight-bold align-middle">{{ value.totalOperated }}</td>
+                            <td class="text-right font-weight-bold align-middle">{{ value.LossKm }}</td>
 
                             <td class="text-center align-middle">{{ value.noOfTrip }}</td>
                             <td class="text-center align-middle">{{ value.chaloPassengersNo }}</td>
@@ -149,6 +151,33 @@
                     </tbody>
 
                 </table>
+
+                <!-- Table Pagination Section -->
+                <div class="pagination-container">
+                    <div class="pagination-info pl-2">
+                        <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" >
+                                <a class="page-link" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <li class="page-item" >
+                                <a class="page-link" >{{ 0 }}</a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="page-link" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
 
             </div>
 
