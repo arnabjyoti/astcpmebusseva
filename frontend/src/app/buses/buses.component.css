@@ -30,6 +30,7 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-width: 100%;
 }
 
 .professional-thead {
@@ -54,6 +55,45 @@
 
 .professional-table tbody tr:hover {
   background-color: #f6f9fc;
+}
+
+.bus-table-shell {
+  width: 100%;
+}
+
+.vehicle-primary {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.vehicle-secondary {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.crew-line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: normal;
+}
+
+.crew-line + .crew-line {
+  margin-top: 8px;
+}
+
+.crew-role {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.crew-value {
+  color: #111827;
+  line-height: 1.2;
 }
 
 /* Status badges */
@@ -88,6 +128,71 @@
   background: transparent;
   border: none;
   padding: 2px 6px;
+}
+
+.details-toggle {
+  min-width: 78px;
+}
+
+.details-row td {
+  background-color: #f8fafc;
+  border-top: none;
+}
+
+.details-cell {
+  padding: 0 !important;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.details-block {
+  min-width: 0;
+  border: 1px solid #e5e7eb;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.details-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  /* color: #6b7280; */
+  color: #19191a;
+  margin-bottom: 10px;
+}
+
+.details-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid #e5e7eb;
+  white-space: normal;
+}
+
+.details-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.details-item span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.details-item strong {
+  color: #111827;
+  text-align: right;
+}
+
+.details-inline-action {
+  align-items: center;
 }
 /* ✅ Light row status colors */
 .row-running {
@@ -244,6 +349,12 @@ input:checked + .slider:before {
   .table thead th,
   .table tbody td {
     padding: 8px 6px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
   }
 
   .pagination-container {

@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 export class BusesComponent {
 
   isLoading: boolean = false;
+  expandedBusId: number | null = null;
 
   constructor(
     private appService: AppService,
@@ -571,6 +572,10 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   }
 
   today = new Date().toISOString().split('T')[0];
+
+  toggleDetails(busId: number): void {
+    this.expandedBusId = this.expandedBusId === busId ? null : busId;
+  }
 
   getStatus(data: any): string {
     const today = new Date().toISOString().split('T')[0];
