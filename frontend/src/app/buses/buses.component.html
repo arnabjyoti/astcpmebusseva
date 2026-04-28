@@ -55,78 +55,65 @@
             </div>
 
             <div class="p-1">
-              <table class="table table-hover table-responsive text-nowrap align-middle">
+              <div class="table-responsive bus-table-shell">
+              <table class="table table-hover text-nowrap align-middle professional-table mb-0">
                 <thead class="professional-thead">
                   <tr>
                     <th>#</th>
-                    <th>Vehicle Name</th>
-                    <th>Vehicle No</th>
-                    <th>Driver ID</th>
-                    <th>Driver Name</th>
-                    <th>Driver Contact</th>
-                    <th>Conductor ID</th>
-                    <th>Conductor Name</th>
-                    <th>Conductor Contact</th>
-                    <th>Depot</th>
-                    <th>Route</th>
-                    <th>Fixed Vehicle</th>
-                    <th>Current Status</th>
+                    <th>Vehicle</th>
+                    <th>Crew</th>
+                    <th>Route / Depot</th>
+                    <th>Fixed ?</th>
+                    <th>Status</th>
+                    <th class="text-center">Details</th>
                     <th class="text-center">Action</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  <tr *ngFor="let data of busList; let i = index" [ngClass]="{
+                  <ng-container *ngFor="let data of busList; let i = index">
+                  <tr [ngClass]="{
           'row-running': data.currentStatus === 'running',
           'row-still': data.currentStatus === 'still',
           'row-finished': data.currentStatus === 'finished'
         }">
 
                     <td class="align-middle">{{ i + 1 }}</td>
-                    <td class="font-weight-bold align-middle">{{ data.busName }}</td>
-                    <td class="align-middle">{{ data.busNo }}</td>
-                    <td class="align-middle">{{ data.driverId || '-' }}</td>
-                    <td class="align-middle">{{ data.driverName || '-' }}</td>
-                    <td class="align-middle">{{ data.driverContactNo || '-' }}</td>
-
-                    <!-- Conductor -->
-                    <td [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }" class="align-middle">
-                      <div class="d-flex align-items-center gap-2">
-                        <span>{{ data.conductorId || '-' }}</span>
-
-                        <button class="btn btn-icon" *ngIf="data.conductor_actual_id; else conductorNotAllotted"
-                          data-toggle="modal" data-target="#conductorRemainModal"
-                          (click)="getRemainingAmountForConductor(i)">
-                          <i class="fa fa-eye"></i>
-                        </button>
-
-                        <ng-template #conductorNotAllotted>
-                          <span class="text-muted small">
-                            <i class="fas fa-exclamation-circle"></i>
-                            Not allotted
-                          </span>
-                        </ng-template>
+                    <td class="align-middle">
+                      <div class="vehicle-primary">{{ data.busName || '-' }}</div>
+                      <div class="vehicle-secondary">{{ data.busNo || '-' }}</div>
+                    </td>
+                    <td class="align-middle">
+                      <div class="crew-line">
+                        <span class="crew-role">Driver</span>
+                        <span class="crew-value">{{ data.driverName || '-' }}</span>
+                      </div>
+                      <div class="crew-line">
+                        <span class="crew-role">Conductor</span>
+                        <span class="crew-value" [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+                          {{ data.conductorName || '-' }}
+                        </span>
                       </div>
                     </td>
-
-                    <td class="align-middle">{{ data.conductorName || '-' }}</td>
-                    <td class="align-middle">{{ data.conductorContactNo || '-' }}</td>
-                    <td class="align-middle">{{ data.routeDepot || '-' }}</td>
-                    <td class="align-middle">{{ data.routeNo || '-' }}</td>
-
+                    <td class="align-middle">
+                      <div class="vehicle-primary">{{ data.routeNo || '-' }}</div>
+                      <div class="vehicle-secondary">{{ data.routeDepot || '-' }}</div>
+                    </td>
 
                     <td class="align-middle">
-                      <label class="switch">
-                        <input type="checkbox" [checked]="data.isFixed === 'yes'" (change)="toggleFixed(data, $event)">
-                        <span class="slider"></span>
-                      </label>
+                      <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <label class="switch mb-0">
+                          <input type="checkbox" [checked]="data.isFixed === 'yes'" (change)="toggleFixed(data, $event)">
+                          <span class="slider"></span>
+                        </label>
 
-                      <span class="status-badge" [ngClass]="{
-                'status-running': data.isFixed === 'yes',
-                'status-finished': data.isFixed === 'no'
-              }">
-                        {{ (data.isFixed || 'no') | titlecase }}
-                      </span>
+                        <!-- <span class="status-badge" [ngClass]="{
+                            'status-running': data.isFixed === 'yes',
+                            'status-finished': data.isFixed === 'no'
+                          }">
+                          {{ (data.isFixed || 'no') | titlecase }}
+                        </span> -->
+                      </div>
                     </td>
 
                     <!-- Status -->
@@ -151,6 +138,18 @@
                           From {{data.startDate | date}}
                         </small>
                       </div>
+                    </td>
+
+                    <td class="text-center align-middle">
+                      <button
+                        class="btn btn-outline-secondary btn-sm details-toggle"
+                        type="button"
+                        (click)="toggleDetails(data.id)"
+                        [attr.aria-expanded]="expandedBusId === data.id"
+                      >
+                        <i class="fas" [ngClass]="expandedBusId === data.id ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        <span class="ml-1">{{ expandedBusId === data.id ? 'Hide' : 'View' }}</span>
+                      </button>
                     </td>
 
                     <!-- Actions -->
@@ -205,8 +204,52 @@
 
                     </td>
                   </tr>
+                  <tr *ngIf="expandedBusId === data.id" class="details-row">
+                    <td colspan="8" class="details-cell">
+                      <div class="details-grid">
+                        <div class="details-block">
+                          <div class="details-title">Driver</div>
+                          <div class="details-item"><span>ID</span><strong>{{ data.driverId || '-' }}</strong></div>
+                          <div class="details-item"><span>Name</span><strong>{{ data.driverName || '-' }}</strong></div>
+                          <div class="details-item"><span>Contact</span><strong>{{ data.driverContactNo || '-' }}</strong></div>
+                        </div>
+
+                        <div class="details-block">
+                          <div class="details-title">Conductor</div>
+                          <div class="details-item">
+                            <span>ID</span>
+                            <strong [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+                              {{ data.conductorId || '-' }}
+                            </strong>
+                          </div>
+                          <div class="details-item"><span>Name</span><strong>{{ data.conductorName || '-' }}</strong></div>
+                          <div class="details-item"><span>Contact</span><strong>{{ data.conductorContactNo || '-' }}</strong></div>
+                          <div class="details-item details-inline-action">
+                            <span>Pending Amount</span>
+                            <button class="btn btn-icon" *ngIf="data.conductor_actual_id; else conductorNotAllotted"
+                              data-toggle="modal" data-target="#conductorRemainModal"
+                              (click)="getRemainingAmountForConductor(i)">
+                              <i class="fa fa-eye"></i>
+                            </button>
+                            <ng-template #conductorNotAllotted>
+                              <strong class="text-muted">Not allotted</strong>
+                            </ng-template>
+                          </div>
+                        </div>
+
+                        <div class="details-block">
+                          <div class="details-title">Assignment</div>
+                          <div class="details-item"><span>Depot</span><strong>{{ data.routeDepot || data.baseDepot || '-' }}</strong></div>
+                          <div class="details-item"><span>Route</span><strong> {{ data.routeNo || '-' }}</strong></div>
+                          <div class="details-item"><span>Bus No</span><strong>{{ data.busNo || '-' }}</strong></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </ng-container>
                 </tbody>
               </table>
+              </div>
 
               <!-- Table Pagination Section -->
               <div class="pagination-container">

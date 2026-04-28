@@ -246,7 +246,7 @@ export class DailyUpdateFormComponent {
           await this.downloadPdf();
           this.showPreview = false;
 
-          this.router.navigate(['/buses']);
+          this.navigateToBuses();
           this.toastr.success('Added Successfully', 'Success');
 
           this.isSaving = false; // ✅ stop loader
@@ -293,7 +293,7 @@ export class DailyUpdateFormComponent {
         // this.getBuses();
         // this.form = { ...this.originalForm };
 
-        this.router.navigate(['/buses']);
+        this.navigateToBuses();
 
         this.toastr.success('Added Successfully', 'Success');
       },
@@ -336,7 +336,7 @@ export class DailyUpdateFormComponent {
 
         $('#exampleModal').modal('hide'); // ✅ close AFTER download
 
-        this.router.navigate(['/buses']);
+        this.navigateToBuses();
 
         this.toastr.success('Updated Successfully', 'Success');
 
@@ -432,6 +432,10 @@ export class DailyUpdateFormComponent {
         reject(err);
       }
     });
+  }
+
+  private navigateToBuses() {
+    this.router.navigate(['/buses']);
   }
 
   getCurrentISTTime = () => {
