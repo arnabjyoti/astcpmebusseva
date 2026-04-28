@@ -24,6 +24,11 @@ export class BusesComponent {
   warningPendingAmount: number = 0;
   isPendingAmountLoading: boolean = false;
   isPendingAmountCheckLoading: boolean = false;
+  searchTerm: string = '';
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalRecords: number = 0;
+  totalPages: number = 0;
   private pendingTripProceedAction: (() => void) | null = null;
 
   constructor(
@@ -196,14 +201,23 @@ export class BusesComponent {
 
 dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
-    const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
+    const params = new URLSearchParams({
+      date: this.dataForDate,
+      page: String(this.currentPage),
+      limit: String(this.pageSize),
+      search: this.searchTerm.trim(),
+    });
+    const ENDPOINT = `${environment.BASE_URL}/api/getBusList?${params.toString()}`;
     this.isLoading = true;
     this.loadingMessage = 'Fetching Bus Master...';
 
     this.http.get(ENDPOINT).subscribe(
-      (response) => {
+      (response: any) => {
         console.log('busList response ', response);
-        this.busList = response;
+        this.busList = response?.rows || [];
+        this.totalRecords = Number(response?.pagination?.total || 0);
+        this.totalPages = Number(response?.pagination?.totalPages || 0);
+        this.currentPage = Number(response?.pagination?.page || this.currentPage);
         this.dateForStatus = this.dataForDate;
       },
       (error) => {
@@ -217,6 +231,46 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       }
     );
   };
+
+  applySearch(): void {
+    this.currentPage = 1;
+    this.getBuses();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.getBuses();
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.getBuses();
+  }
+
+  getStartEntry(): number {
+    if (!this.totalRecords) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  getEndEntry(): number {
+    if (!this.totalRecords) {
+      return 0;
+    }
+
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
+  }
+
+  getRowNumber(index: number): number {
+    return (this.currentPage - 1) * this.pageSize + index + 1;
+  }
 
   getDriver = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getDriver`;
@@ -464,17 +518,20 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     }
 
     this.validateConductorPendingAmountBeforeTrip(() => {
+      this.closeModalAndCleanup('#addDetailsModal');
       this.saveCurrentScrollPosition();
 
-      this.router.navigate(['/daily-update'], {
-        queryParams: {
-          date: this.selectedDate,
-          busId: this.selectedData.id,
-          currentStatus: 'running',
-          noOfTrip: 0,
-          stopDate: this.dataForDate
-        },
-      });
+      setTimeout(() => {
+        this.router.navigate(['/daily-update'], {
+          queryParams: {
+            date: this.selectedDate,
+            busId: this.selectedData.id,
+            currentStatus: 'running',
+            noOfTrip: 0,
+            stopDate: this.dataForDate
+          },
+        });
+      }, 150);
     });
   }
 
@@ -632,7 +689,10 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       if (pendingAmount > this.conductorWarningPendingAmount) {
         this.warningPendingAmount = pendingAmount;
         this.pendingTripProceedAction = onAllowed;
-        this.openPendingAmountWarningModal();
+        this.closeModalAndCleanup('#addDetailsModal');
+        setTimeout(() => {
+          this.openPendingAmountWarningModal();
+        }, 150);
         return;
       }
 
@@ -646,21 +706,30 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
 
   closePendingAmountWarningModal(): void {
     this.pendingTripProceedAction = null;
-    $('#pendingAmountWarningModal').modal('hide');
+    this.closeModalAndCleanup('#pendingAmountWarningModal');
   }
 
   proceedAfterPendingAmountWarning(): void {
     const proceedAction = this.pendingTripProceedAction;
     this.pendingTripProceedAction = null;
-    $('#pendingAmountWarningModal').modal('hide');
+    this.closeModalAndCleanup('#pendingAmountWarningModal');
 
     if (proceedAction) {
-      proceedAction();
+      setTimeout(() => {
+        proceedAction();
+      }, 150);
     }
   }
 
   isBlockedConductor(status: string | undefined): boolean {
     return status === 'Block' || status === 'PendingBlock';
+  }
+
+  private closeModalAndCleanup(modalSelector: string): void {
+    $(modalSelector).modal('hide');
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
   }
 
   toggleDetails(busId: number): void {

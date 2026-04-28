@@ -1329,6 +1329,10 @@ module.exports = {
       await syncBlockedConductorsByPendingAmount();
 
       const reqDate = req.query.date;
+      const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+      const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+      const offset = (page - 1) * limit;
+      const search = (req.query.search || "").trim();
       let filterDate = null;
 
       if (reqDate) {
@@ -1337,6 +1341,43 @@ module.exports = {
       }
 
       console.log("filterDate", filterDate);
+
+      const searchFilter = search
+        ? ` AND (
+              bus.busName LIKE :search
+              OR bus.busNo LIKE :search
+            )`
+        : "";
+
+      const baseFromWhere = `
+FROM busMasters AS bus
+
+JOIN busRoutesMasters AS routes 
+  ON bus.allotedRouteNo = routes.id
+
+LEFT JOIN conductorMasters AS cm
+  ON cm.id = bus.conductorId
+
+LEFT JOIN driverMasters as dm
+  ON bus.driverId = dm.id
+
+LEFT JOIN (
+  SELECT d1.*
+  FROM dailyUpdates d1
+  INNER JOIN (
+      SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+      FROM dailyUpdates
+      GROUP BY busId
+  ) d2 
+  ON d1.busId = d2.busId 
+  AND d1.createdAt = d2.latestCreated
+) du 
+ON du.busId = bus.id
+
+WHERE bus.status = 'Active'
+  AND routes.status = 'Active'
+  ${searchFilter}
+`;
 
       const sql = `
 SELECT 
@@ -1401,51 +1442,45 @@ SELECT
     ORDER BY d2.date DESC
     LIMIT 1
   ) AS previousDailyUpdateId
-
-FROM busMasters AS bus
-
-JOIN busRoutesMasters AS routes 
-  ON bus.allotedRouteNo = routes.id
-
-LEFT JOIN conductorMasters AS cm
-  ON cm.id = bus.conductorId
-
-LEFT JOIN driverMasters as dm
-  ON bus.driverId = dm.id
-
-    LEFT JOIN (
-      SELECT d1.*
-      FROM dailyUpdates d1
-      INNER JOIN (
-          SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
-          FROM dailyUpdates
-          GROUP BY busId
-      ) d2 
-      ON d1.busId = d2.busId 
-      AND d1.createdAt = d2.latestCreated
-  ) du 
-  ON du.busId = bus.id
-
-WHERE bus.status = 'Active'
-  AND routes.status = 'Active'
-
-ORDER BY bus.id DESC;
+${baseFromWhere}
+ORDER BY bus.id DESC
+LIMIT :limit OFFSET :offset;
 `;
 
-      const replacements = { filterDate };
+      const countSql = `
+SELECT COUNT(*) AS total
+${baseFromWhere};
+`;
 
-      sequelize
-        .query(sql, {
+      const replacements = {
+        filterDate,
+        limit,
+        offset,
+        search: `%${search}%`,
+      };
+
+      const [bus, countResult] = await Promise.all([
+        sequelize.query(sql, {
           replacements,
           type: sequelize.QueryTypes.SELECT,
-        })
-        .then((bus) => {
-          return res.status(200).send(bus);
-        })
-        .catch((error) => {
-          console.error(error);
-          return res.status(400).send(error);
-        });
+        }),
+        sequelize.query(countSql, {
+          replacements,
+          type: sequelize.QueryTypes.SELECT,
+        }),
+      ]);
+
+      const total = Number(countResult?.[0]?.total || 0);
+
+      return res.status(200).send({
+        rows: bus,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).send({ message: "Failed to fetch bus list" });

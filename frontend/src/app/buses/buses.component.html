@@ -41,16 +41,34 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div *ngIf="!isLoading">
-            <div class="d-flex align-items-end gap-2 mb-4">
+            <div class="toolbar-row mb-4">
               <div class="form-group mb-0">
                 <label class="form-label fw-bold small mb-1">Select Date</label>
                 <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate"
                   [max]="today | date: 'yyyy-MM-dd'" style="height: 38px;">
               </div>
 
+              <div class="form-group mb-0 bus-search-group">
+                <label class="form-label fw-bold small mb-1">Search Vehicle</label>
+                <input
+                  type="text"
+                  class="form-control premium-input"
+                  [(ngModel)]="searchTerm"
+                  name="searchTerm"
+                  placeholder="Vehicle number or name"
+                  style="height: 38px;"
+                  (keyup.enter)="applySearch()"
+                >
+              </div>
+
               <button class="btn btn-success premium-btn d-flex align-items-center justify-content-center"
-                (click)="getBuses()" style="height: 38px; padding: 0 20px;">
-                <i class="fas fa-search me-2"></i> Get Buses
+                (click)="applySearch()" style="height: 38px; padding: 0 20px;">
+                <i class="fas fa-search me-2"></i> Search
+              </button>
+
+              <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                (click)="clearSearch()" style="height: 38px; padding: 0 20px;">
+                Clear
               </button>
             </div>
 
@@ -78,7 +96,7 @@
           'row-finished': data.currentStatus === 'finished'
         }">
 
-                    <td class="align-middle">{{ i + 1 }}</td>
+                    <td class="align-middle">{{ getRowNumber(i) }}</td>
                     <td class="align-middle">
                       <div class="vehicle-primary">{{ data.busName || '-' }}</div>
                       <div class="vehicle-secondary">{{ data.busNo || '-' }}</div>
@@ -260,24 +278,44 @@
               <!-- Table Pagination Section -->
               <div class="pagination-container">
                 <div class="pagination-info pl-2">
-                  <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                  <span>Showing {{ getStartEntry() }} to {{ getEndEntry() }} of {{ totalRecords }} entries</span>
                 </div>
 
                 <nav aria-label="Page navigation">
                   <ul class="pagination mb-0">
-                    <li class="page-item">
-                      <a class="page-link" aria-label="Previous">
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                      <a class="page-link" aria-label="First" (click)="changePage(1)">
+                        <span aria-hidden="true">First</span>
+                      </a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                      <a class="page-link" aria-label="Previous" (click)="changePage(currentPage - 1)">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                     </li>
 
-                    <li class="page-item">
-                      <a class="page-link">{{ 0 }}</a>
+                    <li class="page-item active">
+                      <a class="page-link">{{ currentPage }}</a>
                     </li>
 
-                    <li class="page-item">
-                      <a class="page-link" aria-label="Next">
+                    <li class="page-item" *ngIf="totalPages > currentPage + 1">
+                      <a class="page-link">...</a>
+                    </li>
+
+                    <li class="page-item" *ngIf="totalPages > currentPage">
+                      <a class="page-link" (click)="changePage(totalPages)">{{ totalPages }}</a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages || totalPages === 0 }">
+                      <a class="page-link" aria-label="Next" (click)="changePage(currentPage + 1)">
                         <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages || totalPages === 0 }">
+                      <a class="page-link" aria-label="Last" (click)="changePage(totalPages)">
+                        <span aria-hidden="true">Last</span>
                       </a>
                     </li>
                   </ul>
@@ -495,7 +533,7 @@
 
                     <!-- <p> -->
                     <div class="text-center">
-                      <button class="btn btn-primary" [disabled]="isPendingAmountCheckLoading" data-dismiss="modal" (click)="redirectToAddForm()">
+                      <button class="btn btn-primary" [disabled]="isPendingAmountCheckLoading" (click)="redirectToAddForm()">
                         <span *ngIf="!isPendingAmountCheckLoading">Start Trip</span>
                         <span *ngIf="isPendingAmountCheckLoading">Checking Pending Amount...</span>
                       </button>
@@ -510,7 +548,7 @@
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title text-warning">Pending Amount Warning</h5>
+                    <h5 class="modal-title ">Pending Amount Warning</h5>
                     <button type="button" class="close" (click)="closePendingAmountWarningModal()">
                       &times;
                     </button>
@@ -521,6 +559,10 @@
                     </p>
                     <p class="mb-2">
                       Current pending amount: <strong>{{ warningPendingAmount }}</strong>
+                    </p>
+                    <p class="mb-2">
+                      <strong class="text-danger">
+                     If you exceed the the amount of 3000 then Conductor will be blocked automatically.</strong>
                     </p>
                     <p class="mb-0 text-muted">
                       Please clear the bill soon. You can still proceed with this trip.
