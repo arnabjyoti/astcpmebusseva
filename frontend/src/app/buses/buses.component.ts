@@ -20,6 +20,8 @@ export class BusesComponent {
     private router: Router
   ) { }
 
+  private readonly busesScrollPositionKey = 'busesScrollPositionBeforeDailyUpdate';
+
   form: any = {
     busName: '',
     busNo: '',
@@ -186,6 +188,7 @@ export class BusesComponent {
       (response) => {
         console.log('busList response ', response);
         this.busList = response;
+        this.restoreSavedScrollPosition();
       },
       (error) => {
         console.log('error here ', error);
@@ -439,6 +442,8 @@ export class BusesComponent {
       return;
     }
 
+    this.saveCurrentScrollPosition();
+
     this.router.navigate(['/daily-update'], {
       queryParams: {
         date: this.selectedDate,
@@ -460,6 +465,8 @@ export class BusesComponent {
       return;
     }
 
+    this.saveCurrentScrollPosition();
+
     this.router.navigate(['/daily-update'], {
       queryParams: {
         busId: data.id,
@@ -467,6 +474,38 @@ export class BusesComponent {
         currentStatus: 'finished',
         type: 'update',
       },
+    });
+  }
+
+  private saveCurrentScrollPosition() {
+    const scrollTop =
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    sessionStorage.setItem(this.busesScrollPositionKey, String(scrollTop));
+  }
+
+  private restoreSavedScrollPosition() {
+    const savedScrollTop = sessionStorage.getItem(this.busesScrollPositionKey);
+
+    if (savedScrollTop === null) {
+      return;
+    }
+
+    sessionStorage.removeItem(this.busesScrollPositionKey);
+
+    const scrollTop = Number(savedScrollTop);
+
+    if (Number.isNaN(scrollTop)) {
+      return;
+    }
+
+    setTimeout(() => {
+      window.scrollTo({ top: scrollTop, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = scrollTop;
+      document.body.scrollTop = scrollTop;
     });
   }
 
