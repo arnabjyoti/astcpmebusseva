@@ -3,7 +3,7 @@
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 20px;
+  margin: 0px;
 }
 
 .table-header {
@@ -23,7 +23,7 @@
 
 .header-buttons {
   display: flex;
-  gap: 10px;
+  padding-right: 6px;
 }
 
 .table-header .btn-success {
@@ -265,7 +265,7 @@
   padding: 30px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 20px;
+  margin-top: 10px;
 }
 
 .form-header {

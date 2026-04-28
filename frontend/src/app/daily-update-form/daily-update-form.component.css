@@ -38,7 +38,7 @@ h4 {
   flex-direction: row;
   align-items: center;
   width: 100%;
-  justify-content: center;
+  justify-content: space-between;
   margin-bottom: 3px;
 }
 
@@ -58,6 +58,22 @@ h4 {
   max-width: 100%;
   height: auto;
 }
+
+.right-logo-containerr {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.logo-right {
+  width: 200px; /* fixed width so title stays centered */
+  height: auto;
+}
+
+/* .logo-right img {
+  max-width: 100%;
+  height: auto;
+} */
 
 .header-title {
   flex: 1;
@@ -125,7 +141,7 @@ h4 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .footer-container-end-text {

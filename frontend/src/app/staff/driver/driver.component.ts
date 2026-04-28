@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-driver',
@@ -11,6 +12,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./driver.component.css']
 })
 export class DriverComponent {
+
+  isLoading: boolean = false;
 
   public endpoint: string;
   constructor(
@@ -27,11 +30,12 @@ export class DriverComponent {
   form1: any = {
     driver_id: '',
     driver_name: '',
+    license_no: '',
+    license_validity: '',
     contact_no: '',
-    aadhaar: '',
+    aadhar: '',
     pan: '',
     voter: '',
-    dl: '',
     address: '',
     photo: null,
   };
@@ -50,11 +54,12 @@ export class DriverComponent {
     this.form1 = {
       driver_id: '',
       driver_name: '',
+      license_no: '',
+      license_validity: '',
       contact_no: '',
-      aadhaar: '',
+      aadhar: '',
       pan: '',
       voter: '',
-      dl: '',
       address: '',
       photo: null,
     };
@@ -97,11 +102,12 @@ export class DriverComponent {
     const formData = new FormData();
     formData.append('driver_id', this.form1.driver_id);
     formData.append('driver_name', this.form1.driver_name);
+    formData.append('license_no', this.form1.license_no);
+    formData.append('license_validity', this.form1.license_validity);
     formData.append('contact_no', this.form1.contact_no);
-    formData.append('aadhaar', this.form1.aadhaar);
+    formData.append('aadhar', this.form1.aadhar);
     formData.append('pan', this.form1.pan);
     formData.append('voter', this.form1.voter);
-    formData.append('dl', this.form1.dl);
     formData.append('address', this.form1.address);
     formData.append('photo', this.form1.photo); // ✅ IMPORTANT
 
@@ -140,11 +146,12 @@ export class DriverComponent {
       id: data?.id,
       driver_id: data?.driver_id,
       driver_name: data?.driver_name,
+      license_no: data?.license_no,
+      license_validity: data?.license_validity,
       contact_no: data?.contact_no,
-      aadhaar: data?.aadhaar,
+      aadhar: data?.aadhar,
       pan: data?.pan,
       voter: data?.voter,
-      dl: data?.dl,
       address: data?.address,
       photo: null,              // NEW FILE (optional)
       old_photo: data?.photo    // EXISTING IMAGE PATH
@@ -172,11 +179,12 @@ export class DriverComponent {
     formData.append('id', this.form1.id);
     formData.append('driver_id', this.form1.driver_id);
     formData.append('driver_name', this.form1.driver_name);
+    formData.append('license_no', this.form1.license_no || '');
+    formData.append('license_validity', this.form1.license_validity || '');
     formData.append('contact_no', this.form1.contact_no);
-    formData.append('aadhaar', this.form1.aadhaar || '');
+    formData.append('aadhar', this.form1.aadhar || '');
     formData.append('pan', this.form1.pan || '');
     formData.append('voter', this.form1.voter || '');
-    formData.append('dl', this.form1.dl || '');
     formData.append('address', this.form1.address || '');
 
     // send old photo path
@@ -261,4 +269,23 @@ export class DriverComponent {
   setAddNewButton = (tabName: any) => {
     this.activeTabName = tabName;
   };
+
+  downloadRecords = () => {
+    const exportData = this.driverList.map((driver: any) => ({
+      DriverID: driver.driver_id,
+      DriverName: driver.driver_name,
+      LicenseNo: driver.license_no,
+      LicenseValidity: driver.license_validity,
+      ContactNo: driver.contact_no,
+      Aadhar: driver.aadhar,
+      PAN: driver.pan,
+      VoterID: driver.voter,
+      Address: driver.address
+    }));
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Driver Records');
+    XLSX.writeFile(wb, 'driver_records.xlsx');
+  }
+
 }

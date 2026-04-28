@@ -4,13 +4,38 @@
 </div> -->
 
 <!-- Loading ends -->
-<div class="content-wrapper">
+<div class="content-wrapper p-1">
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
+      <div class="row mb-1 align-items-center justify-content-between">
         <div class="col-sm-6">
-          <h1 class="m-0">Attendance</h1>
+          <h3 class="m-0">ATTENDANCE</h3>
+        </div>
+        <div class="d-flex gap-2 px-1">
+          <!-- PDF -->
+          <button class="btn btn-info" (click)="downloadPDF()" [disabled]="isExportingPDF">
+            <ng-container *ngIf="!isExportingPDF; else pdfLoading">
+              <i class="fas fa-download" style="color:aliceblue"></i> Download PDF
+            </ng-container>
+
+            <ng-template #pdfLoading>
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Generating PDF...
+            </ng-template>
+          </button> &nbsp;&nbsp;
+
+          <!-- Excel -->
+          <button class="btn btn-success" (click)="downloadExcel()" [disabled]="isExportingExcel">
+            <ng-container *ngIf="!isExportingExcel; else excelLoading">
+              <i class="fas fa-download" style="color:aliceblue"></i> Download Excel
+            </ng-container>
+
+            <ng-template #excelLoading>
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Generating Excel...
+            </ng-template>
+          </button>
         </div>
       </div>
       <!-- /.row -->
@@ -28,135 +53,102 @@
         <div>
           <div class="row">
             <div class="col-lg-12 col-12">
-              <div class="d-flex gap-2 p-2 justify-content-between">
-                <div class="d-flex">
-                  <input
-                    class="form-control col-md-4"
-                    type="date"
-                    name="attendanceFrom"
-                    [(ngModel)]="attendanceFrom"
-                    id=""
-                  />
-                  <input
-                    class="form-control col-md-4"
-                    type="date"
-                    name="attendanceTo"
-                    [(ngModel)]="attendanceTo"
-                    id=""
-                  />
-                  <div>
-                    <button
-                      class="btn btn-primary"
-                      (click)="getConductorAttendance()"
-                    >
-                      Get Attendance
-                    </button>
-                  </div>
-                </div>
-                &nbsp;
-                <div>
-                  <!-- <button class="btn btn-success">Download Report</button> -->
-
-                  <div
-                    class="d-flex align-items-center justify-content-end w-100 p-2"
-                  >
-                    <!-- PDF -->
-                    <button
-                      class="btn btn-primary"
-                      (click)="downloadPDF()"
-                      [disabled]="isExportingPDF"
-                    >
-                      <ng-container *ngIf="!isExportingPDF; else pdfLoading">
-                        <i class="fas fa-download"
-                        style="color:aliceblue"></i> Download PDF
-                      </ng-container>
-
-                      <ng-template #pdfLoading>
-                        <span
-                          class="spinner-border spinner-border-sm me-2"
-                          role="status"
-                          aria-hidden="true"
-                        ></span>
-                        Generating PDF...
-                      </ng-template>
-                    </button> &nbsp;&nbsp;
-
-                    <!-- Excel -->
-                    <button
-                      class="btn btn-success"
-                      (click)="downloadExcel()"
-                      [disabled]="isExportingExcel"
-                    >
-                      <ng-container
-                        *ngIf="!isExportingExcel; else excelLoading"
-                      >
-                      <i class="fas fa-download"
-                      style="color:aliceblue"></i> Download Excel
-                      </ng-container>
-
-                      <ng-template #excelLoading>
-                        <span
-                          class="spinner-border spinner-border-sm me-2"
-                          role="status"
-                          aria-hidden="true"
-                        ></span>
-                        Generating Excel...
-                      </ng-template>
-                    </button>
-                  </div>
+              <div class="d-flex justify-content-end align-items-center mb-2 mt-2">
+                <div class="d-flex w-100">
+                  <input class="form-control col-md-4" type="date" name="attendanceFrom" [(ngModel)]="attendanceFrom"
+                    id="" />
+                  <input class="form-control col-md-4" type="date" name="attendanceTo" [(ngModel)]="attendanceTo"
+                    id="" />
+                  <button class="btn btn-primary" (click)="getConductorAttendance()">
+                    Get Attendance
+                  </button>
+                  <button class="btn btn-warning" type="button" (click)="attendanceEditMode = !attendanceEditMode"
+                    style="color: white;">
+                    {{ attendanceEditMode ? "Stop Manual Edit" : "Edit Manually" }}
+                  </button>
                 </div>
               </div>
               <div>
-                <div
-                  class="table-responsive attendance-table"
-                  #reportSection
-                  id="reportSection"
-                >
-                  <table class="table table-bordered table-sm text-center">
+                <div class="attendance-table p-1" #reportSection id="reportSection">
+                  <table class="table table-bordered table-responsive table-sm text-center w-100">
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th class="sticky-col">Conductor Name</th>
+                        <th class="sticky-col">CONDUCTOR NAME</th>
                         <th *ngFor="let day of daysInMonth">
                           {{ day | date : "dd" }}
                         </th>
-                        <th>Total Present</th>
-                        <th>Total Absent</th>
+                        <th>TOTAL PRESENT</th>
+                        <th>TOTAL ABSENT</th>
                       </tr>
                     </thead>
 
                     <tbody>
-                      <tr
-                        *ngFor="let data of conductorAttendance; let i = index"
-                      >
+                      <tr *ngFor="let data of conductorAttendance; let i = index">
                         <td>{{ i + 1 }}</td>
-                        <td class="sticky-col fw-semibold text-start">
+                        <td class="sticky-col fw-semibold align-items-start">
                           {{ data.conductor }}
                         </td>
 
-                        <td
-                          *ngFor="let day of daysInMonth"
-                          [ngClass]="{
+                        <td *ngFor="let day of daysInMonth" [ngClass]="{
                             present: data.attendance[day] === 'P',
-                            absent: data.attendance[day] === 'A'
-                          }"
-                        >
-                          {{ data.attendance[day] || "A" }}
+                            absent: data.attendance[day] === 'A',
+                            manual: isManualAttendance(data, day)
+                          }">
+                          <ng-container *ngIf="!attendanceEditMode; else editAttendanceCell">
+                            <span>{{ data.attendance[day] || "A" }}</span>
+                            <small class="manual-badge" *ngIf="isManualAttendance(data, day)">M</small>
+                          </ng-container>
+
+                          <ng-template #editAttendanceCell>
+                            <select class="form-control form-control-sm attendance-select"
+                              [ngModel]="getAttendanceOptionValue(data, day)"
+                              (change)="onAttendanceStatusChange(data, day, $event)">
+                              <option value="">Auto</option>
+                              <option value="P">Present</option>
+                              <option value="A">Absent</option>
+                            </select>
+                          </ng-template>
                         </td>
                         <td>{{ data.total_present }}</td>
                         <td>{{ data.total_absent }}</td>
                       </tr>
                     </tbody>
 
-                    <div
-                      class="text-center"
-                      *ngIf="!conductorAttendance.length"
-                    >
-                      <div class="text-center p-3">
-                        <h2>Select a Date Range to get data</h2>
+                    <div class="text-center" *ngIf="!conductorAttendance.length">
+                      <div class="d-flex w-100 align-items-center justify-content-center p-3">
+                        <h4>Select a Date Range to get data</h4>
                       </div>
                     </div>
                   </table>
+
+                  <!-- Table Pagination Section -->
+                  <div class="pagination-container">
+                    <div class="pagination-info pl-2">
+                      <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                      <ul class="pagination mb-0">
+                        <li class="page-item">
+                          <a class="page-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                          </a>
+                        </li>
+
+                        <li class="page-item">
+                          <a class="page-link">{{ 0 }}</a>
+                        </li>
+
+                        <li class="page-item">
+                          <a class="page-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+
                 </div>
               </div>
             </div>

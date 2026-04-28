@@ -9,7 +9,7 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0">Earning Form</h1>
+          <h3 class="m-0">EARNING FORM</h3>
         </div>
         <!-- /.col -->
         <div class="col-sm-6">
@@ -54,18 +54,21 @@
                         <div class="row">
                           <div class="sheet">
                             <!-- Header -->
-                            <div class="pdf-header py-3">
+                            <div class="pdf-header py-1.5">
                               <div class="left-logo-container">
                                 <span><img src="../../../assets/image/login/astc.png" alt="Left Logo"
                                     class="logo-left" /></span>
                                 <span style="
-                                    font-size: 18px;
+                                    font-size: 12px;
                                     font-weight: bold;
                                     font-family: 'Times New Roman', Times;
                                     margin-left: 1px;
                                   ">
                                   <b>ASSAM STATE TRANSPORT CORPORATION</b>
                                 </span>
+                              </div>
+                              <div class="right-logo-container">
+                                <img src="../../../assets/image/logo.png" alt="Skaplink Logo" class="logo-right" />
                               </div>
 
                             </div>
@@ -371,7 +374,7 @@
                             </table>
                             <div class="footer-container-end">
                               <span class="footer-container-end-text">
-                                Powered by - 
+                                Designed and Developed by -
                               </span>
                               <span class="footer-container-end-logo">
                                 <img src="../../../assets/image/logo.png" alt="Skaplink Logo" />
@@ -448,7 +451,7 @@
               <div class="col-md-4 pt-3">
                 <label>OMR Opening Km</label>
                 <input type="number" class="form-control" [(ngModel)]="form.omr" (change)="calculateTotalOperated()"
-                  name="omr" [readonly]="formtype === 'update'" />
+                  name="omr" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>CMR Closing Km</label>
@@ -464,7 +467,7 @@
               <div class="col-md-4 pt-3">
                 <label>Opening SOC %</label>
                 <input type="number" class="form-control" [(ngModel)]="form.osoc" (change)="calculateTotalCosumed()"
-                  name="osoc" [readonly]="formtype === 'update'" />
+                  name="osoc" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Closing SOC %</label>
@@ -553,6 +556,7 @@
                   + {{ toInt(form.amountToBeDeposited) }})
                 </label>
 
+                
                 <!-- <input
                   type="text"
                   class="form-control"
@@ -564,14 +568,19 @@
                   name="amountToBeDeposited"
                   readonly
                 /> -->
-                <input type="text" class="form-control" [value]="totalPendingAmount()" name="amountToBeDeposited"
-                  readonly />
+                <input type="text" class="form-control" [value]="totalPendingAmount()" name="amountToBeDeposited" />
+              </div>
+
+              <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
+                <label>Stop Date</label>
+                <input type="date" class="form-control" [(ngModel)]="form.stopDate" name="stopDate" />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Stop time</label>
                 <input type="time" class="form-control" [(ngModel)]="form.stopTime" name="stopTime" />
               </div>
+
               <div class="col-md-4 pt-3">
                 <label>Status</label>
                 <select class="form-control" [(ngModel)]="form.currentStatus" name="status">
@@ -592,9 +601,20 @@
                 <input type="text" class="form-control" [(ngModel)]="form.causeOfBreakdown" name="causeOfBreakdown" />
               </div>
 
+              <div class="col-md-4 pt-3" *ngIf="form.currentStatus == 'still' && formtype == 'update'">
+                <label>Km at Breakdown Time</label>
+                <input type="number" class="form-control" [(ngModel)]="form.kmAtBreakdown" name="kmAtBreakdown" />
+              </div>
+
+              <div class="col-md-4 pt-3" *ngIf="form.currentStatus == 'still' && formtype == 'update'">
+                <label>Loss Km</label>
+                <input type="number" class="form-control" [value]="lossKm()" name="lossKm" />
+              </div>
+
               <div class="col-md-8 pt-3">
                 <label>Remarks</label>
-                <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" />
+                <textarea class="form-control" [(ngModel)]="form.remarks" name="remarks" id="" rows="4"></textarea>
+                <!-- <input type="text" class="form-control" [(ngModel)]="form.remarks" name="remarks" /> -->
               </div>
 
               <div class="col-md-12 pt-3">

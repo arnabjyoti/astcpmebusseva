@@ -15,6 +15,7 @@ const busRoutesModel = require("../models").busRoutesMaster;
 const driverMasterModel = require("../models").driverMaster;
 const conductorMasterModel = require("../models").conductorMaster;
 const dailyUpdatesModel = require("../models").dailyUpdates;
+const attendanceModel = require("../models").attendance;
 const tripModel = require("../models").trip;
 const trip_statusModel = require("../models").trip_status;
 const stationsModel = require("../models").stations;
@@ -28,6 +29,78 @@ const { sequelize } = require("../models");
 const { log } = require("console");
 const conductor = require("../models/conductor");
 const e = require("express");
+
+const normalizeAttendanceDate = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value).slice(0, 10);
+  }
+
+  return date.toISOString().slice(0, 10);
+};
+
+const upsertAttendanceRecord = async ({ conductorId, attendanceDate, status, source }) => {
+  if (!conductorId || !attendanceDate || !status) {
+    return;
+  }
+
+  const normalizedDate = normalizeAttendanceDate(attendanceDate);
+  const existingRecord = await attendanceModel.findOne({
+    where: { conductorId, attendanceDate: normalizedDate },
+  });
+
+  if (existingRecord) {
+    await existingRecord.update({ status, source });
+    return existingRecord;
+  }
+
+  return attendanceModel.create({
+    conductorId,
+    attendanceDate: normalizedDate,
+    status,
+    source,
+  });
+};
+
+const syncAutoAttendanceFromDailyUpdate = async ({ conductorId, attendanceDate }) => {
+  if (!conductorId || !attendanceDate) {
+    return;
+  }
+
+  const normalizedDate = normalizeAttendanceDate(attendanceDate);
+
+  const activeDailyUpdateCount = await dailyUpdatesModel.count({
+    where: {
+      conductorId,
+      date: {
+        [Op.like]: `${normalizedDate}%`,
+      },
+      status: "Active",
+    },
+  });
+
+  const existingAttendance = await attendanceModel.findOne({
+    where: { conductorId, attendanceDate: normalizedDate },
+  });
+
+  if (activeDailyUpdateCount > 0) {
+    await upsertAttendanceRecord({
+      conductorId,
+      attendanceDate: normalizedDate,
+      status: "P",
+      source: "auto",
+    });
+    return;
+  }
+
+  if (existingAttendance && existingAttendance.source === "auto") {
+    await existingAttendance.destroy();
+  }
+};
 
 module.exports = {
   upload_driver_image: multer({
@@ -327,11 +400,12 @@ module.exports = {
         id,
         driver_id,
         driver_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         old_photo,
       } = req.body;
@@ -360,11 +434,12 @@ module.exports = {
       const updateData = {
         driver_id,
         driver_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         photo: photoPath,
       };
@@ -407,11 +482,12 @@ module.exports = {
         "id",
         "driver_id",
         "driver_name",
+        "license_no",
+        "license_validity",
         "contact_no",
-        "aadhaar",
+        "aadhar",
         "pan",
         "voter",
-        "dl",
         "address",
         "photo",
         "status",
@@ -450,13 +526,13 @@ module.exports = {
       attributes: [
         "id",
         "conductor_id",
-        "conductorLicenseNo",
+        "license_no",
+        "license_validity",
         "conductor_name",
         "contact_no",
-        "aadhaar",
+        "aadhar",
         "pan",
         "voter",
-        "dl",
         "address",
         "photo",
         "status",
@@ -494,13 +570,13 @@ module.exports = {
     try {
       const data = {
         conductor_id: req.body.conductor_id,
-        conductorLicenseNo: req.body.conductorLicenseNo,
         conductor_name: req.body.conductor_name,
+        license_no: req.body.license_no,
+        license_validity: req.body.license_validity,
         contact_no: req.body.contact_no,
-        aadhaar: req.body.aadhaar,
+        aadhar: req.body.aadhar,
         pan: req.body.pan,
         voter: req.body.voter,
-        dl: req.body.dl,
         address: req.body.address,
         status: "Active",
         photo: req.file ? `image/conductor/${req.file.filename}` : null,
@@ -527,13 +603,13 @@ module.exports = {
       const {
         id,
         conductor_id,
-        conductorLicenseNo,
         conductor_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         old_photo,
       } = req.body;
@@ -561,13 +637,13 @@ module.exports = {
 
       const updateData = {
         conductor_id,
-        conductorLicenseNo,
         conductor_name,
+        license_no,
+        license_validity,
         contact_no,
-        aadhaar,
+        aadhar,
         pan,
         voter,
-        dl,
         address,
         photo: photoPath,
       };
@@ -700,23 +776,26 @@ module.exports = {
             cm.id AS conductor_id,
             cm.conductor_name,
             c.day,
-            CASE
-              WHEN du.conductorId IS NOT NULL THEN 'P'
-              ELSE 'A'
-            END AS status
+            at.status,
+            at.source
           FROM conductorMasters cm
           CROSS JOIN calendar c
-          LEFT JOIN dailyUpdates du
-            ON du.conductorId = cm.id
-           AND DATE(du.date) = c.day
+          LEFT JOIN attendances at
+            ON at.conductorId = cm.id
+           AND DATE(at.attendanceDate) = c.day
           WHERE cm.status IN ('Active', 'Block')
         )
         SELECT
+          conductor_id AS conductorId,
           conductor_name AS conductor,
           JSON_OBJECTAGG(
             DATE_FORMAT(day, '%Y-%m-%d'),
-            status
-          ) AS attendance
+            COALESCE(status, 'A')
+          ) AS attendance,
+          JSON_OBJECTAGG(
+            DATE_FORMAT(day, '%Y-%m-%d'),
+            source
+          ) AS manualAttendance
         FROM attendance_raw
         GROUP BY conductor_id, conductor_name
         ORDER BY conductor_name;
@@ -738,6 +817,48 @@ module.exports = {
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
+    }
+  },
+
+  async saveConductorAttendanceOverride(req, res) {
+    try {
+      const { conductorId, attendanceDate, status } = req.body.requestObject || {};
+
+      if (!conductorId || !attendanceDate) {
+        return res.status(400).send({ message: "conductorId and attendanceDate are required" });
+      }
+
+      const normalizedDate = normalizeAttendanceDate(attendanceDate);
+      const normalizedStatus = status === "P" || status === "A" ? status : null;
+
+      if (!normalizedStatus) {
+        const existingAttendance = await attendanceModel.findOne({
+          where: { conductorId, attendanceDate: normalizedDate }
+        });
+
+        if (existingAttendance && existingAttendance.source === "manual") {
+          await existingAttendance.destroy();
+        }
+
+        await syncAutoAttendanceFromDailyUpdate({
+          conductorId,
+          attendanceDate: normalizedDate,
+        });
+
+        return res.status(200).send({ message: "Attendance reset to automatic logic" });
+      }
+
+      await upsertAttendanceRecord({
+        conductorId,
+        attendanceDate: normalizedDate,
+        status: normalizedStatus,
+        source: "manual",
+      });
+
+      return res.status(200).send({ message: "Attendance saved successfully" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: "Failed to save attendance" });
     }
   }
   ,
@@ -775,6 +896,13 @@ module.exports = {
       // 3️⃣ Insert record
       const response = await dailyUpdatesModel.create(data);
 
+      await upsertAttendanceRecord({
+        conductorId: data.conductorId,
+        attendanceDate: data.date,
+        status: "P",
+        source: "auto",
+      });
+
       return res.status(200).send({
         message: "Success",
         id: response.id,
@@ -788,22 +916,36 @@ module.exports = {
   },
 
 
-  updateDailyUpdates(req, res) {
-    let { requestObject, id } = req.body;
+  async updateDailyUpdates(req, res) {
+    try {
+      let { requestObject, id } = req.body;
 
-    console.log("requestObject", requestObject);
-    console.log("id", id);
+      console.log("requestObject", requestObject);
+      console.log("id", id);
 
-    let data = requestObject;
+      const existingRecord = await dailyUpdatesModel.findOne({ where: { id } });
 
-    dailyUpdatesModel
-      .update(requestObject, { where: { id: id } })
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
+      await dailyUpdatesModel.update(requestObject, { where: { id: id } });
+
+      if (existingRecord) {
+        await syncAutoAttendanceFromDailyUpdate({
+          conductorId: existingRecord.conductorId,
+          attendanceDate: existingRecord.date,
+        });
+      }
+
+      await upsertAttendanceRecord({
+        conductorId: requestObject.conductorId,
+        attendanceDate: requestObject.date,
+        status: "P",
+        source: "auto",
       });
+
+      return res.status(200).send({ message: "Success" });
+    } catch (err) {
+      console.log("err", err);
+      return res.status(500).send({ message: "Failed to update data" });
+    }
 
     // dailyUpdatesModel
     //   .create(data)
@@ -870,67 +1012,294 @@ module.exports = {
   //     });
   // },
 
+
+
   // *****************************************
+  //   getBusList(req, res) {
+  //     const reqDate = req.query.date;
+  //     let filterDate;
+
+  //     if (reqDate) {
+  //       const [yyyy, mm, dd] = reqDate.split("-");
+  //       filterDate = `${yyyy}-${mm}-${dd}`;
+  //     } else {
+  //       filterDate = null;
+  //     }
+
+  //     console.log("filterDate", filterDate);
+
+  //     const sql = `
+  // SELECT 
+  //     bus.id,
+  //     bus.busName,
+  //     bus.busNo,
+  //     bus.status,
+  //     bus.createdAt,
+  //     bus.updatedAt,
+  //     bus.isFixed,
+
+
+  //     cm.conductor_name as conductorName,
+  //     cm.conductor_id as conductorId,
+  //     cm.contact_no as conductorContactNo,
+  //     cm.id as conductor_actual_id,
+
+  //     dm.driver_name as driverName,
+  //     dm.contact_no as driverContactNo,
+  //     dm.driver_id as driverId,
+  //     dm.id as driver_actual_id,
+
+  //     -- Route fields
+  //     routes.id AS routeId,
+  //     routes.routeNo AS routeNo,
+  //     routes.depot AS routeDepot,
+  //     routes.start AS routeStart,
+  //     routes.end AS routeEnd,
+  //     routes.via AS routeVia,
+  //     routes.routeDistance AS routeDistance,
+
+  //     du.currentStatus AS currentStatus,
+  //     du.noOfTrip AS noOfTrip,
+  //     du.id AS dailyUpdateId,
+
+  //     cm.status AS conductorStatus
+
+  // FROM busMasters AS bus
+
+  // JOIN busRoutesMasters AS routes 
+  //     ON bus.allotedRouteNo = routes.id
+
+  // LEFT JOIN conductorMasters AS cm
+  //     ON cm.id = bus.conductorId
+
+
+  // LEFT JOIN driverMasters as dm
+  //     ON bus.driverId = dm.id
+
+  //     LEFT JOIN (
+  //       SELECT d1.*
+  //       FROM dailyUpdates d1
+  //       INNER JOIN (
+  //           SELECT busId, MAX(createdAt) AS latestCreated, MAX(currentStatus) AS currentStatus
+  //           FROM dailyUpdates
+  //           GROUP BY busId
+  //       ) d2 
+  //       ON d1.busId = d2.busId 
+  //       AND d1.createdAt = d2.latestCreated
+  //   ) du 
+  //   ON du.busId = bus.id
+
+  // WHERE bus.status = 'Active'
+  //   AND routes.status = 'Active'
+
+  // ORDER BY bus.id DESC;
+  // `;
+
+  //     const replacements = filterDate ? [filterDate, filterDate] : [];
+
+  //     sequelize
+  //       .query(sql, {
+  //         replacements,
+  //         type: sequelize.QueryTypes.SELECT,
+  //       })
+  //       .then((bus) => {
+  //         return res.status(200).send(bus);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //         return res.status(400).send(error);
+  //       });
+  //   },
+
+  // getBusList(req, res) {
+  //   const reqDate = req.query.date;
+  //   let filterDate = null;
+
+  //   if (reqDate) {
+  //     const [yyyy, mm, dd] = reqDate.split("-");
+  //     filterDate = `${yyyy}-${mm}-${dd}`;
+  //   }
+
+  //   console.log("filterDate", filterDate);
+
+  //   const sql = `
+  // SELECT 
+  //   bus.id,
+  //   bus.busName,
+  //   bus.busNo,
+  //   bus.status,
+  //   bus.createdAt,
+  //   bus.updatedAt,
+  //   bus.isFixed,
+
+  //   cm.conductor_name as conductorName,
+  //   cm.conductor_id as conductorId,
+  //   cm.contact_no as conductorContactNo,
+  //   cm.id as conductor_actual_id,
+  //   cm.status AS conductorStatus,
+
+  //   dm.driver_name as driverName,
+  //   dm.contact_no as driverContactNo,
+  //   dm.driver_id as driverId,
+  //   dm.id as driver_actual_id,
+
+  //   routes.id AS routeId,
+  //   routes.routeNo AS routeNo,
+  //   routes.depot AS routeDepot,
+  //   routes.start AS routeStart,
+  //   routes.end AS routeEnd,
+  //   routes.via AS routeVia,
+  //   routes.routeDistance AS routeDistance,
+
+  //   du.currentStatus AS currentStatus,
+  //   du.noOfTrip AS noOfTrip,
+  //   du.id AS dailyUpdateId,
+  //   du.date AS dailyUpdateDate,
+
+
+  //   (
+  //     SELECT d2.currentStatus
+  //     FROM dailyUpdates d2
+  //     WHERE d2.busId = bus.id
+  //       AND DATE(d2.date) < :filterDate
+  //     ORDER BY d2.date DESC
+  //     LIMIT 1
+  //   ) AS previousStatus,
+
+
+
+  //   (
+  //     SELECT d2.id
+  //     FROM dailyUpdates d2
+  //     WHERE d2.busId = bus.id
+  //       AND DATE(d2.date) < :filterDate
+  //     ORDER BY d2.date DESC
+  //     LIMIT 1
+  //   ) AS previousDailyUpdateId
+
+
+  // FROM busMasters AS bus
+
+  // JOIN busRoutesMasters AS routes 
+  //   ON bus.allotedRouteNo = routes.id
+
+  // LEFT JOIN conductorMasters AS cm
+  //   ON cm.id = bus.conductorId
+
+  // LEFT JOIN driverMasters as dm
+  //   ON bus.driverId = dm.id
+
+  // LEFT JOIN dailyUpdates du 
+  //   ON du.busId = bus.id
+  //   AND DATE(du.date) = :filterDate
+
+  // WHERE bus.status = 'Active'
+  //   AND routes.status = 'Active'
+
+  // ORDER BY bus.id DESC;
+  // `;
+
+  //   const replacements = { filterDate };
+
+  //   sequelize
+  //     .query(sql, {
+  //       replacements,
+  //       type: sequelize.QueryTypes.SELECT,
+  //     })
+  //     .then((bus) => {
+  //       return res.status(200).send(bus);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //       return res.status(400).send(error);
+  //     });
+  // },
+
   getBusList(req, res) {
     const reqDate = req.query.date;
-    let filterDate;
+    let filterDate = null;
 
     if (reqDate) {
       const [yyyy, mm, dd] = reqDate.split("-");
       filterDate = `${yyyy}-${mm}-${dd}`;
-    } else {
-      filterDate = null;
     }
 
     console.log("filterDate", filterDate);
 
     const sql = `
 SELECT 
-    bus.id,
-    bus.busName,
-    bus.busNo,
-    bus.status,
-    bus.createdAt,
-    bus.updatedAt,
-    bus.isFixed,
+  bus.id,
+  bus.busName,
+  bus.busNo,
+  bus.status,
+  bus.createdAt,
+  bus.updatedAt,
+  bus.isFixed,
 
+  cm.conductor_name as conductorName,
+  cm.conductor_id as conductorId,
+  cm.contact_no as conductorContactNo,
+  cm.id as conductor_actual_id,
+  cm.status AS conductorStatus,
 
-    cm.conductor_name as conductorName,
-    cm.conductor_id as conductorId,
-    cm.contact_no as conductorContactNo,
-    cm.id as conductor_actual_id,
-    
-    dm.driver_name as driverName,
-    dm.contact_no as driverContactNo,
-    dm.driver_id as driverId,
-    dm.id as driver_actual_id,
+  dm.driver_name as driverName,
+  dm.contact_no as driverContactNo,
+  dm.driver_id as driverId,
+  dm.id as driver_actual_id,
 
-    -- Route fields
-    routes.id AS routeId,
-    routes.routeNo AS routeNo,
-    routes.depot AS routeDepot,
-    routes.start AS routeStart,
-    routes.end AS routeEnd,
-    routes.via AS routeVia,
-    routes.routeDistance AS routeDistance,
+  routes.id AS routeId,
+  routes.routeNo AS routeNo,
+  routes.depot AS routeDepot,
+  routes.start AS routeStart,
+  routes.end AS routeEnd,
+  routes.via AS routeVia,
+  routes.routeDistance AS routeDistance,
 
-    du.currentStatus AS currentStatus,
-    du.noOfTrip AS noOfTrip,
-    du.id AS dailyUpdateId,
+  du.currentStatus AS currentStatus,
+  du.noOfTrip AS noOfTrip,
+  du.id AS dailyUpdateId,
+  du.date AS dailyUpdateDate,
+  du.stopDate AS dailyUpdateStopDate,
+  du.date AS startDate,
 
-    cm.status AS conductorStatus
+  -- Previous status (based on stopDate logic)
+  (
+    SELECT d2.currentStatus
+    FROM dailyUpdates d2
+    WHERE d2.busId = bus.id
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
+    LIMIT 1
+  ) AS previousStatus,
+
+  (
+    SELECT d2.date
+    FROM dailyUpdates d2
+    WHERE d2.busId = bus.id
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
+    LIMIT 1
+  ) AS startDate,
+
+  (
+    SELECT d2.id
+    FROM dailyUpdates d2
+    WHERE d2.busId = bus.id
+      AND DATE(IFNULL(d2.stopDate, d2.date)) < :filterDate
+    ORDER BY d2.date DESC
+    LIMIT 1
+  ) AS previousDailyUpdateId
 
 FROM busMasters AS bus
 
 JOIN busRoutesMasters AS routes 
-    ON bus.allotedRouteNo = routes.id
+  ON bus.allotedRouteNo = routes.id
 
 LEFT JOIN conductorMasters AS cm
-    ON cm.id = bus.conductorId
-
+  ON cm.id = bus.conductorId
 
 LEFT JOIN driverMasters as dm
-    ON bus.driverId = dm.id
+  ON bus.driverId = dm.id
 
     LEFT JOIN (
       SELECT d1.*
@@ -951,7 +1320,7 @@ WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
 
-    const replacements = filterDate ? [filterDate, filterDate] : [];
+    const replacements = { filterDate };
 
     sequelize
       .query(sql, {
@@ -962,7 +1331,7 @@ ORDER BY bus.id DESC;
         return res.status(200).send(bus);
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         return res.status(400).send(error);
       });
   },
@@ -1208,16 +1577,25 @@ LIMIT 1;
     }
   },
 
-  deleteEarningDetails(req, res) {
-    let data = req.body.requestObject;
-    dailyUpdatesModel
-      .update({ status: "Inactive" }, { where: { id: data.duId } })
-      .then((response) => {
-        return res.status(200).send({ message: "Success" });
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
+  async deleteEarningDetails(req, res) {
+    try {
+      let data = req.body.requestObject;
+      const existingRecord = await dailyUpdatesModel.findOne({ where: { id: data.duId } });
+
+      await dailyUpdatesModel.update({ status: "Inactive" }, { where: { id: data.duId } });
+
+      if (existingRecord) {
+        await syncAutoAttendanceFromDailyUpdate({
+          conductorId: existingRecord.conductorId,
+          attendanceDate: existingRecord.date,
+        });
+      }
+
+      return res.status(200).send({ message: "Success" });
+    } catch (err) {
+      console.log("err", err);
+      return res.status(500).send({ message: "Failed to delete data" });
+    }
   },
 
   getTripList(req, res) {
@@ -2147,6 +2525,8 @@ END AS estimated_time,
           "totalOperated",
           "placeOfBreakdown",
           "causeOfBreakdown",
+          "kmAtBreakdown",
+          "lossKm",
           "stopTime",
           "date",
           "remarks"

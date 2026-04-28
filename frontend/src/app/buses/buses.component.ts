@@ -13,6 +13,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
+
+  isLoading: boolean = false;
+
   constructor(
     private appService: AppService,
     private http: HttpClient,
@@ -181,6 +184,7 @@ export class BusesComponent {
 };
 
 
+dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
 
@@ -188,7 +192,7 @@ export class BusesComponent {
       (response) => {
         console.log('busList response ', response);
         this.busList = response;
-        this.restoreSavedScrollPosition();
+        this.dateForStatus = this.dataForDate;
       },
       (error) => {
         console.log('error here ', error);
@@ -450,6 +454,7 @@ export class BusesComponent {
         busId: this.selectedData.id,
         currentStatus: 'running',
         noOfTrip: 0,
+        stopDate: this.dataForDate
       },
     });
   }
@@ -459,6 +464,7 @@ export class BusesComponent {
       'input[name="date"]'
     ) as HTMLInputElement;
     console.log('data ==> ', data);
+    // return;
 
     if (!data.id) {
       alert('Bus id not found!');
@@ -470,9 +476,10 @@ export class BusesComponent {
     this.router.navigate(['/daily-update'], {
       queryParams: {
         busId: data.id,
-        triptId: data.dailyUpdateId,
+        triptId: data.dailyUpdateId || data.previousDailyUpdateId,
         currentStatus: 'finished',
         type: 'update',
+        stopDate: this.dataForDate
       },
     });
   }
@@ -561,6 +568,38 @@ export class BusesComponent {
         console.log('Observable is now completed.');
       }
     );
+  }
+
+  today = new Date().toISOString().split('T')[0];
+
+  getStatus(data: any): string {
+    const today = new Date().toISOString().split('T')[0];
+  
+    const updateDate = data.dailyUpdateDate
+      ? new Date(data.dailyUpdateDate).toISOString().split('T')[0]
+      : null;
+
+      // console.log("status ", data.currentStatus, data.previousStatus, updateDate, today);
+      
+      
+      
+    // ✅ Case 1:
+    if (
+      // today === updateDate &&
+      data.startDate <= this.dateForStatus &&
+      !data.currentStatus &&
+      data.previousStatus === 'running'
+    ) {
+      return 'running';
+    }
+  
+    // ✅ Case 2:
+    if (!data.currentStatus) {
+      return 'idle';
+    }
+  
+    // ✅ Default:
+    return data.currentStatus;
   }
 
 

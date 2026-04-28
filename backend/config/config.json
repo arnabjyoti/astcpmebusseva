@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "u476288869_astcpme",
+      "username": "u476288869_astcpme_prod",
       "password": "JouoST|zL&f2",
-      "database": "u476288869_astcpme",
+      "database": "u476288869_astcpme_prod",
       "host": "82.25.121.109",
       "dialect": "mysql",
         "dialectOptions": {
