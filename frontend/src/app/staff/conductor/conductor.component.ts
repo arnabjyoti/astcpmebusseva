@@ -6,6 +6,8 @@ import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
 import * as XLSX from 'xlsx';
 
+declare var $: any;
+
 @Component({
   selector: 'app-conductor',
   templateUrl: './conductor.component.html',
@@ -14,6 +16,7 @@ import * as XLSX from 'xlsx';
 export class ConductorComponent {
 
   isLoading: boolean = false;
+  loadingMessage: string = 'Fetching Pending Amount For Conductor...';
 
   public endpoint: string;
     constructor(
@@ -42,6 +45,7 @@ export class ConductorComponent {
 
   busConductorList: any;
   conductorList: any;
+  unblockPaymentAmount: number | null = null;
 
 
   ngOnInit(): void {
@@ -206,6 +210,7 @@ isConductorEdit: boolean = false;
     const ENDPOINT = `${environment.BASE_URL}/api/getConductor`;
 
     this.isLoading = true;
+    this.loadingMessage = 'Fetching Pending Amount For Conductor...';
 
     this.http.get(ENDPOINT).subscribe(
       (response) => {
@@ -228,6 +233,31 @@ isConductorEdit: boolean = false;
     this.toBeDeletedConductorRecord = data;
   }
 
+  openBlockActionDialog = (data: any) => {
+    this.toBeDeletedConductorRecord = data;
+    this.unblockPaymentAmount = null;
+  }
+
+  isPendingBlocked(status: string): boolean {
+    return status === 'PendingBlock';
+  }
+
+  isManuallyBlocked(status: string): boolean {
+    return status === 'Block';
+  }
+
+  getConductorStatusLabel(status: string): string {
+    if (status === 'PendingBlock') {
+      return 'Pending Block';
+    }
+
+    if (status === 'Block') {
+      return 'Manual Block';
+    }
+
+    return status;
+  }
+
   handleDeleteConductor = () => {
     if (this.toBeDeletedConductorRecord.id != '') {
       const ENDPOINT = `${environment.BASE_URL}/api/deleteConductor`;
@@ -236,8 +266,8 @@ isConductorEdit: boolean = false;
       };
       this.http.post(ENDPOINT, requestOptions).subscribe(
         (response) => {
-          this.getConductors();
-          this.toastr.success("Conductor deleted successfully", "Success Message");
+        this.getConductors();
+        this.toastr.success("Conductor deleted successfully", "Success Message");
         },
         (error) => {
           console.log("error here ", error);
@@ -263,7 +293,12 @@ isConductorEdit: boolean = false;
       this.http.post(ENDPOINT, requestOptions).subscribe(
         (response) => {
           this.getConductors();
-          this.toastr.success("Conductor deleted successfully", "Success Message");
+          this.toastr.success(
+            this.isManuallyBlocked(this.toBeDeletedConductorRecord.status)
+              ? 'Conductor unblocked successfully'
+              : 'Conductor manually blocked successfully',
+            'Success Message'
+          );
         },
         (error) => {
           console.log("error here ", error);
@@ -277,6 +312,52 @@ isConductorEdit: boolean = false;
     } else {
       this.toastr.warning("Please enter data properly before proceed", "Warning Message");
     }
+  }
+
+  handleUnblockConductorWithPayment = () => {
+    if (!this.toBeDeletedConductorRecord?.id) {
+      this.toastr.warning('Please select conductor properly', 'Warning Message');
+      return;
+    }
+
+    const billAmount = Number(this.unblockPaymentAmount || 0);
+
+    if (billAmount <= 0) {
+      this.toastr.warning('Please enter a valid pending bill amount', 'Warning');
+      return;
+    }
+
+    const ENDPOINT = `${environment.BASE_URL}/api/unblockConductorWithPayment`;
+
+    this.http.post(ENDPOINT, {
+      conductorId: this.toBeDeletedConductorRecord.id,
+      billAmount,
+    }).subscribe(
+      (response: any) => {
+        this.getConductors();
+        this.unblockPaymentAmount = null;
+
+        if (response?.conductorStatus === 'Block') {
+          this.toastr.warning(
+            'Payment saved, but conductor is manually blocked',
+            'Manual Block Active'
+          );
+        } else if (response?.conductorStatus === 'PendingBlock') {
+          this.toastr.warning(
+            'Payment saved, but conductor is still blocked because pending amount is above 3000',
+            'Still Blocked'
+          );
+        } else {
+          this.toastr.success('Payment added and conductor unblocked successfully', 'Success Message');
+        }
+
+        $('#unblockConductorModal').modal('hide');
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error(error?.error?.message || 'Something went wrong !', 'Warning');
+      }
+    );
   }
 
   

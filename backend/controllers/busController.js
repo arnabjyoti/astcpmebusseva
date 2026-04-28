@@ -102,6 +102,42 @@ const syncAutoAttendanceFromDailyUpdate = async ({ conductorId, attendanceDate }
   }
 };
 
+const CONDUCTOR_BLOCK_PENDING_AMOUNT = 3000;
+
+const toNumber = (value) => {
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const syncBlockedConductorsByPendingAmount = async () => {
+  const sql = `
+    UPDATE conductorMasters AS cm
+    LEFT JOIN (
+      SELECT
+        conductorId,
+        COALESCE(
+          SUM(COALESCE(tragetedEarning, 0) - COALESCE(netAmountDeposited, 0)),
+          0
+        ) AS pendingAmount
+      FROM dailyUpdates
+      WHERE conductorId IS NOT NULL
+      GROUP BY conductorId
+    ) AS pendingSummary
+      ON pendingSummary.conductorId = cm.id
+    SET cm.status = CASE
+      WHEN cm.status = 'Block' THEN 'Block'
+      WHEN COALESCE(pendingSummary.pendingAmount, 0) > :blockAmount THEN 'PendingBlock'
+      ELSE 'Active'
+    END
+    WHERE cm.status IN ('Active', 'Block', 'PendingBlock')
+  `;
+
+  await sequelize.query(sql, {
+    replacements: { blockAmount: CONDUCTOR_BLOCK_PENDING_AMOUNT },
+    type: sequelize.QueryTypes.UPDATE,
+  });
+};
+
 module.exports = {
   upload_driver_image: multer({
     storage: multer.diskStorage({
@@ -519,25 +555,27 @@ module.exports = {
       });
   },
 
-  getConductorWithAllotment(req, res) {
+  async getConductorWithAllotment(req, res) {
+    try {
+      await syncBlockedConductorsByPendingAmount();
 
-    conductorMasterModel.findAll({
-      where: { status: "Active" },
-      attributes: [
-        "id",
-        "conductor_id",
-        "license_no",
-        "license_validity",
-        "conductor_name",
-        "contact_no",
-        "aadhar",
-        "pan",
-        "voter",
-        "address",
-        "photo",
-        "status",
-        [
-          Sequelize.literal(`
+      conductorMasterModel.findAll({
+        where: { status: "Active" },
+        attributes: [
+          "id",
+          "conductor_id",
+          "license_no",
+          "license_validity",
+          "conductor_name",
+          "contact_no",
+          "aadhar",
+          "pan",
+          "voter",
+          "address",
+          "photo",
+          "status",
+          [
+            Sequelize.literal(`
           CASE 
             WHEN EXISTS (
               SELECT 1 
@@ -549,19 +587,23 @@ module.exports = {
             ELSE 'Not Allotted'
           END
         `),
-          "allotmentStatus"
-        ]
-      ],
-      order: [["conductor_name", "ASC"]],
-      raw: true
-    })
-      .then((conductors) => {
-        return res.status(200).send(conductors);
+            "allotmentStatus"
+          ]
+        ],
+        order: [["conductor_name", "ASC"]],
+        raw: true
       })
-      .catch((error) => {
-        console.log(error);
-        return res.status(400).send(error);
-      });
+        .then((conductors) => {
+          return res.status(200).send(conductors);
+        })
+        .catch((error) => {
+          console.log(error);
+          return res.status(400).send(error);
+        });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Failed to fetch conductor list" });
+    }
   },
 
   saveConductor(req, res) {
@@ -688,6 +730,66 @@ module.exports = {
       });
   },
 
+  async unblockConductorWithPayment(req, res) {
+    try {
+      const { conductorId, billAmount } = req.body;
+      const paymentAmount = toNumber(billAmount);
+
+      if (!conductorId) {
+        return res.status(400).send({ message: "Conductor id is required" });
+      }
+
+      if (paymentAmount <= 0) {
+        return res.status(400).send({ message: "Valid bill amount is required" });
+      }
+
+      const latestDailyUpdate = await dailyUpdatesModel.findOne({
+        where: {
+          conductorId,
+          status: "Active",
+        },
+        order: [["id", "DESC"]],
+      });
+
+      if (!latestDailyUpdate) {
+        return res.status(404).send({ message: "No daily update found for this conductor" });
+      }
+
+      const updatedAdditionalAmount =
+        toNumber(latestDailyUpdate.additionalAmount) + paymentAmount;
+      const updatedNetAmountDeposited =
+        toNumber(latestDailyUpdate.netAmountDeposited) + paymentAmount;
+      const updatedAmountToBeDeposited = Math.max(
+        0,
+        toNumber(latestDailyUpdate.amountToBeDeposited) - paymentAmount
+      );
+
+      await dailyUpdatesModel.update(
+        {
+          additionalAmount: String(updatedAdditionalAmount),
+          netAmountDeposited: String(updatedNetAmountDeposited),
+          amountToBeDeposited: String(updatedAmountToBeDeposited),
+        },
+        { where: { id: latestDailyUpdate.id } }
+      );
+
+      await syncBlockedConductorsByPendingAmount();
+
+      const updatedConductor = await conductorMasterModel.findOne({
+        where: { id: conductorId },
+        raw: true,
+      });
+
+      return res.status(200).send({
+        message: "Conductor payment updated successfully",
+        conductorStatus: updatedConductor?.status || "Active",
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: "Failed to unblock conductor with payment" });
+    }
+  },
+
   // getConductor(req, res) {
   //   console.log("here1");
   //   let query = {
@@ -715,15 +817,18 @@ module.exports = {
 
   // const { Op, literal } = require("sequelize");
 
-  getConductor(req, res) {
-    let query = {
-      where: {
-        [Op.or]: [{ status: "Active" }, { status: "Block" }],
-      },
-      attributes: {
-        include: [
-          [
-            literal(`(
+  async getConductor(req, res) {
+    try {
+      await syncBlockedConductorsByPendingAmount();
+
+      let query = {
+        where: {
+          [Op.or]: [{ status: "Active" }, { status: "Block" }, { status: "PendingBlock" }],
+        },
+        attributes: {
+          include: [
+            [
+              literal(`(
             SELECT 
               COALESCE(
                 SUM(
@@ -735,21 +840,25 @@ module.exports = {
             FROM dailyUpdates du
             WHERE du.conductorId = conductorMaster.id
           )`),
-            "amountToBeDeposited",
+              "amountToBeDeposited",
+            ],
           ],
-        ],
-      },
-      raw: true,
-      order: [["id", "DESC"]],
-    };
+        },
+        raw: true,
+        order: [["id", "DESC"]],
+      };
 
-    return conductorMasterModel
-      .findAll(query)
-      .then((data) => res.status(200).send(data))
-      .catch((error) => {
-        console.error(error);
-        return res.status(400).send(error);
-      });
+      return conductorMasterModel
+        .findAll(query)
+        .then((data) => res.status(200).send(data))
+        .catch((error) => {
+          console.error(error);
+          return res.status(400).send(error);
+        });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: "Failed to fetch conductor list" });
+    }
   },
 
   // const { Op, Sequelize } = require("sequelize");
@@ -1215,18 +1324,21 @@ module.exports = {
   //     });
   // },
 
-  getBusList(req, res) {
-    const reqDate = req.query.date;
-    let filterDate = null;
+  async getBusList(req, res) {
+    try {
+      await syncBlockedConductorsByPendingAmount();
 
-    if (reqDate) {
-      const [yyyy, mm, dd] = reqDate.split("-");
-      filterDate = `${yyyy}-${mm}-${dd}`;
-    }
+      const reqDate = req.query.date;
+      let filterDate = null;
 
-    console.log("filterDate", filterDate);
+      if (reqDate) {
+        const [yyyy, mm, dd] = reqDate.split("-");
+        filterDate = `${yyyy}-${mm}-${dd}`;
+      }
 
-    const sql = `
+      console.log("filterDate", filterDate);
+
+      const sql = `
 SELECT 
   bus.id,
   bus.busName,
@@ -1320,20 +1432,24 @@ WHERE bus.status = 'Active'
 ORDER BY bus.id DESC;
 `;
 
-    const replacements = { filterDate };
+      const replacements = { filterDate };
 
-    sequelize
-      .query(sql, {
-        replacements,
-        type: sequelize.QueryTypes.SELECT,
-      })
-      .then((bus) => {
-        return res.status(200).send(bus);
-      })
-      .catch((error) => {
-        console.error(error);
-        return res.status(400).send(error);
-      });
+      sequelize
+        .query(sql, {
+          replacements,
+          type: sequelize.QueryTypes.SELECT,
+        })
+        .then((bus) => {
+          return res.status(200).send(bus);
+        })
+        .catch((error) => {
+          console.error(error);
+          return res.status(400).send(error);
+        });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: "Failed to fetch bus list" });
+    }
   },
 
   // *****************************************
@@ -2447,14 +2563,24 @@ END AS estimated_time,
         return res.status(400).send({ message: 'Conductor id is required' });
       }
 
+      await syncBlockedConductorsByPendingAmount();
+
       const sql = `
-        SELECT 
-          SUM(
-            COALESCE(tragetedEarning, 0) 
-            - COALESCE(netAmountDeposited, 0)
-          ) AS amountToBeDeposited
-        FROM dailyUpdates
-        WHERE conductorId = :id
+        SELECT
+          (
+            SELECT COALESCE(
+              SUM(
+                COALESCE(du.tragetedEarning, 0)
+                - COALESCE(du.netAmountDeposited, 0)
+              ),
+              0
+            )
+            FROM dailyUpdates du
+            WHERE du.conductorId = :id
+          ) AS amountToBeDeposited,
+          cm.status AS conductorStatus
+        FROM conductorMasters cm
+        WHERE cm.id = :id
       `;
 
       const [dataResults] = await sequelize.query(sql, {
