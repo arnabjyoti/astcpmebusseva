@@ -12,6 +12,9 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./bus-daily-updates.component.css'],
 })
 export class BusDailyUpdatesComponent {
+
+  isLoading: boolean = false;
+
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,

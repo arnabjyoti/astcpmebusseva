@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-conductor',
@@ -290,6 +291,24 @@ isConductorEdit: boolean = false;
   resetForm2() {
      this.form2 = {};
     this.isConductorEdit = false;
+  }
+
+  downloadRecords = () => {
+    const exportData = this.conductorList.map((conductor: any) => ({
+      conductor_id: conductor.conductor_id,
+      conductor_name: conductor.conductor_name,
+      license_no: conductor.license_no,
+      license_validity: conductor.license_validity,
+      contact_no: conductor.contact_no,
+      aadhar: conductor.aadhar,
+      pan: conductor.pan,
+      voter: conductor.voter,
+      address: conductor.address
+    }));
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Conductor Records');
+    XLSX.writeFile(wb, 'conductor_records.xlsx');
   }
 
 }

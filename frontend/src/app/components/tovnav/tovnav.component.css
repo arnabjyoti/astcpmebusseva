@@ -57,8 +57,9 @@
 /* Search Input Styles */
 .search-bar-input {
   width: 100%;
+  height: 38px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   padding-left: 2.5rem;
   padding-right: 2.5rem;
   font-size: 14px;

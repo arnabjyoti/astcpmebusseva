@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-driver',
@@ -11,6 +12,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./driver.component.css']
 })
 export class DriverComponent {
+
+  isLoading: boolean = false;
 
   public endpoint: string;
   constructor(
@@ -266,4 +269,23 @@ export class DriverComponent {
   setAddNewButton = (tabName: any) => {
     this.activeTabName = tabName;
   };
+
+  downloadRecords = () => {
+    const exportData = this.driverList.map((driver: any) => ({
+      DriverID: driver.driver_id,
+      DriverName: driver.driver_name,
+      LicenseNo: driver.license_no,
+      LicenseValidity: driver.license_validity,
+      ContactNo: driver.contact_no,
+      Aadhar: driver.aadhar,
+      PAN: driver.pan,
+      VoterID: driver.voter,
+      Address: driver.address
+    }));
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Driver Records');
+    XLSX.writeFile(wb, 'driver_records.xlsx');
+  }
+
 }

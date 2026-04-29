@@ -30,6 +30,7 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-width: 100%;
 }
 
 .professional-thead {
@@ -54,6 +55,45 @@
 
 .professional-table tbody tr:hover {
   background-color: #f6f9fc;
+}
+
+.bus-table-shell {
+  width: 100%;
+}
+
+.vehicle-primary {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.vehicle-secondary {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.crew-line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: normal;
+}
+
+.crew-line + .crew-line {
+  margin-top: 8px;
+}
+
+.crew-role {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.crew-value {
+  color: #111827;
+  line-height: 1.2;
 }
 
 /* Status badges */
@@ -88,6 +128,71 @@
   background: transparent;
   border: none;
   padding: 2px 6px;
+}
+
+.details-toggle {
+  min-width: 78px;
+}
+
+.details-row td {
+  background-color: #f8fafc;
+  border-top: none;
+}
+
+.details-cell {
+  padding: 0 !important;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.details-block {
+  min-width: 0;
+  border: 1px solid #e5e7eb;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.details-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  /* color: #6b7280; */
+  color: #19191a;
+  margin-bottom: 10px;
+}
+
+.details-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid #e5e7eb;
+  white-space: normal;
+}
+
+.details-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.details-item span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.details-item strong {
+  color: #111827;
+  text-align: right;
+}
+
+.details-inline-action {
+  align-items: center;
 }
 /* ✅ Light row status colors */
 .row-running {
@@ -147,4 +252,152 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 14px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  margin-bottom: 15px;
+  border-top: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-item {
+  margin: 0 2px;
+}
+
+.page-link {
+  padding: 6px 12px;
+  color: #007bff;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.page-link:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+  cursor: default;
+}
+
+.page-item.disabled .page-link {
+  color: #6c757d;
+  pointer-events: none;
+  cursor: not-allowed;
+  background-color: #fff;
+  border-color: #dee2e6;
+  opacity: 0.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .breakdown-container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .table-header .btn-success,
+  .table-header .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 8px 6px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-link {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Optional: Add letter spacing to the text */
+.tracking-wider {
+    letter-spacing: 0.1rem;
 }

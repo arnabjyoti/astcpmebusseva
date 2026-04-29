@@ -13,12 +13,18 @@ import { Router } from '@angular/router';
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
+
+  isLoading: boolean = false;
+  expandedBusId: number | null = null;
+
   constructor(
     private appService: AppService,
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router
   ) { }
+
+  private readonly busesScrollPositionKey = 'busesScrollPositionBeforeDailyUpdate';
 
   form: any = {
     busName: '',
@@ -441,6 +447,8 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       return;
     }
 
+    this.saveCurrentScrollPosition();
+
     this.router.navigate(['/daily-update'], {
       queryParams: {
         date: this.selectedDate,
@@ -464,6 +472,8 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       return;
     }
 
+    this.saveCurrentScrollPosition();
+
     this.router.navigate(['/daily-update'], {
       queryParams: {
         busId: data.id,
@@ -472,6 +482,38 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
         type: 'update',
         stopDate: this.dataForDate
       },
+    });
+  }
+
+  private saveCurrentScrollPosition() {
+    const scrollTop =
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    sessionStorage.setItem(this.busesScrollPositionKey, String(scrollTop));
+  }
+
+  private restoreSavedScrollPosition() {
+    const savedScrollTop = sessionStorage.getItem(this.busesScrollPositionKey);
+
+    if (savedScrollTop === null) {
+      return;
+    }
+
+    sessionStorage.removeItem(this.busesScrollPositionKey);
+
+    const scrollTop = Number(savedScrollTop);
+
+    if (Number.isNaN(scrollTop)) {
+      return;
+    }
+
+    setTimeout(() => {
+      window.scrollTo({ top: scrollTop, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = scrollTop;
+      document.body.scrollTop = scrollTop;
     });
   }
 
@@ -530,6 +572,10 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   }
 
   today = new Date().toISOString().split('T')[0];
+
+  toggleDetails(busId: number): void {
+    this.expandedBusId = this.expandedBusId === busId ? null : busId;
+  }
 
   getStatus(data: any): string {
     const today = new Date().toISOString().split('T')[0];

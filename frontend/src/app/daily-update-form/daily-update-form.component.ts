@@ -24,7 +24,7 @@ export class DailyUpdateFormComponent {
     private http: HttpClient,
     private toastr: ToastrService,
     private router: Router,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   private apiUrl = 'https://worldtimeapi.org/api/timezone/Asia/Kolkata';
@@ -38,6 +38,7 @@ export class DailyUpdateFormComponent {
   busId: string | null = null;
   busDetails: any = {};
   selectedDate: string | null = null;
+
   form: any = {
     timesheetNo: '',
     omr: 0,
@@ -71,6 +72,11 @@ export class DailyUpdateFormComponent {
     amountToBeDeposited: 0,
     currentStatus: '',
     stopDate: '',
+
+    placeOfBreakdown: '',
+    causeOfBreakdown: '',
+    kmAtBreakdown: '',
+    lossKm: '',
   };
 
   routeNo: any;
@@ -86,7 +92,6 @@ export class DailyUpdateFormComponent {
       this.form.noOfTrip = params['noOfTrip'];
       this.triptId = params['triptId'];
       this.formtype = params['type'];
-      
 
       if (this.triptId) {
         console.log('update');
@@ -129,9 +134,9 @@ export class DailyUpdateFormComponent {
         this.form.conductorId = data.conductorId;
         this.form.stopDate = this.stopDate;
 
-        (this.form.conductor_actual_id = data.conductor_actual_id),
+        ((this.form.conductor_actual_id = data.conductor_actual_id),
           (this.form.driver_actual_id = data.driver_actual_id),
-          (this.selectedDate = data.date);
+          (this.selectedDate = data.date));
         console.log('data ==>> ', data.driverId);
 
         let busDetails = {
@@ -171,7 +176,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -192,8 +197,8 @@ export class DailyUpdateFormComponent {
         this.form.depot = response.depotName;
         this.form.driverId = response.driver_actual_id;
         this.form.conductorId = response.conductor_actual_id;
-        (this.form.conductor_actual_id = response.conductor_actual_id),
-          (this.form.routeNo = response.routeNo);
+        ((this.form.conductor_actual_id = response.conductor_actual_id),
+          (this.form.routeNo = response.routeNo));
         this.form.estimated_collection = response.estimated_collection;
         this.form.tragetedEarning = response.estimated_collection;
         // this.form.amountToBeDeposited = response.estimated_collection;
@@ -214,7 +219,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -241,7 +246,7 @@ export class DailyUpdateFormComponent {
           await this.downloadPdf();
           this.showPreview = false;
 
-          this.router.navigate(['/buses']);
+          this.navigateToBuses();
           this.toastr.success('Added Successfully', 'Success');
 
           this.isSaving = false; // ✅ stop loader
@@ -249,7 +254,7 @@ export class DailyUpdateFormComponent {
         (error) => {
           this.toastr.error('Something went wrong!', 'Warning');
           this.isSaving = false; // ✅ stop loader on error
-        }
+        },
       );
     } else {
       this.toastr.warning('Please fill all required fields', 'Warning');
@@ -288,7 +293,7 @@ export class DailyUpdateFormComponent {
         // this.getBuses();
         // this.form = { ...this.originalForm };
 
-        this.router.navigate(['/buses']);
+        this.navigateToBuses();
 
         this.toastr.success('Added Successfully', 'Success');
       },
@@ -298,7 +303,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -331,7 +336,7 @@ export class DailyUpdateFormComponent {
 
         $('#exampleModal').modal('hide'); // ✅ close AFTER download
 
-        this.router.navigate(['/buses']);
+        this.navigateToBuses();
 
         this.toastr.success('Updated Successfully', 'Success');
 
@@ -340,7 +345,7 @@ export class DailyUpdateFormComponent {
       () => {
         this.toastr.error('Something went wrong !', 'Warning');
         this.isSaving = false;
-      }
+      },
     );
   };
 
@@ -429,6 +434,10 @@ export class DailyUpdateFormComponent {
     });
   }
 
+  private navigateToBuses() {
+    this.router.navigate(['/buses']);
+  }
+
   getCurrentISTTime = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getCurrentISTTime`;
 
@@ -444,7 +453,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('IST Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -583,7 +592,7 @@ export class DailyUpdateFormComponent {
 
       // ===== Save PDF =====
       doc.save(
-        `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`
+        `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
       );
     };
   }
@@ -817,22 +826,22 @@ export class DailyUpdateFormComponent {
     doc.text(
       'SIGNATURE OF THE CASHIER\nPM e-bus sewa\nRupnagar, Guwahati-32',
       10,
-      y
+      y,
     );
     doc.text(
       'SIGNATURE OF THE AUDITOR\nPM e-bus sewa\nRupnagar, Guwahati-32',
       70,
-      y
+      y,
     );
     doc.text(
       'SIGNATURE OF THE OPERATION MANAGER\nPM e-bus sewa\nRupnagar, Guwahati-32',
       140,
-      y
+      y,
     );
 
     // ===== Save PDF =====
     doc.save(
-      `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`
+      `Bus_Earning_Log_${this.busDetails.busNo}_${this.selectedDate}.pdf`,
     );
   }
 
@@ -854,7 +863,7 @@ export class DailyUpdateFormComponent {
       (response: any) => {
         console.log(
           'response remaining amount',
-          response.data.amountToBeDeposited
+          response.data.amountToBeDeposited,
         );
         this.remainingAmount = response.data.amountToBeDeposited;
       },
@@ -864,7 +873,7 @@ export class DailyUpdateFormComponent {
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   }
 
@@ -873,17 +882,29 @@ export class DailyUpdateFormComponent {
   }
 
   totalPendingAmount(): number {
-    let amount = this.toInt(this.form.netAmountDeposited) >= this.toInt(this.form.tragetedEarning) ? 
-    this.toInt(this.remainingAmount) - this.toInt(this.form.netAmountDeposited)
-    :  
-    this.toInt(this.remainingAmount) -
-    this.toInt(this.form.tragetedEarning) +
-    this.toInt(this.form.amountToBeDeposited) ;
+    let amount =
+      this.toInt(this.form.netAmountDeposited) >=
+      this.toInt(this.form.tragetedEarning)
+        ? this.toInt(this.remainingAmount) -
+          this.toInt(this.form.netAmountDeposited)
+        : this.toInt(this.remainingAmount) -
+          this.toInt(this.form.tragetedEarning) +
+          this.toInt(this.form.amountToBeDeposited);
     return amount;
   }
 
-
-   positivePendingAmount(number: number): number {
+  positivePendingAmount(number: number): number {
     return Math.abs(number);
   }
+
+  lossKm(): number {
+  let km = this.toInt(180) - this.toInt(this.form.kmAtBreakdown);
+  let result = km > 0 ? km : 0;
+  
+  // Directly sync with the form object so it's ready for the DB
+  this.form.lossKm = result; 
+  
+  return result;
+}
+
 }
