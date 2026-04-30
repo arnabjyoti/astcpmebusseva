@@ -7,6 +7,8 @@ import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
+declare var $: any;
+
 @Component({
   selector: 'app-buses',
   templateUrl: './buses.component.html',
@@ -15,7 +17,19 @@ import { Router } from '@angular/router';
 export class BusesComponent {
 
   isLoading: boolean = false;
+  loadingMessage: string = 'Fetching Bus Master...';
   expandedBusId: number | null = null;
+  readonly conductorWarningPendingAmount = 2000;
+  readonly conductorBlockPendingAmount = 3000;
+  warningPendingAmount: number = 0;
+  isPendingAmountLoading: boolean = false;
+  isPendingAmountCheckLoading: boolean = false;
+  searchTerm: string = '';
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalRecords: number = 0;
+  totalPages: number = 0;
+  private pendingTripProceedAction: (() => void) | null = null;
 
   constructor(
     private appService: AppService,
@@ -187,23 +201,76 @@ export class BusesComponent {
 
 dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
-    const ENDPOINT = `${environment.BASE_URL}/api/getBusList?date=${this.dataForDate}`;
+    const params = new URLSearchParams({
+      date: this.dataForDate,
+      page: String(this.currentPage),
+      limit: String(this.pageSize),
+      search: this.searchTerm.trim(),
+    });
+    const ENDPOINT = `${environment.BASE_URL}/api/getBusList?${params.toString()}`;
+    this.isLoading = true;
+    this.loadingMessage = 'Fetching Bus Master...';
 
     this.http.get(ENDPOINT).subscribe(
-      (response) => {
+      (response: any) => {
         console.log('busList response ', response);
-        this.busList = response;
+        this.busList = response?.rows || [];
+        this.totalRecords = Number(response?.pagination?.total || 0);
+        this.totalPages = Number(response?.pagination?.totalPages || 0);
+        this.currentPage = Number(response?.pagination?.page || this.currentPage);
         this.dateForStatus = this.dataForDate;
       },
       (error) => {
         console.log('error here ', error);
         this.toastr.error('Something went wrong !', 'Warning');
+        this.isLoading = false;
       },
       () => {
         console.log('Observable is now completed.');
+        this.isLoading = false;
       }
     );
   };
+
+  applySearch(): void {
+    this.currentPage = 1;
+    this.getBuses();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.getBuses();
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.getBuses();
+  }
+
+  getStartEntry(): number {
+    if (!this.totalRecords) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  getEndEntry(): number {
+    if (!this.totalRecords) {
+      return 0;
+    }
+
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
+  }
+
+  getRowNumber(index: number): number {
+    return (this.currentPage - 1) * this.pageSize + index + 1;
+  }
 
   getDriver = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getDriver`;
@@ -340,21 +407,24 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     this.selectedData = this.busList[id];
     console.log(this.busList[id]);
 
+    this.isPendingAmountLoading = true;
 
     const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${this.selectedData.conductor_actual_id}`;
 
     this.http.get(ENDPOINT).subscribe(
       (response: any) => {
         console.log('response ', response.data.amountToBeDeposited);
-        this.amountToBeDeposited = response.data.amountToBeDeposited
+        this.amountToBeDeposited = Number(response.data.amountToBeDeposited || 0);
 
       },
       (error) => {
         console.log('error here ', error);
         this.toastr.error('Something went wrong !', 'Warning');
+        this.isPendingAmountLoading = false;
       },
       () => {
         console.log('Observable is now completed.');
+        this.isPendingAmountLoading = false;
       }
     );
 
@@ -447,16 +517,21 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       return;
     }
 
-    this.saveCurrentScrollPosition();
+    this.validateConductorPendingAmountBeforeTrip(() => {
+      this.closeModalAndCleanup('#addDetailsModal');
+      this.saveCurrentScrollPosition();
 
-    this.router.navigate(['/daily-update'], {
-      queryParams: {
-        date: this.selectedDate,
-        busId: this.selectedData.id,
-        currentStatus: 'running',
-        noOfTrip: 0,
-        stopDate: this.dataForDate
-      },
+      setTimeout(() => {
+        this.router.navigate(['/daily-update'], {
+          queryParams: {
+            date: this.selectedDate,
+            busId: this.selectedData.id,
+            currentStatus: 'running',
+            noOfTrip: 0,
+            stopDate: this.dataForDate
+          },
+        });
+      }, 150);
     });
   }
 
@@ -572,6 +647,90 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   }
 
   today = new Date().toISOString().split('T')[0];
+
+  private fetchPendingAmountForConductor(conductorId: number, callback: (amount: number, status?: string) => void): void {
+    const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${conductorId}`;
+    this.isPendingAmountCheckLoading = true;
+
+    this.http.get(ENDPOINT).subscribe(
+      (response: any) => {
+        const pendingAmount = Number(response?.data?.amountToBeDeposited || 0);
+        const conductorStatus = response?.data?.conductorStatus;
+        this.isPendingAmountCheckLoading = false;
+        callback(pendingAmount, conductorStatus);
+      },
+      () => {
+        this.isPendingAmountCheckLoading = false;
+        this.toastr.error('Unable to verify conductor pending amount', 'Warning');
+      }
+    );
+  }
+
+  private validateConductorPendingAmountBeforeTrip(onAllowed: () => void): void {
+    const conductorId = this.selectedData?.conductor_actual_id;
+
+    if (!conductorId) {
+      this.toastr.warning('Conductor is not allotted', 'Warning');
+      return;
+    }
+
+    this.fetchPendingAmountForConductor(conductorId, (pendingAmount, conductorStatus) => {
+      if (pendingAmount > this.conductorBlockPendingAmount || this.isBlockedConductor(conductorStatus)) {
+        this.toastr.error(
+          conductorStatus === 'Block'
+            ? 'Conductor is manually blocked.'
+            : `Conductor pending amount is more than ${this.conductorBlockPendingAmount}. Conductor is blocked until the bill is paid.`,
+          'Conductor Blocked'
+        );
+        this.getBuses();
+        return;
+      }
+
+      if (pendingAmount > this.conductorWarningPendingAmount) {
+        this.warningPendingAmount = pendingAmount;
+        this.pendingTripProceedAction = onAllowed;
+        this.closeModalAndCleanup('#addDetailsModal');
+        setTimeout(() => {
+          this.openPendingAmountWarningModal();
+        }, 150);
+        return;
+      }
+
+      onAllowed();
+    });
+  }
+
+  private openPendingAmountWarningModal(): void {
+    $('#pendingAmountWarningModal').modal('show');
+  }
+
+  closePendingAmountWarningModal(): void {
+    this.pendingTripProceedAction = null;
+    this.closeModalAndCleanup('#pendingAmountWarningModal');
+  }
+
+  proceedAfterPendingAmountWarning(): void {
+    const proceedAction = this.pendingTripProceedAction;
+    this.pendingTripProceedAction = null;
+    this.closeModalAndCleanup('#pendingAmountWarningModal');
+
+    if (proceedAction) {
+      setTimeout(() => {
+        proceedAction();
+      }, 150);
+    }
+  }
+
+  isBlockedConductor(status: string | undefined): boolean {
+    return status === 'Block' || status === 'PendingBlock';
+  }
+
+  private closeModalAndCleanup(modalSelector: string): void {
+    $(modalSelector).modal('hide');
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+  }
 
   toggleDetails(busId: number): void {
     this.expandedBusId = this.expandedBusId === busId ? null : busId;

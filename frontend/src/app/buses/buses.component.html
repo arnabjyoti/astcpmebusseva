@@ -4,7 +4,7 @@
   </div>
 
   <p class="mt-3 text-muted fw-semibold small text-uppercase tracking-wider">
-    Fetching Bus Data...
+    {{ loadingMessage }}
   </p>
 </div>
 
@@ -41,16 +41,34 @@
       <div class="row">
         <div class="col-lg-12 col-12">
           <div *ngIf="!isLoading">
-            <div class="d-flex align-items-end gap-2 mb-4">
+            <div class="toolbar-row mb-4">
               <div class="form-group mb-0">
                 <label class="form-label fw-bold small mb-1">Select Date</label>
                 <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate"
                   [max]="today | date: 'yyyy-MM-dd'" style="height: 38px;">
               </div>
 
+              <div class="form-group mb-0 bus-search-group">
+                <label class="form-label fw-bold small mb-1">Search Vehicle</label>
+                <input
+                  type="text"
+                  class="form-control premium-input"
+                  [(ngModel)]="searchTerm"
+                  name="searchTerm"
+                  placeholder="Vehicle number or name"
+                  style="height: 38px;"
+                  (keyup.enter)="applySearch()"
+                >
+              </div>
+
               <button class="btn btn-success premium-btn d-flex align-items-center justify-content-center"
-                (click)="getBuses()" style="height: 38px; padding: 0 20px;">
-                <i class="fas fa-search me-2"></i> Get Buses
+                (click)="applySearch()" style="height: 38px; padding: 0 20px;">
+                <i class="fas fa-search me-2"></i> Search
+              </button>
+
+              <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                (click)="clearSearch()" style="height: 38px; padding: 0 20px;">
+                Clear
               </button>
             </div>
 
@@ -78,7 +96,7 @@
           'row-finished': data.currentStatus === 'finished'
         }">
 
-                    <td class="align-middle">{{ i + 1 }}</td>
+                    <td class="align-middle">{{ getRowNumber(i) }}</td>
                     <td class="align-middle">
                       <div class="vehicle-primary">{{ data.busName || '-' }}</div>
                       <div class="vehicle-secondary">{{ data.busNo || '-' }}</div>
@@ -90,7 +108,7 @@
                       </div>
                       <div class="crew-line">
                         <span class="crew-role">Conductor</span>
-                        <span class="crew-value" [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+                        <span class="crew-value" [ngClass]="{ 'text-danger': isBlockedConductor(data.conductorStatus) }">
                           {{ data.conductorName || '-' }}
                         </span>
                       </div>
@@ -188,7 +206,7 @@
                       </div>
 
                       <div *ngIf="data.currentStatus !== 'running'">
-                        <button *ngIf="data.driver_actual_id && data.conductor_actual_id; else tripNotAllowed"
+                        <button *ngIf="data.driver_actual_id && data.conductor_actual_id && !isBlockedConductor(data.conductorStatus); else tripNotAllowed"
                           class="btn btn-info btn-sm btn-block" data-toggle="modal" data-target="#addDetailsModal"
                           (click)="viewData(i)">
                           <i class="fas fa-plus"></i> Update Trip
@@ -197,7 +215,13 @@
                         <ng-template #tripNotAllowed>
                           <span class="text-muted small">
                             <i class="fas fa-exclamation-circle"></i>
-                            Driver / Conductor not allotted
+                            {{
+                              data.conductorStatus === 'PendingBlock'
+                                ? 'Conductor blocked due to pending amount'
+                                : data.conductorStatus === 'Block'
+                                ? 'Conductor manually blocked'
+                                : 'Driver / Conductor not allotted'
+                            }}
                           </span>
                         </ng-template>
                       </div>
@@ -218,7 +242,7 @@
                           <div class="details-title">Conductor</div>
                           <div class="details-item">
                             <span>ID</span>
-                            <strong [ngClass]="{ 'text-danger': data.conductorStatus === 'Block' }">
+                            <strong [ngClass]="{ 'text-danger': isBlockedConductor(data.conductorStatus) }">
                               {{ data.conductorId || '-' }}
                             </strong>
                           </div>
@@ -254,24 +278,44 @@
               <!-- Table Pagination Section -->
               <div class="pagination-container">
                 <div class="pagination-info pl-2">
-                  <span>Showing {{ 0 }} to {{ 0 }} of {{ 0 }} entries</span>
+                  <span>Showing {{ getStartEntry() }} to {{ getEndEntry() }} of {{ totalRecords }} entries</span>
                 </div>
 
                 <nav aria-label="Page navigation">
                   <ul class="pagination mb-0">
-                    <li class="page-item">
-                      <a class="page-link" aria-label="Previous">
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                      <a class="page-link" aria-label="First" (click)="changePage(1)">
+                        <span aria-hidden="true">First</span>
+                      </a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                      <a class="page-link" aria-label="Previous" (click)="changePage(currentPage - 1)">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                     </li>
 
-                    <li class="page-item">
-                      <a class="page-link">{{ 0 }}</a>
+                    <li class="page-item active">
+                      <a class="page-link">{{ currentPage }}</a>
                     </li>
 
-                    <li class="page-item">
-                      <a class="page-link" aria-label="Next">
+                    <li class="page-item" *ngIf="totalPages > currentPage + 1">
+                      <a class="page-link">...</a>
+                    </li>
+
+                    <li class="page-item" *ngIf="totalPages > currentPage">
+                      <a class="page-link" (click)="changePage(totalPages)">{{ totalPages }}</a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages || totalPages === 0 }">
+                      <a class="page-link" aria-label="Next" (click)="changePage(currentPage + 1)">
                         <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages || totalPages === 0 }">
+                      <a class="page-link" aria-label="Last" (click)="changePage(totalPages)">
+                        <span aria-hidden="true">Last</span>
                       </a>
                     </li>
                   </ul>
@@ -489,11 +533,48 @@
 
                     <!-- <p> -->
                     <div class="text-center">
-                      <button class="btn btn-primary" data-dismiss="modal" (click)="redirectToAddForm()">
-                        Start Trip
+                      <button class="btn btn-primary" [disabled]="isPendingAmountCheckLoading" (click)="redirectToAddForm()">
+                        <span *ngIf="!isPendingAmountCheckLoading">Start Trip</span>
+                        <span *ngIf="isPendingAmountCheckLoading">Checking Pending Amount...</span>
                       </button>
                     </div>
                     <!-- </p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal fade" id="pendingAmountWarningModal" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title ">Pending Amount Warning</h5>
+                    <button type="button" class="close" (click)="closePendingAmountWarningModal()">
+                      &times;
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="mb-2">
+                      Conductor pending amount is more than {{ conductorWarningPendingAmount }}.
+                    </p>
+                    <p class="mb-2">
+                      Current pending amount: <strong>{{ warningPendingAmount }}</strong>
+                    </p>
+                    <p class="mb-2">
+                      <strong class="text-danger">
+                     If you exceed the the amount of 3000 then Conductor will be blocked automatically.</strong>
+                    </p>
+                    <p class="mb-0 text-muted">
+                      Please clear the bill soon. You can still proceed with this trip.
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closePendingAmountWarningModal()">
+                      Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" (click)="proceedAfterPendingAmountWarning()">
+                      Proceed Trip
+                    </button>
                   </div>
                 </div>
               </div>
@@ -572,7 +653,14 @@
                     </button>
                   </div>
                   <div class="modal-body" *ngIf="selectedData">
-                    <div class="row">
+                    <div *ngIf="isPendingAmountLoading" class="d-flex flex-column align-items-center justify-content-center py-4">
+                      <div class="spinner-border text-primary" role="status"></div>
+                      <p class="mt-3 mb-0 text-muted small text-uppercase tracking-wider">
+                        Fetching Pending Amount...
+                      </p>
+                    </div>
+
+                    <div class="row" *ngIf="!isPendingAmountLoading">
                       <div class="col-md-6">
                         <strong>Bus Name:</strong> {{ selectedData.busName }}
                       </div>
