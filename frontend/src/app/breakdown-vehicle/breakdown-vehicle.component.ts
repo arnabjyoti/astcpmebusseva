@@ -1,112 +1,57 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { AppService } from 'src/app/app.service';
-import { environment } from 'src/environments/environment';
 import * as XLSX from 'xlsx';
 
-interface BreakdownRecord {
-  id: number;
-  vehicleNumber: string;
-  routeNumber: string;
-  driverId: string;
-  conductorId: string;
-  tripCompleted: string;
-  kmDriven: string;
-  placeOfBreakdown: string;
-  dateOfBreakdown: Date;
-  timeOfBreakdown: string;
-  causeOfBreakdown: string;
-  remarks: string;
-}
+import { AppService } from 'src/app/app.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-breakdown-vehicle',
   templateUrl: './breakdown-vehicle.component.html',
-  styleUrls: ['./breakdown-vehicle.component.css'],
+  styleUrls: ['./breakdown-vehicle.component.css']
 })
 export class BreakdownVehicleComponent implements OnInit {
   BreakdownData: any[] = [];
   headers: any;
 
-  breakdownRecords: BreakdownRecord[] = [];
-  paginatedRecords: BreakdownRecord[] = [];
+  currentPage = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  totalPages = 0;
 
-  // Pagination properties
-  currentPage: number = 1;
-  pageSize: number = 10; // Records per page
-  totalRecords: number = 0;
-  totalPages: number = 0;
+  isOpen_form = false;
 
-  // Form properties
   breakdownForm: FormGroup;
-  showForm: boolean = false;
-  isEditMode: boolean = false;
-  editingRecordId: number | null = null;
-
   searchForm: FormGroup;
 
   constructor(
     private formBuilder: FormBuilder,
     private app: AppService,
-    private http: HttpClient,
+    private http: HttpClient
   ) {
     this.breakdownForm = this.createForm();
-    this.searchForm = this.formBuilder.group({});
-    this.app.getHttpHeader((h: any) => {
-      this.headers = h;
+    this.searchForm = this.createSearchForm();
+
+    this.app.getHttpHeader((headers: any) => {
+      this.headers = headers;
     });
   }
 
   ngOnInit(): void {
-    // Load breakdown records from your service
-    // this.loadBreakdownRecords();
-    this.searchForm = this.formBuilder.group({
+    this.fetchBreakdownTable();
+  }
+
+  private createSearchForm(): FormGroup {
+    return this.formBuilder.group({
       fromDate: [''],
       toDate: [''],
       vehicleNumber: [''],
-      routeNumber: [''],
+      routeNumber: ['']
     });
-
-    this.fetchBreakdownTable();
   }
 
-  onSearch() {
-    this.currentPage = 1; // reset pagination
-    this.fetchBreakdownTable();
-  }
-
-  resetSearch() {
-    this.searchForm.reset();
-    this.currentPage = 1;
-    this.fetchBreakdownTable();
-  }
-
-  updateForm() {}
-
-  fetchBreakdownTable(): void {
-    const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
-    const params = {
-      page: this.currentPage,
-      limit: this.pageSize,
-      ...this.searchForm.value,
-    };
-
-    console.log('Breakdow parmas : ', params);
-
-    this.http.post(ENDPOINT, { params }).subscribe(
-      (response: any) => {
-        console.log('Hello me:', response);
-        this.BreakdownData = response.breakdownQuery; // Adjust based on actual response structure
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
-  }
-
-  // Form Methods
-  createForm(): FormGroup {
+  private createForm(): FormGroup {
     return this.formBuilder.group({
       vehicleNumber: ['', Validators.required],
       routeNumber: ['', Validators.required],
@@ -118,181 +63,175 @@ export class BreakdownVehicleComponent implements OnInit {
       dateOfBreakdown: ['', Validators.required],
       timeOfBreakdown: ['', Validators.required],
       causeOfBreakdown: ['', Validators.required],
-      remarks: [''],
+      remarks: ['']
     });
   }
 
-  loadBreakdownRecords(): void {
-    // Sample data - replace with actual service call
-    this.breakdownRecords = [
-      {
-        id: 1,
-        vehicleNumber: 'AS21595',
-        routeNumber: '12A',
-        driverId: 'D001',
-        conductorId: 'C001',
-        tripCompleted: '5',
-        kmDriven: '120',
-        placeOfBreakdown: 'Near Ganeshguri',
-        dateOfBreakdown: new Date('2026-01-29'),
-        timeOfBreakdown: '12:36',
-        causeOfBreakdown: 'Engine failure',
-        remarks: 'Immediate repair required',
+  fetchBreakdownTable(): void {
+    const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
+
+    const payload = {
+      params: {
+        page: this.currentPage,
+        limit: this.pageSize,
+        ...this.searchForm.value
+      }
+    };
+
+    this.http.post(ENDPOINT, payload).subscribe({
+      next: (response: any) => {
+        this.BreakdownData = response?.breakdownQuery || [];
+        this.totalRecords = Number(response?.pagination?.total || this.BreakdownData.length);
+        this.totalPages = Number(
+          response?.pagination?.totalPages || Math.ceil(this.totalRecords / this.pageSize)
+        );
       },
-    ];
-
-    this.totalRecords = this.breakdownRecords.length;
-    this.calculateTotalPages();
-    this.updatePaginatedRecords();
+      error: (error) => {
+        console.error('Error fetching breakdown records:', error);
+      }
+    });
   }
 
-  // Pagination Methods
-  calculateTotalPages(): void {
-    this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
+  onSearch(): void {
+    this.currentPage = 1;
+    this.fetchBreakdownTable();
   }
 
-  updatePaginatedRecords(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedRecords = this.breakdownRecords.slice(startIndex, endIndex);
+  resetSearch(): void {
+    this.searchForm.reset();
+    this.currentPage = 1;
+    this.fetchBreakdownTable();
   }
 
   getStartIndex(): number {
-    if (this.totalRecords === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
+    return this.totalRecords === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
   }
 
   getEndIndex(): number {
-    const endIndex = this.currentPage * this.pageSize;
-    return endIndex > this.totalRecords ? this.totalRecords : endIndex;
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
   }
 
   getActualIndex(index: number): number {
     return (this.currentPage - 1) * this.pageSize + index + 1;
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePaginatedRecords();
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+
+    let startPage = Math.max(1, this.currentPage - 2);
+    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.fetchBreakdownTable();
   }
 
   previousPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updatePaginatedRecords();
+      this.fetchBreakdownTable();
     }
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
-      this.updatePaginatedRecords();
+      this.fetchBreakdownTable();
     }
   }
 
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPagesToShow = 5;
+  onReset(): void {
+    this.breakdownForm.reset();
+  }
 
-    if (this.totalPages <= maxPagesToShow) {
-      // Show all pages if total pages are less than or equal to maxPagesToShow
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show pages around current page
-      let startPage = Math.max(1, this.currentPage - 2);
-      let endPage = Math.min(this.totalPages, this.currentPage + 2);
+  open_breakdown_form(): void {
+    this.isOpen_form = true;
+    this.breakdownForm.reset();
+  }
 
-      // Adjust if at the beginning or end
-      if (this.currentPage <= 3) {
-        endPage = maxPagesToShow;
-      } else if (this.currentPage >= this.totalPages - 2) {
-        startPage = this.totalPages - maxPagesToShow + 1;
-      }
+  close_breakdown_form(): void {
+    this.isOpen_form = false;
+    this.breakdownForm.reset();
+  }
 
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
+  updateForm(): void {
+    if (this.breakdownForm.invalid) {
+      this.breakdownForm.markAllAsTouched();
+      return;
     }
 
-    return pages;
+    console.log('Form Data:', this.breakdownForm.value);
+    this.close_breakdown_form();
   }
 
-  onPageSizeChange(): void {
-    this.currentPage = 1; // Reset to first page
-    this.calculateTotalPages();
-    this.updatePaginatedRecords();
+  deleteBreakdown(id: number): void {
+    if (!confirm('Are you sure you want to delete this breakdown record?')) {
+      return;
+    }
+
+    const ENDPOINT = `${environment.BASE_URL}/api/deleteBreakdownRecord/${id}`;
+
+    this.http.delete(ENDPOINT).subscribe({
+      next: () => {
+        this.fetchBreakdownTable();
+      },
+      error: (error) => {
+        console.error('Error deleting breakdown record:', error);
+      }
+    });
   }
-
-  // Export Methods
-  // downloadReport(): void {
-  //   // Format data for export
-  //   const exportData = this.formatBreakdownDataForExport(this.breakdownRecords);
-
-  //   // Export to Excel
-  //   this.exportToExcel(exportData, 'Breakdown_Records_Report');
-
-  //   console.log('Report downloaded successfully');
-  // }
 
   downloadReport(): void {
-    const data = this.BreakdownData.map((bus, index) => ({
+    if (!this.BreakdownData.length) {
+      return;
+    }
+
+    const exportData = this.BreakdownData.map((record, index) => ({
       'Sl No.': index + 1,
-      'Vehicle Number': bus?.bus?.busNo || 'N/A',
-      'Route Number': bus?.routeNo || 'N/A',
-      'Driver ID': bus?.driver?.driver_id || 'N/A',
-      'Driver Name': bus?.driver?.driver_name || 'N/A',
-      'Conductor ID': bus?.conductor?.conductor_id || 'N/A',
-      'Conductor Name': bus?.conductor?.conductor_name || 'N/A',
-      'Trip Completed': bus.noOfTrip || 'N/A',
-      'Kilometres Driven': bus.totalOperated || 'N/A',
-      'Km operated at Breakdown': bus.totalOperatedAtBreakdown || 'N/A',
-      'Place of Breakdown': bus.placeOfBreakdown || 'N/A',
-      'Date of Breakdown': bus.date || 'N/A',
-      'Time of Breakdown': bus.stopTime || 'N/A',
-      'Cause of Breakdown': bus.causeOfBreakdown || 'N/A',
-      Remarks: bus.remarks || 'N/A',
+      'Vehicle Number': record?.bus?.busNo || 'N/A',
+      'Route Number': record?.routeNo || 'N/A',
+      'Driver ID': record?.driver?.driver_id || 'N/A',
+      'Driver Name': record?.driver?.driver_name || 'N/A',
+      'Conductor ID': record?.conductor?.conductor_id || 'N/A',
+      'Conductor Name': record?.conductor?.conductor_name || 'N/A',
+      'Trip Completed': record?.noOfTrip || 0,
+      'KM Driven': record?.totalOperated || 0,
+      'KM At Breakdown': record?.kmAtBreakdown || 0,
+      'Loss KM': record?.lossKm || 0,
+      'Place of Breakdown': record?.placeOfBreakdown || 'N/A',
+      'Date of Breakdown': this.formatDate(record?.date),
+      'Time of Breakdown': record?.stopTime || 'N/A',
+      'Cause of Breakdown': record?.causeOfBreakdown || 'N/A',
+      'Remarks': record?.remarks || ''
     }));
 
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Breakdown Buses');
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
 
-    XLSX.writeFile(wb, `breakdown-buses-${new Date().getTime()}.xlsx`);
-  }
-
-  formatBreakdownDataForExport(records: BreakdownRecord[]): any[] {
-    return records.map((record, index) => ({
-      'Sr. No.': index + 1,
-      'Vehicle Number': record.vehicleNumber,
-      'Route Number': record.routeNumber,
-      'Driver ID': record.driverId,
-      'Conductor ID': record.conductorId,
-      'Trip Completed': record.tripCompleted,
-      'Kilometres Driven': record.kmDriven,
-      'Place of Breakdown': record.placeOfBreakdown,
-      'Date of Breakdown': this.formatDate(record.dateOfBreakdown),
-      'Time of Breakdown': record.timeOfBreakdown,
-      'Cause of Breakdown': record.causeOfBreakdown,
-      Remarks: record.remarks,
-    }));
-  }
-
-  exportToExcel(data: any[], fileName: string): void {
-    // Create a new workbook
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Breakdown Records');
-
-    // Save the file
-    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Breakdown Report');
+    XLSX.writeFile(workbook, `breakdown_report_${new Date().getTime()}.xlsx`);
   }
 
   private formatDate(date: any): string {
-    if (!date) return '';
+    if (!date) {
+      return 'N/A';
+    }
 
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -300,177 +239,5 @@ export class BreakdownVehicleComponent implements OnInit {
     const year = d.getFullYear();
 
     return `${day}-${month}-${year}`;
-  }
-
-  // CRUD Operations
-  isOpen_form: boolean = false;
-  open_breakdown_form(): void {
-    // Show the form for adding new breakdown
-    this.isOpen_form = !this.isOpen_form;
-    // this.isEditMode = false;
-    // this.editingRecordId = null;
-    // this.breakdownForm.reset();
-    // this.showForm = true;
-    // console.log('Add breakdown clicked - form shown');
-  }
-
-  close_breakdown_form(): void {
-    this.isOpen_form = false;
-  }
-
-  editBreakdown(record: BreakdownRecord): void {
-    // Populate form with record data and show it
-    this.isEditMode = true;
-    this.editingRecordId = record.id;
-
-    // Format date for input[type="date"]
-    const formattedDate = this.formatDateForInput(record.dateOfBreakdown);
-
-    this.breakdownForm.patchValue({
-      vehicleNumber: record.vehicleNumber,
-      routeNumber: record.routeNumber,
-      driverId: record.driverId,
-      conductorId: record.conductorId,
-      tripCompleted: record.tripCompleted,
-      kmDriven: record.kmDriven,
-      placeOfBreakdown: record.placeOfBreakdown,
-      dateOfBreakdown: formattedDate,
-      timeOfBreakdown: record.timeOfBreakdown,
-      causeOfBreakdown: record.causeOfBreakdown,
-      remarks: record.remarks,
-    });
-
-    this.showForm = true;
-    console.log('Edit breakdown:', record);
-  }
-
-  deleteBreakdown(id: number): void {
-    // Confirm and delete the record
-    if (confirm('Are you sure you want to delete this breakdown record?')) {
-      this.breakdownRecords = this.breakdownRecords.filter((r) => r.id !== id);
-      this.totalRecords = this.breakdownRecords.length;
-      this.calculateTotalPages();
-
-      // Check if current page is now out of bounds
-      if (this.currentPage > this.totalPages && this.totalPages > 0) {
-        this.currentPage = this.totalPages;
-      }
-
-      this.updatePaginatedRecords();
-      console.log('Deleted breakdown with id:', id);
-      // Call your service to delete from backend
-    }
-  }
-
-  // Form submission and actions
-  onSubmit(): void {
-    if (this.breakdownForm.valid) {
-      const formData = this.breakdownForm.value;
-
-      if (this.isEditMode && this.editingRecordId !== null) {
-        // Update existing record
-        const index = this.breakdownRecords.findIndex(
-          (r) => r.id === this.editingRecordId,
-        );
-        if (index !== -1) {
-          this.breakdownRecords[index] = {
-            id: this.editingRecordId,
-            vehicleNumber: formData.vehicleNumber,
-            routeNumber: formData.routeNumber,
-            driverId: formData.driverId,
-            conductorId: formData.conductorId,
-            tripCompleted: formData.tripCompleted,
-            kmDriven: formData.kmDriven,
-            placeOfBreakdown: formData.placeOfBreakdown,
-            dateOfBreakdown: new Date(formData.dateOfBreakdown),
-            timeOfBreakdown: formData.timeOfBreakdown,
-            causeOfBreakdown: formData.causeOfBreakdown,
-            remarks: formData.remarks || '',
-          };
-          console.log('Updated record:', this.breakdownRecords[index]);
-          alert('Breakdown record updated successfully!');
-        }
-      } else {
-        // Create new record
-        const newRecord: BreakdownRecord = {
-          id: this.getNextId(),
-          vehicleNumber: formData.vehicleNumber,
-          routeNumber: formData.routeNumber,
-          driverId: formData.driverId,
-          conductorId: formData.conductorId,
-          tripCompleted: formData.tripCompleted,
-          kmDriven: formData.kmDriven,
-          placeOfBreakdown: formData.placeOfBreakdown,
-          dateOfBreakdown: new Date(formData.dateOfBreakdown),
-          timeOfBreakdown: formData.timeOfBreakdown,
-          causeOfBreakdown: formData.causeOfBreakdown,
-          remarks: formData.remarks || '',
-        };
-
-        this.breakdownRecords.push(newRecord);
-        console.log('Created new record:', newRecord);
-        alert('Breakdown record created successfully!');
-      }
-
-      // Update pagination and hide form
-      this.totalRecords = this.breakdownRecords.length;
-      this.calculateTotalPages();
-      this.updatePaginatedRecords();
-      this.showForm = false;
-      this.breakdownForm.reset();
-
-      // Call your service here to save to backend
-      // this.breakdownService.createBreakdown(formData).subscribe(...)
-      // or this.breakdownService.updateBreakdown(id, formData).subscribe(...)
-    } else {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.breakdownForm.controls).forEach((key) => {
-        this.breakdownForm.get(key)?.markAsTouched();
-      });
-
-      alert('Please fill in all required fields');
-    }
-  }
-
-  onReset(): void {
-    this.breakdownForm.reset();
-    console.log('Form reset');
-  }
-
-  onCancel(): void {
-    if (this.breakdownForm.dirty) {
-      if (
-        confirm(
-          'Are you sure you want to cancel? Any unsaved changes will be lost.',
-        )
-      ) {
-        this.showForm = false;
-        this.breakdownForm.reset();
-      }
-    } else {
-      this.showForm = false;
-      this.breakdownForm.reset();
-    }
-  }
-
-  // Helper methods for form
-  getNextId(): number {
-    if (this.breakdownRecords.length === 0) {
-      return 1;
-    }
-    return Math.max(...this.breakdownRecords.map((r) => r.id)) + 1;
-  }
-
-  formatDateForInput(date: Date | string): string {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.breakdownForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
   }
 }

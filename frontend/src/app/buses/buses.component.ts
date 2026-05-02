@@ -20,8 +20,8 @@ export class BusesComponent {
   isLoading: boolean = false;
   loadingMessage: string = 'Fetching Bus Master...';
   expandedBusId: number | null = null;
-  readonly conductorWarningPendingAmount = 2000;
-  readonly conductorBlockPendingAmount = 3000;
+  readonly conductorWarningPendingAmount = 3000;
+  readonly conductorBlockPendingAmount = 5000;
   warningPendingAmount: number = 0;
   isPendingAmountLoading: boolean = false;
   isPendingAmountCheckLoading: boolean = false;
