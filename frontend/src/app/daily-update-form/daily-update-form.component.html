@@ -534,7 +534,7 @@
               </div>
               <div class="col-md-4 pt-3">
                 <label>Targeted Earning (₹)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" name="tragetedEarning" />
+                <input type="number" class="form-control" [(ngModel)]="form.tragetedEarning" (input)="calculateAmount()" name="tragetedEarning" />
               </div>
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>Today's Pending Amount (₹)</label>
@@ -550,10 +550,7 @@
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
                 <label>
-                  Total Pending (₹): Pre + Today ({{
-                  toInt(remainingAmount) - toInt(form.tragetedEarning)
-                  }}
-                  + {{ toInt(form.amountToBeDeposited) }})
+                  Total Pending (₹): Pre + Today ({{ toInt(remainingAmount) }} + {{ toInt(form.amountToBeDeposited) }})
                 </label>
 
                 
@@ -568,7 +565,7 @@
                   name="amountToBeDeposited"
                   readonly
                 /> -->
-                <input type="text" class="form-control" [value]="totalPendingAmount()" name="amountToBeDeposited" />
+                <input type="text" class="form-control" [value]="totalPendingAmount()" name="totalPendingAmount" readonly />
               </div>
 
               <div class="col-md-4 pt-3" *ngIf="formtype == 'update'">
