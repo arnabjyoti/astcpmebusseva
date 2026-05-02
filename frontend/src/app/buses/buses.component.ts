@@ -7,6 +7,8 @@ import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
+import * as XLSX from 'xlsx';
+
 declare var $: any;
 
 @Component({
@@ -15,7 +17,6 @@ declare var $: any;
   styleUrls: ['./buses.component.css'],
 })
 export class BusesComponent {
-
   isLoading: boolean = false;
   loadingMessage: string = 'Fetching Bus Master...';
   expandedBusId: number | null = null;
@@ -35,10 +36,11 @@ export class BusesComponent {
     private appService: AppService,
     private http: HttpClient,
     private toastr: ToastrService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
-  private readonly busesScrollPositionKey = 'busesScrollPositionBeforeDailyUpdate';
+  private readonly busesScrollPositionKey =
+    'busesScrollPositionBeforeDailyUpdate';
 
   form: any = {
     busName: '',
@@ -56,7 +58,6 @@ export class BusesComponent {
   conductorList: any;
   routeList: any;
 
-
   // current date in formate yyyy-mm-dd
   dataForDate: any = new Date().toISOString().split('T')[0];
 
@@ -68,138 +69,132 @@ export class BusesComponent {
   }
 
   saveData = () => {
-
-  // 🔴 Basic validation
-  if (!this.form.busNo || this.form.busNo.trim() === '') {
-    this.toastr.warning('Bus No is required', 'Validation');
-    return;
-  }
-
-  if (!this.form.driverName) {
-    this.toastr.warning('Please select a Driver', 'Validation');
-    return;
-  }
-
-  if (!this.form.conductorName) {
-    this.toastr.warning('Please select a Conductor', 'Validation');
-    return;
-  }
-
-  if (!this.form.allotedRouteNo) {
-    this.toastr.warning('Please select a Route', 'Validation');
-    return;
-  }
-
-  // ✅ continue only if validation passed
-  const ENDPOINT = `${environment.BASE_URL}/api/createBus`;
-
-  let selectedDriverDetails = this.driverList.find(
-    (ele: any) => ele.id === parseInt(this.form.driverName)
-  );
-
-  let selectedConductorDetails = this.conductorList.find(
-    (ele: any) => ele.id === parseInt(this.form.conductorName)
-  );
-
-  if (!selectedDriverDetails || !selectedConductorDetails) {
-    this.toastr.error('Invalid Driver or Conductor selected', 'Error');
-    return;
-  }
-
-  this.form.driverId = selectedDriverDetails.id;
-  this.form.driverName = selectedDriverDetails.driver_name;
-  this.form.conductorId = selectedConductorDetails.id;
-  this.form.conductorName = selectedConductorDetails.conductor_name;
-
-  const requestOptions = {
-    requestObject: this.form,
-  };
-
-  this.http.post(ENDPOINT, requestOptions).subscribe(
-    (response) => {
-      this.getBuses();
-      this.getDriver();
-      this.getConductor();
-      this.toastr.success('Added Successfully', 'Success');
-      let ele: any = document.getElementById('modalClose');
-      ele.click();
-    },
-    (error) => {
-      this.toastr.error('Something went wrong!', 'Warning');
+    // 🔴 Basic validation
+    if (!this.form.busNo || this.form.busNo.trim() === '') {
+      this.toastr.warning('Bus No is required', 'Validation');
+      return;
     }
-  );
-};
 
+    if (!this.form.driverName) {
+      this.toastr.warning('Please select a Driver', 'Validation');
+      return;
+    }
+
+    if (!this.form.conductorName) {
+      this.toastr.warning('Please select a Conductor', 'Validation');
+      return;
+    }
+
+    if (!this.form.allotedRouteNo) {
+      this.toastr.warning('Please select a Route', 'Validation');
+      return;
+    }
+
+    // ✅ continue only if validation passed
+    const ENDPOINT = `${environment.BASE_URL}/api/createBus`;
+
+    let selectedDriverDetails = this.driverList.find(
+      (ele: any) => ele.id === parseInt(this.form.driverName),
+    );
+
+    let selectedConductorDetails = this.conductorList.find(
+      (ele: any) => ele.id === parseInt(this.form.conductorName),
+    );
+
+    if (!selectedDriverDetails || !selectedConductorDetails) {
+      this.toastr.error('Invalid Driver or Conductor selected', 'Error');
+      return;
+    }
+
+    this.form.driverId = selectedDriverDetails.id;
+    this.form.driverName = selectedDriverDetails.driver_name;
+    this.form.conductorId = selectedConductorDetails.id;
+    this.form.conductorName = selectedConductorDetails.conductor_name;
+
+    const requestOptions = {
+      requestObject: this.form,
+    };
+
+    this.http.post(ENDPOINT, requestOptions).subscribe(
+      (response) => {
+        this.getBuses();
+        this.getDriver();
+        this.getConductor();
+        this.toastr.success('Added Successfully', 'Success');
+        let ele: any = document.getElementById('modalClose');
+        ele.click();
+      },
+      (error) => {
+        this.toastr.error('Something went wrong!', 'Warning');
+      },
+    );
+  };
 
   updateData = () => {
-
-  // 🔴 Basic validation (no driver/conductor validation)
-  if (!this.form.busNo || this.form.busNo.trim() === '') {
-    this.toastr.warning('Bus No is required', 'Validation');
-    return;
-  }
-
-  if (!this.form.allotedRouteNo) {
-    this.toastr.warning('Please select a Route', 'Validation');
-    return;
-  }
-
-  // 👉 DRIVER LOGIC
-  if (this.form.driverName === 'REMOVE') {
-    this.form.driverId = null;
-    this.form.driverName = null;
-  } 
-  else if (this.form.driverName) {
-    const driver = this.driverList.find(
-      (d: any) => d.id === parseInt(this.form.driverName)
-    );
-
-    if (driver) {
-      this.form.driverId = driver.id;
-      this.form.driverName = driver.driver_name;
+    // 🔴 Basic validation (no driver/conductor validation)
+    if (!this.form.busNo || this.form.busNo.trim() === '') {
+      this.toastr.warning('Bus No is required', 'Validation');
+      return;
     }
-  }
-  // else → keep existing values (do nothing)
 
-  // 👉 CONDUCTOR LOGIC
-  if (this.form.conductorName === 'REMOVE') {
-    this.form.conductorId = null;
-    this.form.conductorName = null;
-  } 
-  else if (this.form.conductorName) {
-    const conductor = this.conductorList.find(
-      (c: any) => c.id === parseInt(this.form.conductorName)
-    );
-
-    if (conductor) {
-      this.form.conductorId = conductor.id;
-      this.form.conductorName = conductor.conductor_name;
+    if (!this.form.allotedRouteNo) {
+      this.toastr.warning('Please select a Route', 'Validation');
+      return;
     }
-  }
 
-  const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
+    // 👉 DRIVER LOGIC
+    if (this.form.driverName === 'REMOVE') {
+      this.form.driverId = null;
+      this.form.driverName = null;
+    } else if (this.form.driverName) {
+      const driver = this.driverList.find(
+        (d: any) => d.id === parseInt(this.form.driverName),
+      );
 
-  const requestOptions = {
-    requestObject: this.form,
+      if (driver) {
+        this.form.driverId = driver.id;
+        this.form.driverName = driver.driver_name;
+      }
+    }
+    // else → keep existing values (do nothing)
+
+    // 👉 CONDUCTOR LOGIC
+    if (this.form.conductorName === 'REMOVE') {
+      this.form.conductorId = null;
+      this.form.conductorName = null;
+    } else if (this.form.conductorName) {
+      const conductor = this.conductorList.find(
+        (c: any) => c.id === parseInt(this.form.conductorName),
+      );
+
+      if (conductor) {
+        this.form.conductorId = conductor.id;
+        this.form.conductorName = conductor.conductor_name;
+      }
+    }
+
+    const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
+
+    const requestOptions = {
+      requestObject: this.form,
+    };
+
+    this.http.post(ENDPOINT, requestOptions).subscribe(
+      () => {
+        this.getBuses();
+        this.getDriver();
+        this.getConductor();
+        this.toastr.success('Updated Successfully', 'Success');
+      },
+      () => {
+        this.toastr.error('Something went wrong!', 'Warning');
+      },
+    );
+    let ele: any = document.getElementById('modalClose');
+    ele.click();
   };
 
-  this.http.post(ENDPOINT, requestOptions).subscribe(
-    () => {
-      this.getBuses();
-      this.getDriver();
-      this.getConductor();
-      this.toastr.success('Updated Successfully', 'Success');
-    },
-    () => {
-      this.toastr.error('Something went wrong!', 'Warning');
-    }
-  );
-  let ele: any = document.getElementById('modalClose');
-    ele.click();
-};
-
-
-dateForStatus: any = new Date().toISOString().split('T')[0];
+  dateForStatus: any = new Date().toISOString().split('T')[0];
   getBuses = () => {
     const params = new URLSearchParams({
       date: this.dataForDate,
@@ -217,7 +212,9 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
         this.busList = response?.rows || [];
         this.totalRecords = Number(response?.pagination?.total || 0);
         this.totalPages = Number(response?.pagination?.totalPages || 0);
-        this.currentPage = Number(response?.pagination?.page || this.currentPage);
+        this.currentPage = Number(
+          response?.pagination?.page || this.currentPage,
+        );
         this.dateForStatus = this.dataForDate;
       },
       (error) => {
@@ -228,7 +225,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       () => {
         console.log('Observable is now completed.');
         this.isLoading = false;
-      }
+      },
     );
   };
 
@@ -286,10 +283,9 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
-
 
   getConductor = () => {
     const ENDPOINT = `${environment.BASE_URL}/api/getConductorWithAllotment`;
@@ -305,7 +301,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
@@ -323,14 +319,14 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   };
 
   selectedConductorId: any;
   manageDrive = () => {
     const selectEl = document.querySelector(
-      '[name="driverName"]'
+      '[name="driverName"]',
     ) as HTMLSelectElement;
 
     const selectedDriverId = parseInt(selectEl.value);
@@ -342,7 +338,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     }
 
     const selectedDriverDetails = this.driverList.find(
-      (driver: any) => driver.id === selectedDriverId
+      (driver: any) => driver.id === selectedDriverId,
     );
 
     if (!selectedDriverDetails) {
@@ -352,7 +348,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     // 🚫 If driver already allotted
     if (selectedDriverDetails.allotmentStatus === 'Allotted') {
       this.toastr.warning('This driver is already allotted');
-      selectEl.value = '';               // reset dropdown
+      selectEl.value = ''; // reset dropdown
       this.form.driverContactNo = '';
       return;
     }
@@ -363,7 +359,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
 
   manageConductor = () => {
     const selectEl = document.querySelector(
-      '[name="conductorName"]'
+      '[name="conductorName"]',
     ) as HTMLSelectElement;
 
     const selectedConductorId = parseInt(selectEl.value);
@@ -375,7 +371,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     }
 
     const selectedDetails = this.conductorList.find(
-      (conductor: any) => conductor.id === selectedConductorId
+      (conductor: any) => conductor.id === selectedConductorId,
     );
 
     if (!selectedDetails) {
@@ -393,7 +389,6 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     // ✅ Free conductor
     this.form.conductorContactNo = selectedDetails.contact_no;
   };
-
 
   selectedData: any = {};
   viewData = (id: any) => {
@@ -414,8 +409,9 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     this.http.get(ENDPOINT).subscribe(
       (response: any) => {
         console.log('response ', response.data.amountToBeDeposited);
-        this.amountToBeDeposited = Number(response.data.amountToBeDeposited || 0);
-
+        this.amountToBeDeposited = Number(
+          response.data.amountToBeDeposited || 0,
+        );
       },
       (error) => {
         console.log('error here ', error);
@@ -425,10 +421,8 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       () => {
         console.log('Observable is now completed.');
         this.isPendingAmountLoading = false;
-      }
+      },
     );
-
-
   };
 
   toBeDeletedRecord: any = {};
@@ -453,12 +447,12 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
         },
         () => {
           console.log('Observable is now completed.');
-        }
+        },
       );
     } else {
       this.toastr.warning(
         'Please enter data properly before proceed',
-        'Warning Message'
+        'Warning Message',
       );
     }
   };
@@ -480,14 +474,14 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   };
 
   openEditDialog = (data: any) => {
-    console.log("data: ", data);
-    
+    console.log('data: ', data);
+
     this.isEdit = true;
     let selectedDriverDetails = this.driverList.find(
-      (ele: any) => ele.driver_name === data?.driverName
+      (ele: any) => ele.driver_name === data?.driverName,
     );
     let selectedConductorDetails = this.conductorList.find(
-      (ele: any) => ele.conductor_name === data?.conductorName
+      (ele: any) => ele.conductor_name === data?.conductorName,
     );
     this.form = {
       id: data?.id,
@@ -506,7 +500,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
   selectedDate: any;
   redirectToAddForm() {
     const dateInput = document.querySelector(
-      'input[name="date"]'
+      'input[name="date"]',
     ) as HTMLInputElement;
     if (dateInput) {
       this.selectedDate = dateInput.value;
@@ -528,7 +522,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
             busId: this.selectedData.id,
             currentStatus: 'running',
             noOfTrip: 0,
-            stopDate: this.dataForDate
+            stopDate: this.dataForDate,
           },
         });
       }, 150);
@@ -537,7 +531,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
 
   redirectToUpdateForm(data: any) {
     const dateInput = document.querySelector(
-      'input[name="date"]'
+      'input[name="date"]',
     ) as HTMLInputElement;
     console.log('data ==> ', data);
     // return;
@@ -555,7 +549,7 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
         triptId: data.dailyUpdateId || data.previousDailyUpdateId,
         currentStatus: 'finished',
         type: 'update',
-        stopDate: this.dataForDate
+        stopDate: this.dataForDate,
       },
     });
   }
@@ -613,23 +607,21 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
         },
         () => {
           console.log('Observable is now completed.');
-        }
+        },
       );
     }
   }
 
   toggleFixed(data: any, event: any) {
     console.log('data', event.target.checked);
-    
 
     // return;
     const ENDPOINT = `${environment.BASE_URL}/api/updateBus`;
     const requestOptions = {
-      requestObject: { 
-        isFixed: event.target.checked ? 'yes' : 'no', 
-        id: data.id, 
+      requestObject: {
+        isFixed: event.target.checked ? 'yes' : 'no',
+        id: data.id,
       },
-      
     };
     this.http.post(ENDPOINT, requestOptions).subscribe(
       (response) => {
@@ -642,13 +634,16 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       },
       () => {
         console.log('Observable is now completed.');
-      }
+      },
     );
   }
 
   today = new Date().toISOString().split('T')[0];
 
-  private fetchPendingAmountForConductor(conductorId: number, callback: (amount: number, status?: string) => void): void {
+  private fetchPendingAmountForConductor(
+    conductorId: number,
+    callback: (amount: number, status?: string) => void,
+  ): void {
     const ENDPOINT = `${environment.BASE_URL}/api/getAmountToBePaidByConductor?id=${conductorId}`;
     this.isPendingAmountCheckLoading = true;
 
@@ -661,12 +656,17 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       },
       () => {
         this.isPendingAmountCheckLoading = false;
-        this.toastr.error('Unable to verify conductor pending amount', 'Warning');
-      }
+        this.toastr.error(
+          'Unable to verify conductor pending amount',
+          'Warning',
+        );
+      },
     );
   }
 
-  private validateConductorPendingAmountBeforeTrip(onAllowed: () => void): void {
+  private validateConductorPendingAmountBeforeTrip(
+    onAllowed: () => void,
+  ): void {
     const conductorId = this.selectedData?.conductor_actual_id;
 
     if (!conductorId) {
@@ -674,30 +674,36 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
       return;
     }
 
-    this.fetchPendingAmountForConductor(conductorId, (pendingAmount, conductorStatus) => {
-      if (pendingAmount > this.conductorBlockPendingAmount || this.isBlockedConductor(conductorStatus)) {
-        this.toastr.error(
-          conductorStatus === 'Block'
-            ? 'Conductor is manually blocked.'
-            : `Conductor pending amount is more than ${this.conductorBlockPendingAmount}. Conductor is blocked until the bill is paid.`,
-          'Conductor Blocked'
-        );
-        this.getBuses();
-        return;
-      }
+    this.fetchPendingAmountForConductor(
+      conductorId,
+      (pendingAmount, conductorStatus) => {
+        if (
+          pendingAmount > this.conductorBlockPendingAmount ||
+          this.isBlockedConductor(conductorStatus)
+        ) {
+          this.toastr.error(
+            conductorStatus === 'Block'
+              ? 'Conductor is manually blocked.'
+              : `Conductor pending amount is more than ${this.conductorBlockPendingAmount}. Conductor is blocked until the bill is paid.`,
+            'Conductor Blocked',
+          );
+          this.getBuses();
+          return;
+        }
 
-      if (pendingAmount > this.conductorWarningPendingAmount) {
-        this.warningPendingAmount = pendingAmount;
-        this.pendingTripProceedAction = onAllowed;
-        this.closeModalAndCleanup('#addDetailsModal');
-        setTimeout(() => {
-          this.openPendingAmountWarningModal();
-        }, 150);
-        return;
-      }
+        if (pendingAmount > this.conductorWarningPendingAmount) {
+          this.warningPendingAmount = pendingAmount;
+          this.pendingTripProceedAction = onAllowed;
+          this.closeModalAndCleanup('#addDetailsModal');
+          setTimeout(() => {
+            this.openPendingAmountWarningModal();
+          }, 150);
+          return;
+        }
 
-      onAllowed();
-    });
+        onAllowed();
+      },
+    );
   }
 
   private openPendingAmountWarningModal(): void {
@@ -729,7 +735,9 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     $(modalSelector).modal('hide');
     document.body.classList.remove('modal-open');
     document.body.style.removeProperty('padding-right');
-    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+    document
+      .querySelectorAll('.modal-backdrop')
+      .forEach((backdrop) => backdrop.remove());
   }
 
   toggleDetails(busId: number): void {
@@ -738,15 +746,13 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
 
   getStatus(data: any): string {
     const today = new Date().toISOString().split('T')[0];
-  
+
     const updateDate = data.dailyUpdateDate
       ? new Date(data.dailyUpdateDate).toISOString().split('T')[0]
       : null;
 
-      // console.log("status ", data.currentStatus, data.previousStatus, updateDate, today);
-      
-      
-      
+    // console.log("status ", data.currentStatus, data.previousStatus, updateDate, today);
+
     // ✅ Case 1:
     if (
       // today === updateDate &&
@@ -756,15 +762,65 @@ dateForStatus: any = new Date().toISOString().split('T')[0];
     ) {
       return 'running';
     }
-  
+
     // ✅ Case 2:
     if (!data.currentStatus) {
       return 'idle';
     }
-  
+
     // ✅ Default:
     return data.currentStatus;
   }
 
+  downloadRecord = (): void => {
+    if (!this.busList || this.busList.length === 0) {
+      this.toastr.warning('No records available to download', 'Warning');
+      return;
+    }
 
+    const exportData = this.busList.map((bus: any, index: number) => ({
+      'Sr. No.': index + 1,
+      'Vehicle Name': bus.busName || '',
+      'Vehicle No': bus.busNo || '',
+
+      'Driver ID': bus.driverId || bus.driver_actual_id || '',
+      'Driver Name': bus.driverName || '',
+      'Driver Contact': bus.driverContactNo || '',
+
+      'Conductor ID': bus.conductorId || bus.conductor_actual_id || '',
+      'Conductor Name': bus.conductorName || '',
+      'Conductor Contact': bus.conductorContactNo || '',
+
+      Depot: bus.routeDepot || '',
+      Route: bus.routeNo || bus.allotedRouteNo || '',
+      Status: this.getStatus(bus) || '',
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Optional: Set column widths
+    worksheet['!cols'] = [
+      { wch: 10 }, // Sr. No.
+      { wch: 20 }, // Vehicle Name
+      { wch: 18 }, // Vehicle No
+      { wch: 12 }, // Driver ID
+      { wch: 25 }, // Driver Name
+      { wch: 18 }, // Driver Contact
+      { wch: 14 }, // Conductor ID
+      { wch: 25 }, // Conductor Name
+      { wch: 20 }, // Conductor Contact
+      { wch: 15 }, // Route
+      { wch: 20 }, // Depot
+      { wch: 15 }, // Status
+    ];
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Vehicle Records': worksheet },
+      SheetNames: ['Vehicle Records'],
+    };
+
+    XLSX.writeFile(workbook, `vehicle_records_${this.dataForDate}.xlsx`);
+
+    this.toastr.success('Records downloaded successfully', 'Success');
+  };
 }

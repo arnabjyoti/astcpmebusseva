@@ -11,7 +11,7 @@
 <div class="content-wrapper p-1">
     <!-- Content Header (Page header) -->
     <div class="content-header w-100">
-        <div class="d-flex row mb-1 px-0 align-items-center w-100 justify-content-between">
+        <div class="d-flex row mb-1 px-0 align-items-center w-100 justify-content-between mx-0">
             <div class="d-flex col-md-3 justify-content-start">
                 <h3 class="m-0">EARNING RECORDS</h3>
             </div><!-- /.col -->
@@ -26,7 +26,7 @@
                 </button>
             </div>
 
-            <div class="d-flex col-md-3 justify-content-end">
+            <div class="d-flex w-100 col-md-3 justify-content-end">
                 <button class="btn btn-success" (click)="downloadExcel()" [disabled]="isExportingExcel">
                     <ng-container *ngIf="!isExportingExcel; else excelLoading">
                         <i class="fas fa-download" style="color:aliceblue"></i> Download Excel
