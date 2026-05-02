@@ -168,6 +168,7 @@ export class DailyUpdateFormComponent {
         // this.form.routeNo = response.allotedRouteNo
         // this.form.depot = response.depotName;
         // this.routeName = response.routeName;
+        this.calculateAmount();
         this.getRemainingAmountForConductor();
       },
       (error) => {
@@ -211,6 +212,7 @@ export class DailyUpdateFormComponent {
         this.form.routeName = response.routeName;
         this.form.osoc = 100;
 
+        this.calculateAmount();
         this.getRemainingAmountForConductor();
       },
       (error) => {
@@ -374,7 +376,12 @@ export class DailyUpdateFormComponent {
   };
 
   calculateDiposite = () => {
-    const target = parseInt(this.form.estimated_collection, 10) || 0;
+    const target =
+      this.form.tragetedEarning !== '' &&
+      this.form.tragetedEarning !== null &&
+      this.form.tragetedEarning !== undefined
+        ? this.toInt(this.form.tragetedEarning)
+        : this.toInt(this.form.estimated_collection);
     const deposited = parseInt(this.form.netAmountDeposited, 10) || 0;
 
     this.form.amountToBeDeposited = Math.max(0, target - deposited);
@@ -882,15 +889,9 @@ export class DailyUpdateFormComponent {
   }
 
   totalPendingAmount(): number {
-    let amount =
-      this.toInt(this.form.netAmountDeposited) >=
-      this.toInt(this.form.tragetedEarning)
-        ? this.toInt(this.remainingAmount) -
-          this.toInt(this.form.netAmountDeposited)
-        : this.toInt(this.remainingAmount) -
-          this.toInt(this.form.tragetedEarning) +
-          this.toInt(this.form.amountToBeDeposited);
-    return amount;
+    return (
+      this.toInt(this.remainingAmount) + this.toInt(this.form.amountToBeDeposited)
+    );
   }
 
   positivePendingAmount(number: number): number {

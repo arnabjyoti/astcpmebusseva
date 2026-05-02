@@ -344,23 +344,29 @@ isConductorEdit: boolean = false;
           );
         } else if (response?.conductorStatus === 'PendingBlock') {
           this.toastr.warning(
-            'Payment saved, but conductor is still blocked because pending amount is above 3000',
+            'Payment saved, but conductor is still blocked because pending amount is above 5000',
             'Still Blocked'
           );
         } else {
           this.toastr.success('Payment added and conductor unblocked successfully', 'Success Message');
         }
 
-        $('#unblockConductorModal').modal('hide');
+        this.closeModal('#unblockConductorModal');
       },
       (error) => {
         console.log('error here ', error);
         this.toastr.error(error?.error?.message || 'Something went wrong !', 'Warning');
+        this.closeModal('#unblockConductorModal');
       }
     );
   }
 
-  
+  closeModal(modalSelector: string) {
+    $(modalSelector).modal('hide');
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+  }
+
 
   selectedDataConductor: any;
   viewConductorData = (id: any) => {
