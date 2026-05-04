@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-breakdown-vehicle',
   templateUrl: './breakdown-vehicle.component.html',
-  styleUrls: ['./breakdown-vehicle.component.css']
+  styleUrls: ['./breakdown-vehicle.component.css'],
 })
 export class BreakdownVehicleComponent implements OnInit {
   BreakdownData: any[] = [];
@@ -24,11 +24,13 @@ export class BreakdownVehicleComponent implements OnInit {
 
   breakdownForm: FormGroup;
   searchForm: FormGroup;
+  // selectedId: number | null = null;
+  selectedId: number | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private app: AppService,
-    private http: HttpClient
+    private http: HttpClient,
   ) {
     this.breakdownForm = this.createForm();
     this.searchForm = this.createSearchForm();
@@ -47,7 +49,7 @@ export class BreakdownVehicleComponent implements OnInit {
       fromDate: [''],
       toDate: [''],
       vehicleNumber: [''],
-      routeNumber: ['']
+      routeNumber: [''],
     });
   }
 
@@ -56,14 +58,19 @@ export class BreakdownVehicleComponent implements OnInit {
       vehicleNumber: ['', Validators.required],
       routeNumber: ['', Validators.required],
       driverId: ['', Validators.required],
+      driverName: ['', Validators.required],
       conductorId: ['', Validators.required],
+      conductorName: ['', Validators.required],
       tripCompleted: ['', [Validators.required, Validators.min(0)]],
       kmDriven: ['', [Validators.required, Validators.min(0)]],
+      kmAtBreakdown: ['', Validators.required],
+      kmLost: ['', Validators.required],
       placeOfBreakdown: ['', Validators.required],
       dateOfBreakdown: ['', Validators.required],
       timeOfBreakdown: ['', Validators.required],
       causeOfBreakdown: ['', Validators.required],
-      remarks: ['']
+      currentStatus: ['', Validators.required],
+      remarks: [''],
     });
   }
 
@@ -74,21 +81,46 @@ export class BreakdownVehicleComponent implements OnInit {
       params: {
         page: this.currentPage,
         limit: this.pageSize,
-        ...this.searchForm.value
-      }
+        ...this.searchForm.value,
+      },
     };
 
     this.http.post(ENDPOINT, payload).subscribe({
       next: (response: any) => {
+        console.log("Breakdown Data ==> ", response);
         this.BreakdownData = response?.breakdownQuery || [];
-        this.totalRecords = Number(response?.pagination?.total || this.BreakdownData.length);
+        this.totalRecords = Number(
+          response?.pagination?.total || this.BreakdownData.length,
+        );
         this.totalPages = Number(
-          response?.pagination?.totalPages || Math.ceil(this.totalRecords / this.pageSize)
+          response?.pagination?.totalPages ||
+            Math.ceil(this.totalRecords / this.pageSize),
         );
       },
       error: (error) => {
         console.error('Error fetching breakdown records:', error);
-      }
+      },
+    });
+  }
+
+  updateForm(): void {
+    if (this.breakdownForm.invalid) {
+      this.breakdownForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.breakdownForm.value;
+
+    console.log('Selected Id ==> ', this.selectedId)
+
+    const ENDPOINT = `${environment.BASE_URL}/api/updateBreakdown/${this.selectedId}`;
+
+    this.http.post(ENDPOINT, payload).subscribe({
+      next: () => {
+        this.fetchBreakdownTable();
+        this.close_breakdown_form();
+      },
+      error: (err) => console.error(err),
     });
   }
 
@@ -104,7 +136,9 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   getStartIndex(): number {
-    return this.totalRecords === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+    return this.totalRecords === 0
+      ? 0
+      : (this.currentPage - 1) * this.pageSize + 1;
   }
 
   getEndIndex(): number {
@@ -160,9 +194,39 @@ export class BreakdownVehicleComponent implements OnInit {
     this.breakdownForm.reset();
   }
 
-  open_breakdown_form(): void {
+  formatDateForInput(date: any): string {
+    if (!date) return '';
+
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // ✅ correct format
+  }
+
+  open_breakdown_form(record: any): void {
     this.isOpen_form = true;
-    this.breakdownForm.reset();
+
+    this.selectedId = record.id;
+    console.log('Selected Id New:', this.selectedId);
+
+    console.log('Selected Record:', record);
+
+    this.breakdownForm.patchValue({
+      vehicleNumber: record?.bus?.busNo,
+      routeNumber: record?.routeNo,
+      driverId: record?.driver?.driver_id,
+      driverName: record?.driver?.driver_name,
+      conductorId: record?.conductor?.conductor_id,
+      conductorName: record?.conductor?.conductor_name,
+      tripCompleted: record?.noOfTrip,
+      kmDriven: record?.totalOperated,
+      kmAtBreakdown: record?.kmAtBreakdown,
+      kmLost: record?.lossKm,
+      placeOfBreakdown: record?.placeOfBreakdown,
+      causeOfBreakdown: record?.causeOfBreakdown,
+      dateOfBreakdown: this.formatDateForInput(record?.date),
+      timeOfBreakdown: record?.stopTime,
+      currentStatus: record?.currentStatus,
+      remarks: record?.remarks,
+    });
   }
 
   close_breakdown_form(): void {
@@ -170,17 +234,8 @@ export class BreakdownVehicleComponent implements OnInit {
     this.breakdownForm.reset();
   }
 
-  updateForm(): void {
-    if (this.breakdownForm.invalid) {
-      this.breakdownForm.markAllAsTouched();
-      return;
-    }
-
-    console.log('Form Data:', this.breakdownForm.value);
-    this.close_breakdown_form();
-  }
-
   deleteBreakdown(id: number): void {
+    // Delete data and make the vehicle current status to idle
     if (!confirm('Are you sure you want to delete this breakdown record?')) {
       return;
     }
@@ -193,7 +248,7 @@ export class BreakdownVehicleComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error deleting breakdown record:', error);
-      }
+      },
     });
   }
 
@@ -218,7 +273,7 @@ export class BreakdownVehicleComponent implements OnInit {
       'Date of Breakdown': this.formatDate(record?.date),
       'Time of Breakdown': record?.stopTime || 'N/A',
       'Cause of Breakdown': record?.causeOfBreakdown || 'N/A',
-      'Remarks': record?.remarks || ''
+      Remarks: record?.remarks || '',
     }));
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);

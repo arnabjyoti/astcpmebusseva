@@ -34,3 +34,15 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --mdc-protected-button-container-color: #ec6132;
     --mdc-protected-button-label-text-color: #fff;
 }
+
+body.sidebar-collapse .sidebar-logout span {
+  display: none;
+}
+
+body.sidebar-collapse .sidebar-logout .logout-btn {
+  justify-content: center;
+}
+
+body.sidebar-collapse .sidebar-logout i {
+  margin-right: 0;
+}

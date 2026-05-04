@@ -66,6 +66,19 @@
               </small>
             </div>
 
+            <!-- Driver Name -->
+            <div class="col-md-6 form-group">
+              <label for="driverName">Driver Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="driverName" formControlName="driverName"
+                placeholder="Enter driver name">
+              <small class="error-text"
+                *ngIf="breakdownForm.get('driverName')?.invalid && breakdownForm.get('driverName')?.touched">
+                Driver name is required
+              </small>
+            </div>
+          </div>
+
+          <div class="row">
             <!-- Conductor ID -->
             <div class="col-md-6 form-group">
               <label for="conductorId">Conductor ID <span class="required">*</span></label>
@@ -74,6 +87,17 @@
               <small class="error-text"
                 *ngIf="breakdownForm.get('conductorId')?.invalid && breakdownForm.get('conductorId')?.touched">
                 Conductor ID is required
+              </small>
+            </div>
+
+            <!-- Conductor Name -->
+            <div class="col-md-6 form-group">
+              <label for="conductorName">Conductor Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="conductorName" formControlName="conductorName"
+                placeholder="Enter conductor name">
+              <small class="error-text"
+                *ngIf="breakdownForm.get('conductorName')?.invalid && breakdownForm.get('conductorName')?.touched">
+                Conductor name is required
               </small>
             </div>
           </div>
@@ -103,6 +127,30 @@
           </div>
 
           <div class="row">
+            <!-- Kilometres at Breakdown -->
+            <div class="col-md-6 form-group">
+              <label for="kmAtBreakdown">Kilometres at Breakdown <span class="required">*</span></label>
+              <input type="number" class="form-control" id="kmAtBreakdown" formControlName="kmAtBreakdown"
+                placeholder="Enter km at breakdown">
+              <small class="error-text"
+                *ngIf="breakdownForm.get('kmAtBreakdown')?.invalid && breakdownForm.get('kmAtBreakdown')?.touched">
+                Kilometres at breakdown is required
+              </small>
+            </div>
+
+            <!-- Loss Kilometres -->
+            <div class="col-md-6 form-group">
+              <label for="kmLost">Loss Kilometres <span class="required">*</span></label>
+              <input type="number" class="form-control" id="kmLost" formControlName="kmLost"
+                placeholder="Enter loss km">
+              <small class="error-text"
+                *ngIf="breakdownForm.get('kmLost')?.invalid && breakdownForm.get('kmLost')?.touched">
+                Loss kilometres is required
+              </small>
+            </div>
+          </div>
+
+          <div class="row">
             <!-- Place of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="placeOfBreakdown">Place of Breakdown <span class="required">*</span></label>
@@ -127,16 +175,6 @@
           </div>
 
           <div class="row">
-            <!-- Time of Breakdown -->
-            <div class="col-md-6 form-group">
-              <label for="timeOfBreakdown">Time of Breakdown <span class="required">*</span></label>
-              <input type="time" class="form-control" id="timeOfBreakdown" formControlName="timeOfBreakdown">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('timeOfBreakdown')?.invalid && breakdownForm.get('timeOfBreakdown')?.touched">
-                Time of breakdown is required
-              </small>
-            </div>
-
             <!-- Date of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="dateOfBreakdown">Date of Breakdown <span class="required">*</span></label>
@@ -145,6 +183,33 @@
                 *ngIf="breakdownForm.get('dateOfBreakdown')?.invalid && breakdownForm.get('dateOfBreakdown')?.touched">
                 Date of breakdown is required
               </small>
+            </div>
+
+            <div class="row col-md-6 form-group">
+              <!-- Time of Breakdown -->
+              <div class="col-md-6 form-group">
+                <label for="timeOfBreakdown">Time of Breakdown <span class="required">*</span></label>
+                <input type="time" class="form-control" id="timeOfBreakdown" formControlName="timeOfBreakdown">
+                <small class="error-text"
+                  *ngIf="breakdownForm.get('timeOfBreakdown')?.invalid && breakdownForm.get('timeOfBreakdown')?.touched">
+                  Time of breakdown is required
+                </small>
+              </div>
+
+              <!-- Current Status -->
+              <div class="col-md-6 form-group">
+                <label for="currentStatus">Current Status<span class="required">*</span></label>
+                <select class="form-control" id="currentStatus" formControlName="currentStatus">
+                  <option value="" disabled selected>Select current status</option>
+                  <option value="still">Breakdown</option>
+                  <option value="idle">Idle</option>
+                  <option value="inActive">Other</option>
+                </select>
+                <small class="error-text"
+                  *ngIf="breakdownForm.get('currentStatus')?.invalid && breakdownForm.get('currentStatus')?.touched">
+                  Current status is required
+                </small>
+              </div>
             </div>
           </div>
 
@@ -158,7 +223,7 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-success" [disabled]="breakdownForm.invalid">
+            <button type="submit" class="btn btn-success" [disabled]="breakdownForm.invalid" (click)="updateForm()">
               <i class="fa fa-save"></i> Update
             </button>
             <button type="button" class="btn btn-warning" (click)="onReset()">
@@ -267,7 +332,7 @@
                 <td class="text-center">{{ record.causeOfBreakdown }}
                 <td>{{ record.remarks }}</td>
                 <td>
-                  <button class="btn btn-sm btn-primary mr-1" (click)="open_breakdown_form()" title="Edit">
+                  <button class="btn btn-sm btn-primary mr-1" (click)="open_breakdown_form(record)" title="Edit">
                     <i class="fa fa-edit"></i>
                   </button>
                   <button class="btn btn-sm btn-danger" (click)="deleteBreakdown(record.id)" title="Delete">

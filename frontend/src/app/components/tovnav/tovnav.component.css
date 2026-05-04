@@ -339,3 +339,36 @@
   );
   color: #ffffff;
 }
+
+.main-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.sidebar {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Logout fixed at bottom */
+.sidebar-logout {
+  padding: 10px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+}
+
+.logout-btn i {
+  margin-right: 10px;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+}

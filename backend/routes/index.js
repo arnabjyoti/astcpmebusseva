@@ -63,5 +63,8 @@ module.exports = (app) => {
 	//current time
 	app.get('/api/getCurrentISTTime', BusController.getCurrentISTTime);
 
+	// app.put('/api/updateBreakdown/:id', BusController.updateBreakdownVehicle);
+	app.post('/api/updateBreakdown/:id', BusController.updateBreakdownVehicle);
+
 
 	};

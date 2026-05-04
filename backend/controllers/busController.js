@@ -1646,6 +1646,7 @@ LIMIT 1;
           "omr",
           "cmr",
           "totalOperated",
+          "lossKm",
           "noOfTrip",
           "chaloPassengersNo",
           "chaloTicketNo",
@@ -2681,6 +2682,7 @@ END AS estimated_time,
 
         where: whereCondition,
         attributes: [
+          "id",
           "routeNo",
           "noOfTrip",
           "totalOperated",
@@ -2690,6 +2692,7 @@ END AS estimated_time,
           "lossKm",
           "stopTime",
           "date",
+          "currentStatus",
           "remarks"
         ],
         include: [
@@ -2721,6 +2724,81 @@ END AS estimated_time,
     } catch (error) {
       console.error("Error fetching breakdown table:", error);
       res.status(500).send({ error: "Failed to fetch breakdown table" });
+    }
+  },
+
+  async updateBreakdownVehicle(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "ID is required"
+        });
+      }
+
+      const {
+        vehicleNumber,
+        routeNumber,
+        driverId,
+        driverName,
+        conductorId,
+        conductorName,
+        tripCompleted,
+        kmDriven,
+        kmAtBreakdown,
+        kmLost,
+        placeOfBreakdown,
+        causeOfBreakdown,
+        dateOfBreakdown,
+        timeOfBreakdown,
+        currentStatus,
+        remarks
+      } = req.body;
+
+      // 👉 Example using Sequelize
+      const breakdown = await dailyUpdatesModel.findByPk(id);
+
+      if (!breakdown) {
+        return res.status(404).json({
+          success: false,
+          message: "Record not found"
+        });
+      }
+
+      await breakdown.update({
+        vehicleNumber,
+        routeNumber,
+        driverId,
+        driverName,
+        conductorId,
+        conductorName,
+        tripCompleted,
+        kmDriven,
+        kmAtBreakdown,
+        kmLost,
+        placeOfBreakdown,
+        causeOfBreakdown,
+        dateOfBreakdown,
+        timeOfBreakdown,
+        currentStatus,
+        remarks
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Breakdown updated successfully",
+        data: breakdown
+      });
+
+    } catch (error) {
+      console.error("Update error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
     }
   }
 
