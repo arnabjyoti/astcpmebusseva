@@ -26,6 +26,11 @@ module.exports = (sequelize, type) => {
             as: "dailyUpdates"
         });
 
+        conductorMaster.hasMany(models.busBreakdown, {
+            foreignKey: "conductorId",
+            as: "breakdowns"
+        });
+
     };
     return conductorMaster;
 };

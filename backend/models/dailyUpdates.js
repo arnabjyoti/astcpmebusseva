@@ -78,6 +78,11 @@ module.exports = (sequelize, type) => {
             as: "conductor"
         });
 
+        dailyUpdates.hasMany(models.busBreakdown, {
+            foreignKey: "dailyUpdateId",
+            as: "breakdowns"
+        });
+
     };
     return dailyUpdates;
 };

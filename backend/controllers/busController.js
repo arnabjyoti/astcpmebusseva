@@ -15,6 +15,7 @@ const busRoutesModel = require("../models").busRoutesMaster;
 const driverMasterModel = require("../models").driverMaster;
 const conductorMasterModel = require("../models").conductorMaster;
 const dailyUpdatesModel = require("../models").dailyUpdates;
+const busBreakdownModel = require("../models").busBreakdown;
 const attendanceModel = require("../models").attendance;
 const tripModel = require("../models").trip;
 const trip_statusModel = require("../models").trip_status;
@@ -100,6 +101,74 @@ const syncAutoAttendanceFromDailyUpdate = async ({ conductorId, attendanceDate }
   if (existingAttendance && existingAttendance.source === "auto") {
     await existingAttendance.destroy();
   }
+};
+
+const normalizeStatusValue = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  return String(value).trim().toLowerCase();
+};
+
+const getBreakdownDateValue = (data = {}) => {
+  return normalizeAttendanceDate(data.stopDate || data.date || new Date());
+};
+
+const getBreakdownTimeValue = (data = {}) => {
+  return data.stopTime || data.startTime || "";
+};
+
+const syncBreakdownRecordFromDailyUpdate = async ({ dailyUpdateId, data = {} }) => {
+  if (!dailyUpdateId || !data.busId) {
+    return null;
+  }
+
+  const normalizedStatus = normalizeStatusValue(data.currentStatus);
+  const existingRecord = await busBreakdownModel.findOne({
+    where: { dailyUpdateId },
+  });
+
+  if (normalizedStatus === "still") {
+    const payload = {
+      dailyUpdateId,
+      busId: data.busId,
+      routeNo: data.routeNo || "",
+      driverId: data.driverId || null,
+      conductorId: data.conductorId || null,
+      tripCompleted: data.noOfTrip || "",
+      kmDriven: data.totalOperated || "",
+      kmAtBreakdown: data.kmAtBreakdown || "",
+      lossKm: data.lossKm || "",
+      placeOfBreakdown: data.placeOfBreakdown || "",
+      causeOfBreakdown: data.causeOfBreakdown || "",
+      breakdownDate: getBreakdownDateValue(data),
+      breakdownTime: getBreakdownTimeValue(data),
+      currentStatus: "still",
+      idleDate: null,
+      remarks: data.remarks || "",
+      status: "Active",
+    };
+
+    if (existingRecord) {
+      await existingRecord.update(payload);
+      return existingRecord;
+    }
+
+    return busBreakdownModel.create(payload);
+  }
+
+  if (existingRecord && normalizedStatus === "idle") {
+    await existingRecord.update({
+      currentStatus: "idle",
+      idleDate: normalizeAttendanceDate(data.idleDate || new Date()),
+      remarks: data.remarks || existingRecord.remarks,
+      status: "Active",
+    });
+    return existingRecord;
+  }
+
+  return null;
 };
 
 const CONDUCTOR_BLOCK_PENDING_AMOUNT = 3000;
@@ -1005,6 +1074,11 @@ module.exports = {
       // 3️⃣ Insert record
       const response = await dailyUpdatesModel.create(data);
 
+      await syncBreakdownRecordFromDailyUpdate({
+        dailyUpdateId: response.id,
+        data,
+      });
+
       await upsertAttendanceRecord({
         conductorId: data.conductorId,
         attendanceDate: data.date,
@@ -1035,6 +1109,11 @@ module.exports = {
       const existingRecord = await dailyUpdatesModel.findOne({ where: { id } });
 
       await dailyUpdatesModel.update(requestObject, { where: { id: id } });
+
+      await syncBreakdownRecordFromDailyUpdate({
+        dailyUpdateId: id,
+        data: requestObject,
+      });
 
       if (existingRecord) {
         await syncAutoAttendanceFromDailyUpdate({
@@ -1377,6 +1456,20 @@ LEFT JOIN (
 ) du 
 ON du.busId = bus.id
 
+LEFT JOIN (
+  SELECT br1.*
+  FROM busBreakdowns br1
+  INNER JOIN (
+      SELECT busId, MAX(updatedAt) AS latestUpdatedAt
+      FROM busBreakdowns
+      WHERE status = 'Active'
+      GROUP BY busId
+  ) br2
+  ON br1.busId = br2.busId
+  AND br1.updatedAt = br2.latestUpdatedAt
+) br
+ON br.busId = bus.id
+
 WHERE bus.status = 'Active'
   AND routes.status = 'Active'
   ${searchFilter}
@@ -1411,7 +1504,11 @@ SELECT
   routes.via AS routeVia,
   routes.routeDistance AS routeDistance,
 
-  du.currentStatus AS currentStatus,
+  CASE
+    WHEN br.updatedAt IS NOT NULL AND (du.createdAt IS NULL OR br.updatedAt > du.createdAt)
+      THEN br.currentStatus
+    ELSE du.currentStatus
+  END AS currentStatus,
   du.noOfTrip AS noOfTrip,
   du.id AS dailyUpdateId,
   du.date AS dailyUpdateDate,
@@ -2646,41 +2743,35 @@ END AS estimated_time,
 
   async fetchBreakdownTable(req, res) {
     try {
-
       const {
         fromDate,
         toDate,
         vehicleNumber,
-        routeNumber
+        routeNumber,
+        currentStatus,
       } = req.body.params;
 
-      console.log("fromDate", fromDate);
-      console.log("toDate", toDate);
-      console.log("vehicleNumber", vehicleNumber);
-      console.log("routeNumber", routeNumber);
-
-      // 🔹 Breakdown filters
+      const normalizedStatus = normalizeStatusValue(currentStatus);
       const whereCondition = {
         status: "Active",
-        currentStatus: "still"
       };
 
-      // 📅 Date range filter
+      if (normalizedStatus && normalizedStatus !== "all") {
+        whereCondition.currentStatus = normalizedStatus;
+      }
+
       if (fromDate && toDate) {
-        whereCondition.date = {
+        whereCondition.breakdownDate = {
           [Op.between]: [fromDate, toDate]
         };
       }
 
-
-      // 🛣️ Route number filter
       if (routeNumber) {
         whereCondition.routeNo = {
           [Op.like]: `%${routeNumber}%`
         };
       }
 
-      // 🚌 Bus (vehicle) filter
       const busWhere = {};
       if (vehicleNumber) {
         busWhere.busNo = {
@@ -2688,22 +2779,24 @@ END AS estimated_time,
         };
       }
 
-      const breakdownQuery = await dailyUpdatesModel.findAll({
-
+      const breakdownQuery = await busBreakdownModel.findAll({
         where: whereCondition,
         attributes: [
           "id",
+          "dailyUpdateId",
           "routeNo",
-          "noOfTrip",
-          "totalOperated",
+          "tripCompleted",
+          "kmDriven",
           "placeOfBreakdown",
           "causeOfBreakdown",
           "kmAtBreakdown",
           "lossKm",
-          "stopTime",
-          "date",
+          "breakdownTime",
+          "breakdownDate",
           "currentStatus",
-          "remarks"
+          "idleDate",
+          "remarks",
+          "updatedAt",
         ],
         include: [
           {
@@ -2725,11 +2818,16 @@ END AS estimated_time,
             attributes: ["conductor_id", "conductor_name"],
             required: true
           }
-        ]
+        ],
+        order: [["updatedAt", "DESC"]],
       });
 
       res.status(200).send({
         breakdownQuery,
+        pagination: {
+          total: breakdownQuery.length,
+          totalPages: 1,
+        },
       });
     } catch (error) {
       console.error("Error fetching breakdown table:", error);
@@ -2749,14 +2847,6 @@ END AS estimated_time,
       }
 
       const {
-        vehicleNumber,
-        routeNumber,
-        driverId,
-        driverName,
-        conductorId,
-        conductorName,
-        tripCompleted,
-        kmDriven,
         kmAtBreakdown,
         kmLost,
         placeOfBreakdown,
@@ -2764,11 +2854,11 @@ END AS estimated_time,
         dateOfBreakdown,
         timeOfBreakdown,
         currentStatus,
+        idleDate,
         remarks
       } = req.body;
 
-      // 👉 Example using Sequelize
-      const breakdown = await dailyUpdatesModel.findByPk(id);
+      const breakdown = await busBreakdownModel.findByPk(id);
 
       if (!breakdown) {
         return res.status(404).json({
@@ -2777,22 +2867,18 @@ END AS estimated_time,
         });
       }
 
+      const nextStatus = normalizeStatusValue(currentStatus) || breakdown.currentStatus;
       await breakdown.update({
-        vehicleNumber,
-        routeNumber,
-        driverId,
-        driverName,
-        conductorId,
-        conductorName,
-        tripCompleted,
-        kmDriven,
         kmAtBreakdown,
-        kmLost,
+        lossKm: kmLost,
         placeOfBreakdown,
         causeOfBreakdown,
-        dateOfBreakdown,
-        timeOfBreakdown,
-        currentStatus,
+        breakdownDate: normalizeAttendanceDate(dateOfBreakdown),
+        breakdownTime: timeOfBreakdown,
+        currentStatus: nextStatus,
+        idleDate: nextStatus === "idle"
+          ? normalizeAttendanceDate(idleDate || new Date())
+          : null,
         remarks
       });
 
