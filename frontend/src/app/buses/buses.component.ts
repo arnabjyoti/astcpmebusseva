@@ -773,54 +773,72 @@ export class BusesComponent {
   }
 
   downloadRecord = (): void => {
-    if (!this.busList || this.busList.length === 0) {
-      this.toastr.warning('No records available to download', 'Warning');
-      return;
-    }
+    const params = new URLSearchParams({
+      date: this.dataForDate,
+      page: '1',
+      limit: '10000',
+      search: '',
+    });
+    const ENDPOINT = `${environment.BASE_URL}/api/getBusList?${params.toString()}`;
 
-    const exportData = this.busList.map((bus: any, index: number) => ({
-      'Sr. No.': index + 1,
-      'Vehicle Name': bus.busName || '',
-      'Vehicle No': bus.busNo || '',
+    this.http.get(ENDPOINT).subscribe(
+      (response: any) => {
+        const allBusList = response?.rows || [];
 
-      'Driver ID': bus.driverId || bus.driver_actual_id || '',
-      'Driver Name': bus.driverName || '',
-      'Driver Contact': bus.driverContactNo || '',
+        if (!allBusList || allBusList.length === 0) {
+          this.toastr.warning('No records available to download', 'Warning');
+          return;
+        }
 
-      'Conductor ID': bus.conductorId || bus.conductor_actual_id || '',
-      'Conductor Name': bus.conductorName || '',
-      'Conductor Contact': bus.conductorContactNo || '',
+        const exportData = allBusList.map((bus: any, index: number) => ({
+          'Sr. No.': index + 1,
+          'Vehicle Name': bus.busName || '',
+          'Vehicle No': bus.busNo || '',
 
-      Depot: bus.routeDepot || '',
-      Route: bus.routeNo || bus.allotedRouteNo || '',
-      Status: this.getStatus(bus) || '',
-    }));
+          'Driver ID': bus.driverId || bus.driver_actual_id || '',
+          'Driver Name': bus.driverName || '',
+          'Driver Contact': bus.driverContactNo || '',
 
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+          'Conductor ID': bus.conductorId || bus.conductor_actual_id || '',
+          'Conductor Name': bus.conductorName || '',
+          'Conductor Contact': bus.conductorContactNo || '',
 
-    // Optional: Set column widths
-    worksheet['!cols'] = [
-      { wch: 10 }, // Sr. No.
-      { wch: 20 }, // Vehicle Name
-      { wch: 18 }, // Vehicle No
-      { wch: 12 }, // Driver ID
-      { wch: 25 }, // Driver Name
-      { wch: 18 }, // Driver Contact
-      { wch: 14 }, // Conductor ID
-      { wch: 25 }, // Conductor Name
-      { wch: 20 }, // Conductor Contact
-      { wch: 15 }, // Route
-      { wch: 20 }, // Depot
-      { wch: 15 }, // Status
-    ];
+          Depot: bus.routeDepot || '',
+          Route: bus.routeNo || bus.allotedRouteNo || '',
+          Status: this.getStatus(bus) || '',
+        }));
 
-    const workbook: XLSX.WorkBook = {
-      Sheets: { 'Vehicle Records': worksheet },
-      SheetNames: ['Vehicle Records'],
-    };
+        const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
 
-    XLSX.writeFile(workbook, `vehicle_records_${this.dataForDate}.xlsx`);
+        // Optional: Set column widths
+        worksheet['!cols'] = [
+          { wch: 10 }, // Sr. No.
+          { wch: 20 }, // Vehicle Name
+          { wch: 18 }, // Vehicle No
+          { wch: 12 }, // Driver ID
+          { wch: 25 }, // Driver Name
+          { wch: 18 }, // Driver Contact
+          { wch: 14 }, // Conductor ID
+          { wch: 25 }, // Conductor Name
+          { wch: 20 }, // Conductor Contact
+          { wch: 15 }, // Route
+          { wch: 20 }, // Depot
+          { wch: 15 }, // Status
+        ];
 
-    this.toastr.success('Records downloaded successfully', 'Success');
+        const workbook: XLSX.WorkBook = {
+          Sheets: { 'Vehicle Records': worksheet },
+          SheetNames: ['Vehicle Records'],
+        };
+
+        XLSX.writeFile(workbook, `vehicle_records_${this.dataForDate}.xlsx`);
+
+        this.toastr.success('Records downloaded successfully', 'Success');
+      },
+      (error) => {
+        console.log('error here ', error);
+        this.toastr.error('Something went wrong!', 'Warning');
+      },
+    );
   };
 }

@@ -1,29 +1,24 @@
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
   <div class="content-header" *ngIf="!isOpen_form">
     <div class="container-fluid">
       <div class="row mb-0 px-2 align-items-center justify-content-between">
         <div class="col-sm-6">
-          <h3 class="m-0">BREAKDOWN VEHICLE TAB</h3>
-        </div><!-- /.col -->
+          <h3 class="m-0">BREAKDOWN / IDLE REPORT</h3>
+        </div>
         <div class="header-buttons">
           <button class="btn btn-success" (click)="downloadReport()">
             <i class="fa fa-download"></i> Download Report
           </button>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- /.content-header -->
 
-  <!-- Main content -->
   <section class="content">
     <div class="container-fluid">
-
-      <!-- Breakdown Vehicle Form -->
       <div class="breakdown-form-container breakdown_form" id="vehicle_breakdown_form" *ngIf="isOpen_form">
         <div class="form-header">
-          <h4>UPDATE BREAKDOWN VEHICLE</h4>
+          <h4>UPDATE BREAKDOWN STATUS</h4>
           <button type="button" class="close" aria-label="Close" (click)="close_breakdown_form()">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -31,199 +26,113 @@
 
         <form [formGroup]="breakdownForm" (ngSubmit)="updateForm()">
           <div class="row">
-            <!-- Vehicle Number -->
             <div class="col-md-6 form-group">
-              <label for="vehicleNumber">Vehicle Number <span class="required">*</span></label>
-              <input type="text" class="form-control" id="vehicleNumber" formControlName="vehicleNumber"
-                placeholder="Enter vehicle number">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('vehicleNumber')?.invalid && breakdownForm.get('vehicleNumber')?.touched">
-                Vehicle number is required
-              </small>
+              <label for="vehicleNumber">Vehicle Number</label>
+              <input type="text" class="form-control" id="vehicleNumber" formControlName="vehicleNumber">
             </div>
 
-            <!-- Route Number -->
             <div class="col-md-6 form-group">
-              <label for="routeNumber">Route Number <span class="required">*</span></label>
-              <input type="text" class="form-control" id="routeNumber" formControlName="routeNumber"
-                placeholder="Enter route number">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('routeNumber')?.invalid && breakdownForm.get('routeNumber')?.touched">
-                Route number is required
-              </small>
+              <label for="routeNumber">Route Number</label>
+              <input type="text" class="form-control" id="routeNumber" formControlName="routeNumber">
             </div>
           </div>
 
           <div class="row">
-            <!-- Driver ID -->
             <div class="col-md-6 form-group">
-              <label for="driverId">Driver ID <span class="required">*</span></label>
-              <input type="text" class="form-control" id="driverId" formControlName="driverId"
-                placeholder="Enter driver ID">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('driverId')?.invalid && breakdownForm.get('driverId')?.touched">
-                Driver ID is required
-              </small>
+              <label for="driverId">Driver ID</label>
+              <input type="text" class="form-control" id="driverId" formControlName="driverId">
             </div>
 
-            <!-- Driver Name -->
             <div class="col-md-6 form-group">
-              <label for="driverName">Driver Name <span class="required">*</span></label>
-              <input type="text" class="form-control" id="driverName" formControlName="driverName"
-                placeholder="Enter driver name">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('driverName')?.invalid && breakdownForm.get('driverName')?.touched">
-                Driver name is required
-              </small>
+              <label for="driverName">Driver Name</label>
+              <input type="text" class="form-control" id="driverName" formControlName="driverName">
             </div>
           </div>
 
           <div class="row">
-            <!-- Conductor ID -->
             <div class="col-md-6 form-group">
-              <label for="conductorId">Conductor ID <span class="required">*</span></label>
-              <input type="text" class="form-control" id="conductorId" formControlName="conductorId"
-                placeholder="Enter conductor ID">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('conductorId')?.invalid && breakdownForm.get('conductorId')?.touched">
-                Conductor ID is required
-              </small>
+              <label for="conductorId">Conductor ID</label>
+              <input type="text" class="form-control" id="conductorId" formControlName="conductorId">
             </div>
 
-            <!-- Conductor Name -->
             <div class="col-md-6 form-group">
-              <label for="conductorName">Conductor Name <span class="required">*</span></label>
-              <input type="text" class="form-control" id="conductorName" formControlName="conductorName"
-                placeholder="Enter conductor name">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('conductorName')?.invalid && breakdownForm.get('conductorName')?.touched">
-                Conductor name is required
-              </small>
+              <label for="conductorName">Conductor Name</label>
+              <input type="text" class="form-control" id="conductorName" formControlName="conductorName">
             </div>
           </div>
 
           <div class="row">
-            <!-- Trip Completed -->
             <div class="col-md-6 form-group">
-              <label for="tripCompleted">Trip Completed <span class="required">*</span></label>
-              <input type="number" class="form-control" id="tripCompleted" formControlName="tripCompleted"
-                placeholder="Enter trips completed">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('tripCompleted')?.invalid && breakdownForm.get('tripCompleted')?.touched">
-                Trip completed is required
-              </small>
+              <label for="tripCompleted">Trip Completed</label>
+              <input type="number" class="form-control" id="tripCompleted" formControlName="tripCompleted">
             </div>
 
-            <!-- Kilometres Driven -->
             <div class="col-md-6 form-group">
-              <label for="kmDriven">Kilometres Driven <span class="required">*</span></label>
-              <input type="number" class="form-control" id="kmDriven" formControlName="kmDriven"
-                placeholder="Enter km driven">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('kmDriven')?.invalid && breakdownForm.get('kmDriven')?.touched">
-                Kilometres driven is required
-              </small>
+              <label for="kmDriven">Kilometres Driven</label>
+              <input type="number" class="form-control" id="kmDriven" formControlName="kmDriven">
             </div>
           </div>
 
           <div class="row">
-            <!-- Kilometres at Breakdown -->
             <div class="col-md-6 form-group">
               <label for="kmAtBreakdown">Kilometres at Breakdown <span class="required">*</span></label>
-              <input type="number" class="form-control" id="kmAtBreakdown" formControlName="kmAtBreakdown"
-                placeholder="Enter km at breakdown">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('kmAtBreakdown')?.invalid && breakdownForm.get('kmAtBreakdown')?.touched">
-                Kilometres at breakdown is required
-              </small>
+              <input type="number" class="form-control" id="kmAtBreakdown" formControlName="kmAtBreakdown">
             </div>
 
-            <!-- Loss Kilometres -->
             <div class="col-md-6 form-group">
               <label for="kmLost">Loss Kilometres <span class="required">*</span></label>
-              <input type="number" class="form-control" id="kmLost" formControlName="kmLost"
-                placeholder="Enter loss km">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('kmLost')?.invalid && breakdownForm.get('kmLost')?.touched">
-                Loss kilometres is required
-              </small>
+              <input type="number" class="form-control" id="kmLost" formControlName="kmLost">
             </div>
           </div>
 
           <div class="row">
-            <!-- Place of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="placeOfBreakdown">Place of Breakdown <span class="required">*</span></label>
-              <input type="text" class="form-control" id="placeOfBreakdown" formControlName="placeOfBreakdown"
-                placeholder="Enter location">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('placeOfBreakdown')?.invalid && breakdownForm.get('placeOfBreakdown')?.touched">
-                Place of breakdown is required
-              </small>
+              <input type="text" class="form-control" id="placeOfBreakdown" formControlName="placeOfBreakdown">
             </div>
 
-            <!-- Cause of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="causeOfBreakdown">Cause of Breakdown <span class="required">*</span></label>
-              <input type="text" class="form-control" id="causeOfBreakdown" formControlName="causeOfBreakdown"
-                placeholder="Enter cause of breakdown">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('causeOfBreakdown')?.invalid && breakdownForm.get('causeOfBreakdown')?.touched">
-                Cause of breakdown is required
-              </small>
+              <input type="text" class="form-control" id="causeOfBreakdown" formControlName="causeOfBreakdown">
             </div>
           </div>
 
           <div class="row">
-            <!-- Date of Breakdown -->
             <div class="col-md-6 form-group">
               <label for="dateOfBreakdown">Date of Breakdown <span class="required">*</span></label>
               <input type="date" class="form-control" id="dateOfBreakdown" formControlName="dateOfBreakdown">
-              <small class="error-text"
-                *ngIf="breakdownForm.get('dateOfBreakdown')?.invalid && breakdownForm.get('dateOfBreakdown')?.touched">
-                Date of breakdown is required
-              </small>
             </div>
 
-            <div class="row col-md-6 form-group">
-              <!-- Time of Breakdown -->
-              <div class="col-md-6 form-group">
-                <label for="timeOfBreakdown">Time of Breakdown <span class="required">*</span></label>
-                <input type="time" class="form-control" id="timeOfBreakdown" formControlName="timeOfBreakdown">
-                <small class="error-text"
-                  *ngIf="breakdownForm.get('timeOfBreakdown')?.invalid && breakdownForm.get('timeOfBreakdown')?.touched">
-                  Time of breakdown is required
-                </small>
-              </div>
-
-              <!-- Current Status -->
-              <div class="col-md-6 form-group">
-                <label for="currentStatus">Current Status<span class="required">*</span></label>
-                <select class="form-control" id="currentStatus" formControlName="currentStatus">
-                  <option value="" disabled selected>Select current status</option>
-                  <option value="still">Breakdown</option>
-                  <option value="idle">Idle</option>
-                  <option value="inActive">Other</option>
-                </select>
-                <small class="error-text"
-                  *ngIf="breakdownForm.get('currentStatus')?.invalid && breakdownForm.get('currentStatus')?.touched">
-                  Current status is required
-                </small>
-              </div>
+            <div class="col-md-6 form-group">
+              <label for="timeOfBreakdown">Time of Breakdown <span class="required">*</span></label>
+              <input type="time" class="form-control" id="timeOfBreakdown" formControlName="timeOfBreakdown">
             </div>
           </div>
 
           <div class="row">
-            <!-- Remarks -->
+            <div class="col-md-6 form-group">
+              <label for="currentStatus">Current Status <span class="required">*</span></label>
+              <select class="form-control" id="currentStatus" formControlName="currentStatus">
+                <option value="still">Still (Breakdown)</option>
+                <option value="idle">Idle</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 form-group" *ngIf="breakdownForm.get('currentStatus')?.value === 'idle'">
+              <label for="idleDate">Idle Date <span class="required">*</span></label>
+              <input type="date" class="form-control" id="idleDate" formControlName="idleDate">
+            </div>
+          </div>
+
+          <div class="row">
             <div class="col-md-12 form-group">
               <label for="remarks">Remarks</label>
-              <textarea class="form-control" id="remarks" formControlName="remarks" rows="3"
-                placeholder="Enter any additional remarks"></textarea>
+              <textarea class="form-control" id="remarks" formControlName="remarks" rows="3"></textarea>
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-success" [disabled]="breakdownForm.invalid" (click)="updateForm()">
+            <button type="submit" class="btn btn-success">
               <i class="fa fa-save"></i> Update
             </button>
             <button type="button" class="btn btn-warning" (click)="onReset()">
@@ -236,57 +145,51 @@
         </form>
       </div>
 
-
-      <!-- Breakdown Table Records -->
       <div class="breakdown-container" *ngIf="!isOpen_form">
-
-        <div>
-
-          <div class="card mb-3">
-            <div class="card-body">
-              <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-                <div class="row align-items-end">
-
-                  <!-- From Date -->
-                  <div class="col-md-3 form-group">
-                    <label>From Date</label>
-                    <input type="date" class="form-control" formControlName="fromDate">
-                  </div>
-
-                  <!-- To Date -->
-                  <div class="col-md-3 form-group">
-                    <label>To Date</label>
-                    <input type="date" class="form-control" formControlName="toDate">
-                  </div>
-
-                  <!-- Vehicle Number -->
-                  <div class="col-md-3 form-group">
-                    <label>Vehicle Number</label>
-                    <input type="text" class="form-control" placeholder="Enter vehicle number"
-                      formControlName="vehicleNumber">
-                  </div>
-
-                  <!-- Route Number -->
-                  <div class="col-md-3 form-group">
-                    <label>Route Number</label>
-                    <input type="text" class="form-control" placeholder="Enter route number"
-                      formControlName="routeNumber">
-                  </div>
-
+        <div class="card mb-3">
+          <div class="card-body">
+            <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+              <div class="row align-items-end">
+                <div class="col-md-2 form-group">
+                  <label>From Date</label>
+                  <input type="date" class="form-control" formControlName="fromDate">
                 </div>
 
-                <div class="text-right mt-3">
-                  <button type="submit" class="btn btn-primary mr-2">
-                    <i class="fa fa-search"></i> Search
-                  </button>
-                  <button type="button" class="btn btn-secondary" (click)="resetSearch()">
-                    <i class="fa fa-times"></i> Clear
-                  </button>
+                <div class="col-md-2 form-group">
+                  <label>To Date</label>
+                  <input type="date" class="form-control" formControlName="toDate">
                 </div>
-              </form>
-            </div>
+
+                <div class="col-md-3 form-group">
+                  <label>Vehicle Number</label>
+                  <input type="text" class="form-control" placeholder="Enter vehicle number" formControlName="vehicleNumber">
+                </div>
+
+                <div class="col-md-2 form-group">
+                  <label>Route Number</label>
+                  <input type="text" class="form-control" placeholder="Enter route number" formControlName="routeNumber">
+                </div>
+
+                <div class="col-md-3 form-group">
+                  <label>Status</label>
+                  <select class="form-control" formControlName="currentStatus">
+                    <option value="all">All</option>
+                    <option value="still">Still</option>
+                    <option value="idle">Idle</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="text-right mt-3">
+                <button type="submit" class="btn btn-primary mr-2">
+                  <i class="fa fa-search"></i> Search
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="resetSearch()">
+                  <i class="fa fa-times"></i> Clear
+                </button>
+              </div>
+            </form>
           </div>
-
         </div>
 
         <div class="table-responsive">
@@ -296,58 +199,50 @@
                 <th>#</th>
                 <th>VEHICLE NO</th>
                 <th>ROUTE NO</th>
-                <th>DRIVER ID</th>
-                <th>DRIVER NAME</th>
-                <th>CONDUCTOR ID</th>
-                <th>CONDUCTOR NAME</th>
-                <th>TRIP COMPLETED</th>
-                <th>KM DRIVEN</th>
-                <th>KM AT BREAKDOWN TIME</th>
-                <th>LOSS KM</th>
-                <th>BREAKDOWN PLACE</th>
                 <th>BREAKDOWN DATE</th>
                 <th>BREAKDOWN TIME</th>
                 <th>BREAKDOWN CAUSE</th>
                 <th>REMARKS</th>
+                <th>STATUS</th>
+                <th>IDLE DATE</th>
+                <!-- <th>DAYS IN IDLE</th> -->
                 <th>ACTION</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let record of BreakdownData; let i = index">
                 <td class="text-center">{{ getActualIndex(i) }}</td>
-                <td class="text-center">{{ record?.bus?.busNo }}</td>
-                <td class="text-center">{{ record.routeNo }}</td>
-                <td class="text-center">{{ record?.driver?.driver_id }}</td>
-                <td class="text-center">{{ record?.driver?.driver_name }}</td>
-                <td class="text-center">{{ record?.conductor?.conductor_id }}</td>
-                <td class="text-center">{{ record?.conductor?.conductor_name }}</td>
-                <td class="text-right">{{ record.noOfTrip }}</td>
-                <td class="text-right">{{ record.totalOperated }}</td>
-                <td class="text-right">{{ record.kmAtBreakdown }}</td>
-                <td class="text-right">{{ record.lossKm }}</td>
-                <!-- <td>{{ record.totalOperated > 180 ? 0 : 180 - record.kmAtBreakdown }}</td> -->
-                <td class="text-center">{{ record.placeOfBreakdown }}</td>
-                <td class="text-center">{{ record.date | date: 'dd/MM/yyyy' }}</td>
-                <td class="text-center">{{ record.stopTime }}</td>
-                <td class="text-center">{{ record.causeOfBreakdown }}
-                <td>{{ record.remarks }}</td>
-                <td>
+                <td class="text-center">{{ record?.bus?.busNo || '-' }}</td>
+                <td class="text-center">{{ record.routeNo || '-' }}</td>
+                <td class="text-center">{{ record.breakdownDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-center">{{ record.breakdownTime || '-' }}</td>
+                <td class="text-center">{{ record.causeOfBreakdown || '-' }}</td>
+                <td>{{ record.remarks || '-' }}</td>
+                <td class="text-center">{{ formatStatus(record.currentStatus) }}</td>
+                <td class="text-center">
+                  {{ record.idleDate ? (record.idleDate | date: 'dd/MM/yyyy') : '-' }}
+                </td>
+                <!-- <td class="text-center">{{ record.daysInIdle || 0 }}</td> -->
+                <td class="text-center">
                   <button class="btn btn-sm btn-primary mr-1" (click)="open_breakdown_form(record)" title="Edit">
                     <i class="fa fa-edit"></i>
                   </button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteBreakdown(record.id)" title="Delete">
-                    <i class="fa fa-trash"></i>
+                  <button
+                    *ngIf="record.currentStatus !== 'idle'"
+                    class="btn btn-sm btn-warning"
+                    (click)="markAsIdle(record)"
+                    title="Mark Idle">
+                    <i class="fa fa-pause-circle"></i>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="BreakdownData.length === 0">
-                <td colspan="17" class="text-center text-muted align-middle">No breakdown records found</td>
+                <td colspan="11" class="text-center text-muted align-middle">No breakdown records found</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Table Pagination Section -->
         <div class="pagination-container">
           <div class="pagination-info pl-2">
             <span>Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalRecords }} entries</span>
@@ -374,8 +269,6 @@
           </nav>
         </div>
       </div>
-
     </div>
   </section>
-
 </div>

@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import * as XLSX from 'xlsx';
 
-import { AppService } from 'src/app/app.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -13,7 +12,6 @@ import { environment } from 'src/environments/environment';
 })
 export class BreakdownVehicleComponent implements OnInit {
   BreakdownData: any[] = [];
-  headers: any;
 
   currentPage = 1;
   pageSize = 10;
@@ -21,23 +19,17 @@ export class BreakdownVehicleComponent implements OnInit {
   totalPages = 0;
 
   isOpen_form = false;
+  selectedId: number | null = null;
 
   breakdownForm: FormGroup;
   searchForm: FormGroup;
-  // selectedId: number | null = null;
-  selectedId: number | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
-    private app: AppService,
     private http: HttpClient,
   ) {
     this.breakdownForm = this.createForm();
     this.searchForm = this.createSearchForm();
-
-    this.app.getHttpHeader((headers: any) => {
-      this.headers = headers;
-    });
   }
 
   ngOnInit(): void {
@@ -50,51 +42,52 @@ export class BreakdownVehicleComponent implements OnInit {
       toDate: [''],
       vehicleNumber: [''],
       routeNumber: [''],
+      currentStatus: ['all'],
     });
   }
 
   private createForm(): FormGroup {
     return this.formBuilder.group({
-      vehicleNumber: ['', Validators.required],
-      routeNumber: ['', Validators.required],
-      driverId: ['', Validators.required],
-      driverName: ['', Validators.required],
-      conductorId: ['', Validators.required],
-      conductorName: ['', Validators.required],
-      tripCompleted: ['', [Validators.required, Validators.min(0)]],
-      kmDriven: ['', [Validators.required, Validators.min(0)]],
+      vehicleNumber: [{ value: '', disabled: true }, Validators.required],
+      routeNumber: [{ value: '', disabled: true }, Validators.required],
+      driverId: [{ value: '', disabled: true }, Validators.required],
+      driverName: [{ value: '', disabled: true }, Validators.required],
+      conductorId: [{ value: '', disabled: true }, Validators.required],
+      conductorName: [{ value: '', disabled: true }, Validators.required],
+      tripCompleted: [{ value: '', disabled: true }],
+      kmDriven: [{ value: '', disabled: true }],
       kmAtBreakdown: ['', Validators.required],
       kmLost: ['', Validators.required],
       placeOfBreakdown: ['', Validators.required],
       dateOfBreakdown: ['', Validators.required],
       timeOfBreakdown: ['', Validators.required],
       causeOfBreakdown: ['', Validators.required],
-      currentStatus: ['', Validators.required],
+      currentStatus: ['still', Validators.required],
+      idleDate: [''],
       remarks: [''],
     });
   }
 
   fetchBreakdownTable(): void {
     const ENDPOINT = `${environment.BASE_URL}/api/fetchBreakdownTable`;
-
     const payload = {
       params: {
         page: this.currentPage,
         limit: this.pageSize,
-        ...this.searchForm.value,
+        ...this.searchForm.getRawValue(),
       },
     };
 
     this.http.post(ENDPOINT, payload).subscribe({
       next: (response: any) => {
-        console.log("Breakdown Data ==> ", response);
-        this.BreakdownData = response?.breakdownQuery || [];
-        this.totalRecords = Number(
-          response?.pagination?.total || this.BreakdownData.length,
-        );
+        const records = response?.breakdownQuery || [];
+        this.BreakdownData = records.map((record: any) => ({
+          ...record,
+          daysInIdle: this.calculateDaysInIdle(record?.idleDate),
+        }));
+        this.totalRecords = Number(response?.pagination?.total || this.BreakdownData.length);
         this.totalPages = Number(
-          response?.pagination?.totalPages ||
-            Math.ceil(this.totalRecords / this.pageSize),
+          response?.pagination?.totalPages || Math.ceil(this.totalRecords / this.pageSize) || 1,
         );
       },
       error: (error) => {
@@ -104,15 +97,12 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   updateForm(): void {
-    if (this.breakdownForm.invalid) {
+    if (this.breakdownForm.invalid || !this.selectedId) {
       this.breakdownForm.markAllAsTouched();
       return;
     }
 
-    const payload = this.breakdownForm.value;
-
-    console.log('Selected Id ==> ', this.selectedId)
-
+    const payload = this.breakdownForm.getRawValue();
     const ENDPOINT = `${environment.BASE_URL}/api/updateBreakdown/${this.selectedId}`;
 
     this.http.post(ENDPOINT, payload).subscribe({
@@ -130,7 +120,13 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   resetSearch(): void {
-    this.searchForm.reset();
+    this.searchForm.reset({
+      fromDate: '',
+      toDate: '',
+      vehicleNumber: '',
+      routeNumber: '',
+      currentStatus: 'all',
+    });
     this.currentPage = 1;
     this.fetchBreakdownTable();
   }
@@ -191,64 +187,64 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   onReset(): void {
-    this.breakdownForm.reset();
+    if (!this.selectedId) {
+      return;
+    }
+
+    const selectedRecord = this.BreakdownData.find((record) => record.id === this.selectedId);
+    if (selectedRecord) {
+      this.open_breakdown_form(selectedRecord);
+    }
   }
 
-  formatDateForInput(date: any): string {
-    if (!date) return '';
+  formatDateForInput(date: string): string {
+    if (!date) {
+      return '';
+    }
 
-    const d = new Date(date);
-    return d.toISOString().split('T')[0]; // ✅ correct format
+    return String(date).slice(0, 10);
   }
 
   open_breakdown_form(record: any): void {
     this.isOpen_form = true;
-
     this.selectedId = record.id;
-    console.log('Selected Id New:', this.selectedId);
-
-    console.log('Selected Record:', record);
 
     this.breakdownForm.patchValue({
-      vehicleNumber: record?.bus?.busNo,
-      routeNumber: record?.routeNo,
-      driverId: record?.driver?.driver_id,
-      driverName: record?.driver?.driver_name,
-      conductorId: record?.conductor?.conductor_id,
-      conductorName: record?.conductor?.conductor_name,
-      tripCompleted: record?.noOfTrip,
-      kmDriven: record?.totalOperated,
-      kmAtBreakdown: record?.kmAtBreakdown,
-      kmLost: record?.lossKm,
-      placeOfBreakdown: record?.placeOfBreakdown,
-      causeOfBreakdown: record?.causeOfBreakdown,
-      dateOfBreakdown: this.formatDateForInput(record?.date),
-      timeOfBreakdown: record?.stopTime,
-      currentStatus: record?.currentStatus,
-      remarks: record?.remarks,
+      vehicleNumber: record?.bus?.busNo || '',
+      routeNumber: record?.routeNo || '',
+      driverId: record?.driver?.driver_id || '',
+      driverName: record?.driver?.driver_name || '',
+      conductorId: record?.conductor?.conductor_id || '',
+      conductorName: record?.conductor?.conductor_name || '',
+      tripCompleted: record?.tripCompleted || '',
+      kmDriven: record?.kmDriven || '',
+      kmAtBreakdown: record?.kmAtBreakdown || '',
+      kmLost: record?.lossKm || '',
+      placeOfBreakdown: record?.placeOfBreakdown || '',
+      causeOfBreakdown: record?.causeOfBreakdown || '',
+      dateOfBreakdown: this.formatDateForInput(record?.breakdownDate),
+      timeOfBreakdown: record?.breakdownTime || '',
+      currentStatus: record?.currentStatus || 'still',
+      idleDate: this.formatDateForInput(record?.idleDate),
+      remarks: record?.remarks || '',
     });
   }
 
   close_breakdown_form(): void {
     this.isOpen_form = false;
-    this.breakdownForm.reset();
+    this.selectedId = null;
+    this.breakdownForm.reset({
+      currentStatus: 'still',
+      idleDate: '',
+    });
   }
 
-  deleteBreakdown(id: number): void {
-    // Delete data and make the vehicle current status to idle
-    if (!confirm('Are you sure you want to delete this breakdown record?')) {
-      return;
-    }
+  markAsIdle(record: any): void {
+    this.open_breakdown_form(record);
 
-    const ENDPOINT = `${environment.BASE_URL}/api/deleteBreakdownRecord/${id}`;
-
-    this.http.delete(ENDPOINT).subscribe({
-      next: () => {
-        this.fetchBreakdownTable();
-      },
-      error: (error) => {
-        console.error('Error deleting breakdown record:', error);
-      },
+    this.breakdownForm.patchValue({
+      currentStatus: 'idle',
+      idleDate: this.formatDateForInput(record?.idleDate || new Date().toISOString()),
     });
   }
 
@@ -265,14 +261,17 @@ export class BreakdownVehicleComponent implements OnInit {
       'Driver Name': record?.driver?.driver_name || 'N/A',
       'Conductor ID': record?.conductor?.conductor_id || 'N/A',
       'Conductor Name': record?.conductor?.conductor_name || 'N/A',
-      'Trip Completed': record?.noOfTrip || 0,
-      'KM Driven': record?.totalOperated || 0,
+      'Trip Completed': record?.tripCompleted || 0,
+      'KM Driven': record?.kmDriven || 0,
       'KM At Breakdown': record?.kmAtBreakdown || 0,
       'Loss KM': record?.lossKm || 0,
       'Place of Breakdown': record?.placeOfBreakdown || 'N/A',
-      'Date of Breakdown': this.formatDate(record?.date),
-      'Time of Breakdown': record?.stopTime || 'N/A',
-      'Cause of Breakdown': record?.causeOfBreakdown || 'N/A',
+      'Breakdown Date': this.formatDisplayDate(record?.breakdownDate),
+      'Breakdown Time': record?.breakdownTime || 'N/A',
+      'Breakdown Cause': record?.causeOfBreakdown || 'N/A',
+      Status: this.formatStatus(record?.currentStatus),
+      'Idle Date': this.formatDisplayDate(record?.idleDate),
+      'Days In Idle': record?.daysInIdle || 0,
       Remarks: record?.remarks || '',
     }));
 
@@ -283,15 +282,45 @@ export class BreakdownVehicleComponent implements OnInit {
     XLSX.writeFile(workbook, `breakdown_report_${new Date().getTime()}.xlsx`);
   }
 
-  private formatDate(date: any): string {
+  formatStatus(status: string): string {
+    if (!status) {
+      return 'N/A';
+    }
+
+    return status === 'still' ? 'Still' : status === 'idle' ? 'Idle' : status;
+  }
+
+  private calculateDaysInIdle(idleDate: string): number {
+    if (!idleDate) {
+      return 0;
+    }
+
+    const start = new Date(idleDate);
+    const today = new Date();
+    start.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = today.getTime() - start.getTime();
+    if (diffTime < 0) {
+      return 0;
+    }
+
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  }
+
+  private formatDisplayDate(date: string): string {
     if (!date) {
       return 'N/A';
     }
 
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return date;
+    }
+
+    const day = String(parsedDate.getDate()).padStart(2, '0');
+    const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+    const year = parsedDate.getFullYear();
 
     return `${day}-${month}-${year}`;
   }

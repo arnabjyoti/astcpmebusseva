@@ -155,7 +155,10 @@ export class DailyUpdateFormComponent {
           depot: data.depot,
         };
         this.busDetails = busDetails;
-        this.routeNo = data.routeNo;
+        // this.routeNo = data.routeNo;
+        console.log("Route routeNo: ", response[0]);
+        // this.form.routeNo = response[0]?.routeName;
+        // this.form.routeName = response[0]?.routeNo;
 
         this.form.routeStart = data.start;
         this.form.routeEnd = data.end;
@@ -195,6 +198,7 @@ export class DailyUpdateFormComponent {
         this.form.busId = this.busId;
         this.form.date = this.selectedDate;
         this.form.routeNo = response.allotedRouteNo;
+        this.form.routeId = response.allotedRouteNo;
         this.form.depot = response.depotName;
         this.form.driverId = response.driver_actual_id;
         this.form.conductorId = response.conductor_actual_id;
@@ -238,6 +242,8 @@ export class DailyUpdateFormComponent {
       };
 
       console.log('dataaaaa', requestOptions);
+
+      // return;
 
       this.http.post<any>(ENDPOINT, requestOptions).subscribe(
         async (response) => {

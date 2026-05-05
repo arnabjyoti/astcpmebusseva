@@ -29,6 +29,11 @@ module.exports = (sequelize, type) => {
             foreignKey: "busId",
             as: "dailyUpdates"
         });
+
+        busMaster.hasMany(models.busBreakdown, {
+            foreignKey: "busId",
+            as: "breakdowns"
+        });
     };
 
     return busMaster;

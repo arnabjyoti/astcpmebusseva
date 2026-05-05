@@ -67,4 +67,7 @@ module.exports = (app) => {
 	app.post('/api/updateBreakdown/:id', BusController.updateBreakdownVehicle);
 
 
+	app.get('/api/updateRouteScript', BusController.updateRouteScript);
+
+
 	};
