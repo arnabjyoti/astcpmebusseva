@@ -1684,6 +1684,12 @@ LIMIT 1;
             as: "conductor",
             attributes: ["conductor_id"],
             required: false
+          },
+          {
+            model: busRoutesModel,
+            as: "route",
+            attributes: ["routeNo", "routeName"],
+            required: false
           }
         ],
 
@@ -1703,12 +1709,13 @@ LIMIT 1;
     let { id } = req.body;
 
     console.log("id===>>", id);
+    // routeNo
 
     let sqlQuery = `
-        SELECT  bm.id as busId, bm.driverId as driver_actual_id, bm.conductorId as conductor_actual_id, bm.*, br.id as routeNo, br.*, du.id as id, du.*, conductorMasters.conductor_id as conductorId, driverMasters.driver_id as driverId
+        SELECT  bm.id as busId, bm.driverId as driver_actual_id, bm.conductorId as conductor_actual_id, bm.*, br.*, du.id as id, du.*, conductorMasters.conductor_id as conductorId, driverMasters.driver_id as driverId, br.id as routeId, br.routeNo as routeNo, br.routeName
         FROM dailyUpdates AS du
         INNER JOIN busMasters AS bm ON bm.id = du.busId
-        INNER JOIN busRoutesMasters AS br ON br.routeNo = du.routeNo
+        INNER JOIN busRoutesMasters AS br ON br.id = du.routeId
 
         LEFT JOIN conductorMasters 
   ON bm.conductorId = conductorMasters.id

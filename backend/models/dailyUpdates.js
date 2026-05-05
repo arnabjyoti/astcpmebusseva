@@ -11,6 +11,7 @@ module.exports = (sequelize, type) => {
 
         timesheetNo: type.STRING,
         routeNo: type.STRING,
+        routeId: type.STRING,
         omr: type.STRING,
         cmr: type.STRING,
         totalOperated: type.STRING,
