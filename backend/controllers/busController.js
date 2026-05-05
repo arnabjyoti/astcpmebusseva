@@ -1346,6 +1346,9 @@ module.exports = {
         ? ` AND (
               bus.busName LIKE :search
               OR bus.busNo LIKE :search
+              OR cm.conductor_name LIKE :search
+              OR dm.driver_name LIKE :search
+              OR routes.routeName LIKE :search
             )`
         : "";
 
