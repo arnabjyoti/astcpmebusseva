@@ -1,12 +1,5 @@
-<div
-  *ngIf="isLoading"
-  class="d-flex flex-column align-items-center justify-content-center my-5 fade-in"
->
-  <div
-    class="spinner-grow text-success"
-    role="status"
-    style="width: 3rem; height: 3rem"
-  >
+<div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center my-5 fade-in">
+  <div class="spinner-grow text-success" role="status" style="width: 3rem; height: 3rem">
     <span class="visually-hidden">Loading...</span>
   </div>
 
@@ -27,20 +20,12 @@
         </div>
 
         <!-- <div class="col-sm-6 d-flex align-items-center justify-content-end" style="gap: 5px;"> -->
-        <div
-          class="col-sm-6 d-flex align-items-center justify-content-end text-end ms-auto"
-          style="gap: 5px"
-        >
+        <div class="col-sm-6 d-flex align-items-center justify-content-end text-end ms-auto" style="gap: 5px">
           <button class="btn btn-success" (click)="downloadRecord()">
             <i class="fas fa-download"></i> Download Records
           </button>
 
-          <button
-            class="btn btn-primary"
-            data-toggle="modal"
-            data-target="#formModal"
-            (click)="openNewDialog()"
-          >
+          <button class="btn btn-primary" data-toggle="modal" data-target="#formModal" (click)="openNewDialog()">
             <i class="fas fa-plus"></i> New Bus
           </button>
         </div>
@@ -60,53 +45,30 @@
             <div class="toolbar-row mb-4">
               <div class="form-group mb-0">
                 <label class="form-label fw-bold small mb-1">Select Date</label>
-                <input
-                  type="date"
-                  class="form-control premium-input"
-                  [(ngModel)]="dataForDate"
-                  name="dataForDate"
-                  [max]="today | date: 'yyyy-MM-dd'"
-                  style="height: 38px"
-                />
+                <input type="date" class="form-control premium-input" [(ngModel)]="dataForDate" name="dataForDate"
+                  [max]="today | date: 'yyyy-MM-dd'" style="height: 38px" />
               </div>
 
               <div class="form-group mb-0 bus-search-group">
-                <label class="form-label fw-bold small mb-1"
-                  >Search Vehicle</label
-                >
-                <input
-                  type="text"
-                  class="form-control premium-input"
-                  [(ngModel)]="searchTerm"
-                  name="searchTerm"
-                  placeholder="Vehicle number or name"
-                  style="height: 38px"
-                  (keyup.enter)="applySearch()"
-                />
+                <label class="form-label fw-bold small mb-1">Search Vehicle</label>
+                <input type="text" class="form-control premium-input" [(ngModel)]="searchTerm" name="searchTerm"
+                  placeholder="Vehicle number or name" style="height: 38px" (keyup.enter)="applySearch()" />
               </div>
 
-              <button
-                class="btn btn-dark premium-btn d-flex align-items-center justify-content-center"
-                (click)="applySearch()"
-                style="height: 38px; padding: 0 20px"
-              >
+              <button class="btn btn-dark premium-btn d-flex align-items-center justify-content-center"
+                (click)="applySearch()" style="height: 38px; padding: 0 20px">
                 <i class="fas fa-search me-2"></i> Search
               </button>
 
-              <button
-                class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
-                (click)="clearSearch()"
-                style="height: 38px; padding: 0 20px"
-              >
+              <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                (click)="clearSearch()" style="height: 38px; padding: 0 20px">
                 Clear
               </button>
             </div>
 
             <div class="p-1">
               <div class="table-responsive bus-table-shell">
-                <table
-                  class="table table-hover text-nowrap align-middle professional-table mb-0"
-                >
+                <table class="table table-hover text-nowrap align-middle professional-table mb-0">
                   <thead class="professional-thead">
                     <tr>
                       <th>#</th>
@@ -122,13 +84,11 @@
 
                   <tbody>
                     <ng-container *ngFor="let data of busList; let i = index">
-                      <tr
-                        [ngClass]="{
+                      <tr [ngClass]="{
                           'row-running': data.currentStatus === 'running',
                           'row-still': data.currentStatus === 'still',
                           'row-finished': data.currentStatus === 'finished',
-                        }"
-                      >
+                        }">
                         <td class="align-middle">{{ getRowNumber(i) }}</td>
                         <td class="align-middle">
                           <div class="vehicle-primary">
@@ -143,18 +103,15 @@
                             <span class="crew-role">Driver</span>
                             <span class="crew-value">{{
                               data.driverName || "-"
-                            }}</span>
+                              }}</span>
                           </div>
                           <div class="crew-line">
                             <span class="crew-role">Conductor</span>
-                            <span
-                              class="crew-value"
-                              [ngClass]="{
+                            <span class="crew-value" [ngClass]="{
                                 'text-danger': isBlockedConductor(
                                   data.conductorStatus
                                 ),
-                              }"
-                            >
+                              }">
                               {{ data.conductorName || "-" }}
                             </span>
                           </div>
@@ -169,15 +126,10 @@
                         </td>
 
                         <td class="align-middle">
-                          <div
-                            class="d-flex align-items-center gap-2 flex-wrap"
-                          >
+                          <div class="d-flex align-items-center gap-2 flex-wrap">
                             <label class="switch mb-0">
-                              <input
-                                type="checkbox"
-                                [checked]="data.isFixed === 'yes'"
-                                (change)="toggleFixed(data, $event)"
-                              />
+                              <input type="checkbox" [checked]="data.isFixed === 'yes'"
+                                (change)="toggleFixed(data, $event)" />
                               <span class="slider"></span>
                             </label>
 
@@ -192,14 +144,11 @@
 
                         <!-- Status -->
                         <td class="align-middle">
-                          <span
-                            class="status-badge"
-                            [ngClass]="{
+                          <span class="status-badge" [ngClass]="{
                               'status-running': getStatus(data) === 'running',
                               'status-still': getStatus(data) === 'still',
                               'status-finished': getStatus(data) === 'finished',
-                            }"
-                          >
+                            }">
                             <!-- {{data.dailyUpdateDate}} -->
 
                             {{ getStatus(data) | titlecase }}
@@ -208,113 +157,70 @@
                           ({{ data.noOfTrip }})
                         </span> -->
                           </span>
-                          <div
-                            *ngIf="getStatus(data) === 'running'"
-                            style="font-size: x-small"
-                          >
+                          <div *ngIf="getStatus(data) === 'running'" style="font-size: x-small">
                             <small> From {{ data.startDate | date }} </small>
                           </div>
                         </td>
 
                         <td class="text-center align-middle">
-                          <button
-                            class="btn btn-outline-secondary btn-sm details-toggle"
-                            type="button"
-                            (click)="toggleDetails(data.id)"
-                            [attr.aria-expanded]="expandedBusId === data.id"
-                          >
-                            <i
-                              class="fas"
-                              [ngClass]="
+                          <button class="btn btn-outline-secondary btn-sm details-toggle" type="button"
+                            (click)="toggleDetails(data.id)" [attr.aria-expanded]="expandedBusId === data.id">
+                            <i class="fas" [ngClass]="
                                 expandedBusId === data.id
                                   ? 'fa-chevron-up'
                                   : 'fa-chevron-down'
-                              "
-                            ></i>
+                              "></i>
                             <span class="ml-1">{{
                               expandedBusId === data.id ? "Hide" : "View"
-                            }}</span>
+                              }}</span>
                           </button>
                         </td>
 
                         <!-- Actions -->
                         <td class="text-center action-cell align-middle">
                           <div class="btn-group mb-2">
-                            <button
-                              class="btn btn-light btn-sm"
-                              data-toggle="modal"
-                              data-target="#viewModal"
-                              (click)="viewData(i)"
-                            >
+                            <button class="btn btn-light btn-sm" data-toggle="modal" data-target="#viewModal"
+                              (click)="viewData(i)">
                               <i class="fa fa-eye"></i>
                             </button>
 
-                            <button
-                              class="btn btn-light btn-sm"
-                              (click)="openEditDialog(data)"
-                              data-toggle="modal"
-                              data-target="#formModal"
-                            >
+                            <button class="btn btn-light btn-sm" (click)="openEditDialog(data)" data-toggle="modal"
+                              data-target="#formModal">
                               <i class="fas fa-edit"></i>
                             </button>
 
-                            <button
-                              class="btn btn-light btn-sm"
-                              (click)="openConfirmationDialog(data)"
-                              data-toggle="modal"
-                              data-target="#deleteModal"
-                            >
+                            <button class="btn btn-light btn-sm" (click)="openConfirmationDialog(data)"
+                              data-toggle="modal" data-target="#deleteModal">
                               <i class="fas fa-trash text-danger"></i>
                             </button>
                           </div>
 
                           <!-- Trip actions -->
-                          <div
-                            *ngIf="data.currentStatus === 'running'"
-                            class="mb-1"
-                          >
-                            <button
-                              class="btn btn-warning btn-sm btn-block"
-                              data-toggle="modal"
-                              data-target="#updateRoute"
-                              (click)="viewData(i)"
-                            >
+                          <div *ngIf="data.currentStatus === 'running'" class="mb-1">
+                            <button class="btn btn-warning btn-sm btn-block" data-toggle="modal"
+                              data-target="#updateRoute" (click)="viewData(i)">
                               <i class="fas fa-recycle"></i> Update Rounds
                             </button>
                           </div>
 
-                          <div
-                            *ngIf="getStatus(data) === 'running'"
-                            class="mb-1"
-                          >
-                            <button
-                              class="btn btn-danger btn-sm btn-block"
-                              data-toggle="modal"
-                              (click)="redirectToUpdateForm(data)"
-                            >
+                          <div *ngIf="getStatus(data) === 'running'" class="mb-1">
+                            <button class="btn btn-danger btn-sm btn-block" data-toggle="modal"
+                              (click)="redirectToUpdateForm(data)">
                               <i class="fas fa-stop"></i> Stop Trip
                             </button>
                           </div>
 
-                          <div
-                            *ngIf="
+                          <div *ngIf="
                               data.currentStatus !== 'running' &&
                               data.currentStatus !== 'still'
-                            "
-                            class="mb-1"
-                          >
-                            <button
-                              *ngIf="
+                            " class="mb-1">
+                            <button *ngIf="
                                 data.driver_actual_id &&
                                   data.conductor_actual_id &&
                                   !isBlockedConductor(data.conductorStatus);
                                 else tripNotAllowed
-                              "
-                              class="btn btn-info btn-sm btn-block"
-                              data-toggle="modal"
-                              data-target="#addDetailsModal"
-                              (click)="viewData(i)"
-                            >
+                              " class="btn btn-info btn-sm btn-block" data-toggle="modal"
+                              data-target="#addDetailsModal" (click)="viewData(i)">
                               <i class="fas fa-plus"></i> Update Trip
                             </button>
 
@@ -322,11 +228,11 @@
                               <span class="text-muted small">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{
-                                  data.conductorStatus === "PendingBlock"
-                                    ? "Conductor blocked due to pending amount"
-                                    : data.conductorStatus === "Block"
-                                      ? "Conductor manually blocked"
-                                      : "Driver / Conductor not allotted"
+                                data.conductorStatus === "PendingBlock"
+                                ? "Conductor blocked due to pending amount"
+                                : data.conductorStatus === "Block"
+                                ? "Conductor manually blocked"
+                                : "Driver / Conductor not allotted"
                                 }}
                               </span>
                             </ng-template>
@@ -339,18 +245,15 @@
                             <div class="details-block">
                               <div class="details-title">Driver</div>
                               <div class="details-item">
-                                <span>ID</span
-                                ><strong>{{ data.driverId || "-" }}</strong>
+                                <span>ID</span><strong>{{ data.driverId || "-" }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Name</span
-                                ><strong>{{ data.driverName || "-" }}</strong>
+                                <span>Name</span><strong>{{ data.driverName || "-" }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Contact</span
-                                ><strong>{{
+                                <span>Contact</span><strong>{{
                                   data.driverContactNo || "-"
-                                }}</strong>
+                                  }}</strong>
                               </div>
                             </div>
 
@@ -358,46 +261,35 @@
                               <div class="details-title">Conductor</div>
                               <div class="details-item">
                                 <span>ID</span>
-                                <strong
-                                  [ngClass]="{
+                                <strong [ngClass]="{
                                     'text-danger': isBlockedConductor(
                                       data.conductorStatus
                                     ),
-                                  }"
-                                >
+                                  }">
                                   {{ data.conductorId || "-" }}
                                 </strong>
                               </div>
                               <div class="details-item">
-                                <span>Name</span
-                                ><strong>{{
+                                <span>Name</span><strong>{{
                                   data.conductorName || "-"
-                                }}</strong>
+                                  }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Contact</span
-                                ><strong>{{
+                                <span>Contact</span><strong>{{
                                   data.conductorContactNo || "-"
-                                }}</strong>
+                                  }}</strong>
                               </div>
                               <div class="details-item details-inline-action">
                                 <span>Pending Amount</span>
-                                <button
-                                  class="btn btn-icon"
-                                  *ngIf="
+                                <button class="btn btn-icon" *ngIf="
                                     data.conductor_actual_id;
                                     else conductorNotAllotted
-                                  "
-                                  data-toggle="modal"
-                                  data-target="#conductorRemainModal"
-                                  (click)="getRemainingAmountForConductor(i)"
-                                >
+                                  " data-toggle="modal" data-target="#conductorRemainModal"
+                                  (click)="getRemainingAmountForConductor(i)">
                                   <i class="fa fa-eye"></i>
                                 </button>
                                 <ng-template #conductorNotAllotted>
-                                  <strong class="text-muted"
-                                    >Not allotted</strong
-                                  >
+                                  <strong class="text-muted">Not allotted</strong>
                                 </ng-template>
                               </div>
                             </div>
@@ -405,22 +297,18 @@
                             <div class="details-block">
                               <div class="details-title">Assignment</div>
                               <div class="details-item">
-                                <span>Depot</span
-                                ><strong>{{
+                                <span>Depot</span><strong>{{
                                   data.routeDepot || data.baseDepot || "-"
-                                }}</strong>
+                                  }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Route No</span
-                                ><strong> {{ data.routeNo || "-" }}</strong>
+                                <span>Route No</span><strong> {{ data.routeNo || "-" }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Route Name</span
-                                ><strong> {{ data.routeName || "-" }}</strong>
+                                <span>Route Name</span><strong> {{ data.routeName || "-" }}</strong>
                               </div>
                               <div class="details-item">
-                                <span>Bus No</span
-                                ><strong>{{ data.busNo || "-" }}</strong>
+                                <span>Bus No</span><strong>{{ data.busNo || "-" }}</strong>
                               </div>
                             </div>
                           </div>
@@ -434,36 +322,20 @@
               <!-- Table Pagination Section -->
               <div class="pagination-container">
                 <div class="pagination-info pl-2">
-                  <span
-                    >Showing {{ getStartEntry() }} to {{ getEndEntry() }} of
-                    {{ totalRecords }} entries</span
-                  >
+                  <span>Showing {{ getStartEntry() }} to {{ getEndEntry() }} of
+                    {{ totalRecords }} entries</span>
                 </div>
 
                 <nav aria-label="Page navigation">
                   <ul class="pagination mb-0">
-                    <li
-                      class="page-item"
-                      [ngClass]="{ disabled: currentPage === 1 }"
-                    >
-                      <a
-                        class="page-link"
-                        aria-label="First"
-                        (click)="changePage(1)"
-                      >
+                    <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
+                      <a class="page-link" aria-label="First" (click)="changePage(1)">
                         <span aria-hidden="true">First</span>
                       </a>
                     </li>
 
-                    <li
-                      class="page-item"
-                      [ngClass]="{ disabled: currentPage === 1 }"
-                    >
-                      <a
-                        class="page-link"
-                        aria-label="Previous"
-                        (click)="changePage(currentPage - 1)"
-                      >
+                    <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
+                      <a class="page-link" aria-label="Previous" (click)="changePage(currentPage - 1)">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                     </li>
@@ -479,37 +351,23 @@
                     <li class="page-item" *ngIf="totalPages > currentPage">
                       <a class="page-link" (click)="changePage(totalPages)">{{
                         totalPages
-                      }}</a>
+                        }}</a>
                     </li>
 
-                    <li
-                      class="page-item"
-                      [ngClass]="{
+                    <li class="page-item" [ngClass]="{
                         disabled:
                           currentPage === totalPages || totalPages === 0,
-                      }"
-                    >
-                      <a
-                        class="page-link"
-                        aria-label="Next"
-                        (click)="changePage(currentPage + 1)"
-                      >
+                      }">
+                      <a class="page-link" aria-label="Next" (click)="changePage(currentPage + 1)">
                         <span aria-hidden="true">&raquo;</span>
                       </a>
                     </li>
 
-                    <li
-                      class="page-item"
-                      [ngClass]="{
+                    <li class="page-item" [ngClass]="{
                         disabled:
                           currentPage === totalPages || totalPages === 0,
-                      }"
-                    >
-                      <a
-                        class="page-link"
-                        aria-label="Last"
-                        (click)="changePage(totalPages)"
-                      >
+                      }">
+                      <a class="page-link" aria-label="Last" (click)="changePage(totalPages)">
                         <span aria-hidden="true">Last</span>
                       </a>
                     </li>
@@ -524,12 +382,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <h2 class="modal-title">Vehicle Info</h2>
-                    <button
-                      type="button"
-                      class="close"
-                      data-dismiss="modal"
-                      id="modalClose"
-                    >
+                    <button type="button" class="close" data-dismiss="modal" id="modalClose">
                       &times;
                     </button>
                   </div>
@@ -539,25 +392,13 @@
                         <div class="row">
                           <div class="col-md-6 pt-3">
                             <label>Bus Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [disabled]="form.isFixed === 'yes'"
-                              [(ngModel)]="form.busName"
-                              name="busName"
-                              placeholder="Enter Bus Name"
-                            />
+                            <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.busName" name="busName" placeholder="Enter Bus Name" />
                           </div>
                           <div class="col-md-6 pt-3">
                             <label>Bus No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [disabled]="form.isFixed === 'yes'"
-                              [(ngModel)]="form.busNo"
-                              name="busNo"
-                              placeholder="Enter Bus No"
-                            />
+                            <input type="text" class="form-control" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.busNo" name="busNo" placeholder="Enter Bus No" />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -573,31 +414,19 @@
                           <div class="col-md-6 pt-3">
                             <label>Driver Name {{ form.isFixed }}</label>
 
-                            <select
-                              class="form-control"
-                              name="driverName"
-                              [disabled]="form.isFixed === 'yes'"
-                              [(ngModel)]="form.driverName"
-                              (change)="manageDrive()"
-                            >
+                            <select class="form-control" name="driverName" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.driverName" (change)="manageDrive()">
                               <option value="">Select a Driver</option>
                               <option value="REMOVE">❌ Remove Driver</option>
 
-                              <option
-                                *ngFor="let driver of driverList"
-                                [value]="driver.id"
-                                [disabled]="
+                              <option *ngFor="let driver of driverList" [value]="driver.id" [disabled]="
                                   driver.allotmentStatus === 'Allotted'
-                                "
-                                [ngClass]="{
+                                " [ngClass]="{
                                   'driver-allotted':
                                     driver.allotmentStatus === 'Allotted',
-                                }"
-                              >
+                                }">
                                 {{ driver.driver_name }} - {{ driver.id }}
-                                <span
-                                  *ngIf="driver.allotmentStatus === 'Allotted'"
-                                >
+                                <span *ngIf="driver.allotmentStatus === 'Allotted'">
                                   (Already Allotted)
                                 </span>
                               </option>
@@ -606,48 +435,31 @@
 
                           <div class="col-md-6 pt-3">
                             <label>Driver Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.driverContactNo"
-                              name="driverContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.driverContactNo"
+                              name="driverContactNo" readonly />
                           </div>
 
                           <div class="col-md-6 pt-3">
                             <label>Conductor Name</label>
 
-                            <select
-                              class="form-control"
-                              name="conductorName"
-                              [disabled]="form.isFixed === 'yes'"
-                              [(ngModel)]="form.conductorName"
-                              (change)="manageConductor()"
-                            >
+                            <select class="form-control" name="conductorName" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.conductorName" (change)="manageConductor()">
                               <option value="">Select a Conductor</option>
                               <option value="REMOVE">
                                 ❌ Remove Conductor
                               </option>
 
-                              <option
-                                *ngFor="let conductor of conductorList"
-                                [value]="conductor.id"
-                                [disabled]="
+                              <option *ngFor="let conductor of conductorList" [value]="conductor.id" [disabled]="
                                   conductor.allotmentStatus === 'Allotted'
-                                "
-                                [ngClass]="{
+                                " [ngClass]="{
                                   'driver-allotted':
                                     conductor.allotmentStatus === 'Allotted',
-                                }"
-                              >
+                                }">
                                 {{ conductor.conductor_name }} -
                                 {{ conductor.id }}
-                                <span
-                                  *ngIf="
+                                <span *ngIf="
                                     conductor.allotmentStatus === 'Allotted'
-                                  "
-                                >
+                                  ">
                                   (Already Allotted)
                                 </span>
                               </option>
@@ -656,13 +468,8 @@
 
                           <div class="col-md-6 pt-3">
                             <label>Conductor Contact No</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              [(ngModel)]="form.conductorContactNo"
-                              name="conductorContactNo"
-                              readonly
-                            />
+                            <input type="text" class="form-control" [(ngModel)]="form.conductorContactNo"
+                              name="conductorContactNo" readonly />
                           </div>
 
                           <!-- <div class="col-md-6 pt-3">
@@ -681,17 +488,10 @@
                               name="allotedRouteNo"
                             /> -->
 
-                            <select
-                              class="form-control"
-                              name="allotedRouteNo"
-                              [disabled]="form.isFixed === 'yes'"
-                              [(ngModel)]="form.allotedRouteNo"
-                            >
+                            <select class="form-control" name="allotedRouteNo" [disabled]="form.isFixed === 'yes'"
+                              [(ngModel)]="form.allotedRouteNo">
                               <option value="">Select Route</option>
-                              <option
-                                *ngFor="let route of routeList"
-                                [value]="route.id"
-                              >
+                              <option *ngFor="let route of routeList" [value]="route.id">
                                 {{ route.routeNo }}
                               </option>
                             </select>
@@ -708,31 +508,16 @@
                         </div>
                       </div>
 
-                      <button
-                        style="float: right"
-                        *ngIf="!isEdit"
-                        type="button"
-                        class="btn btn-info"
-                        (click)="saveData()"
-                      >
+                      <button style="float: right" *ngIf="!isEdit" type="button" class="btn btn-info"
+                        (click)="saveData()">
                         Save
                       </button>
-                      <button
-                        style="float: right"
-                        *ngIf="isEdit"
-                        type="button"
-                        class="btn btn-info"
-                        [disabled]="form.isFixed === 'yes'"
-                        (click)="updateData()"
-                      >
+                      <button style="float: right" *ngIf="isEdit" type="button" class="btn btn-info"
+                        [disabled]="form.isFixed === 'yes'" (click)="updateData()">
                         Update
                       </button>
-                      <button
-                        style="float: right; margin-right: 5px"
-                        type="button"
-                        class="btn btn-default"
-                        data-dismiss="modal"
-                      >
+                      <button style="float: right; margin-right: 5px" type="button" class="btn btn-default"
+                        data-dismiss="modal">
                         Cancel
                       </button>
                     </form>
@@ -808,17 +593,10 @@
 
                     <!-- <p> -->
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        [disabled]="isPendingAmountCheckLoading"
-                        (click)="redirectToAddForm()"
-                      >
-                        <span *ngIf="!isPendingAmountCheckLoading"
-                          >Start Trip</span
-                        >
-                        <span *ngIf="isPendingAmountCheckLoading"
-                          >Checking Pending Amount...</span
-                        >
+                      <button class="btn btn-primary" [disabled]="isPendingAmountCheckLoading"
+                        (click)="redirectToAddForm()">
+                        <span *ngIf="!isPendingAmountCheckLoading">Start Trip</span>
+                        <span *ngIf="isPendingAmountCheckLoading">Checking Pending Amount...</span>
                       </button>
                     </div>
                     <!-- </p> -->
@@ -827,20 +605,12 @@
               </div>
             </div>
 
-            <div
-              class="modal fade"
-              id="pendingAmountWarningModal"
-              tabindex="-1"
-            >
+            <div class="modal fade" id="pendingAmountWarningModal" tabindex="-1">
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h5 class="modal-title">Pending Amount Warning</h5>
-                    <button
-                      type="button"
-                      class="close"
-                      (click)="closePendingAmountWarningModal()"
-                    >
+                    <button type="button" class="close" (click)="closePendingAmountWarningModal()">
                       &times;
                     </button>
                   </div>
@@ -855,9 +625,8 @@
                     </p>
                     <p class="mb-2">
                       <strong class="text-danger">
-                        If you exceed the the amount of 3000 then Conductor will
-                        be blocked automatically.</strong
-                      >
+                        If you exceed the the amount of 5000 then Conductor will
+                        be blocked automatically.</strong>
                     </p>
                     <p class="mb-0 text-muted">
                       Please clear the bill soon. You can still proceed with
@@ -865,18 +634,10 @@
                     </p>
                   </div>
                   <div class="modal-footer">
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      (click)="closePendingAmountWarningModal()"
-                    >
+                    <button type="button" class="btn btn-secondary" (click)="closePendingAmountWarningModal()">
                       Cancel
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-warning"
-                      (click)="proceedAfterPendingAmountWarning()"
-                    >
+                    <button type="button" class="btn btn-warning" (click)="proceedAfterPendingAmountWarning()">
                       Proceed Trip
                     </button>
                   </div>
@@ -904,20 +665,11 @@
 
                     <p>
                       <label for="">Update Trip:</label>
-                      <input
-                        type="text"
-                        name="newRoundTrip"
-                        [(ngModel)]="newRoundTrip"
-                        class="form-control col-md-4"
-                      />
+                      <input type="text" name="newRoundTrip" [(ngModel)]="newRoundTrip" class="form-control col-md-4" />
                     </p>
 
                     <div class="text-center">
-                      <button
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        (click)="updateTrip()"
-                      >
+                      <button class="btn btn-primary" data-dismiss="modal" (click)="updateTrip()">
                         Update Trip
                       </button>
                     </div>
@@ -938,28 +690,16 @@
                   <div class="modal-body">
                     <h4>
                       Are you sure ! You want to delete bus
-                      <strong
-                        ><i
-                          >"{{ toBeDeletedRecord.busName }}-{{
-                            toBeDeletedRecord.busNo
-                          }}"</i
-                        ></strong
-                      >
+                      <strong><i>"{{ toBeDeletedRecord.busName }}-{{
+                          toBeDeletedRecord.busNo
+                          }}"</i></strong>
                       ?
                     </h4>
-                    <button
-                      type="button"
-                      class="btn btn-primary float-sm-right"
-                      (click)="handleDeleteBus()"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-primary float-sm-right" (click)="handleDeleteBus()"
+                      data-dismiss="modal">
                       Yes
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-default float-sm-right"
-                      data-dismiss="modal"
-                    >
+                    <button type="button" class="btn btn-default float-sm-right" data-dismiss="modal">
                       No
                     </button>
                   </div>
@@ -978,17 +718,10 @@
                     </button>
                   </div>
                   <div class="modal-body" *ngIf="selectedData">
-                    <div
-                      *ngIf="isPendingAmountLoading"
-                      class="d-flex flex-column align-items-center justify-content-center py-4"
-                    >
-                      <div
-                        class="spinner-border text-primary"
-                        role="status"
-                      ></div>
-                      <p
-                        class="mt-3 mb-0 text-muted small text-uppercase tracking-wider"
-                      >
+                    <div *ngIf="isPendingAmountLoading"
+                      class="d-flex flex-column align-items-center justify-content-center py-4">
+                      <div class="spinner-border text-primary" role="status"></div>
+                      <p class="mt-3 mb-0 text-muted small text-uppercase tracking-wider">
                         Fetching Pending Amount...
                       </p>
                     </div>
@@ -1016,7 +749,7 @@
                           <h2>
                             Remaining Amount:
                             {{
-                              amountToBeDeposited > 0 ? amountToBeDeposited : 0
+                            amountToBeDeposited > 0 ? amountToBeDeposited : 0
                             }}
                           </h2>
                         </div>
