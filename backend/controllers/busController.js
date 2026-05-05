@@ -1426,8 +1426,12 @@ module.exports = {
               bus.busName LIKE :search
               OR bus.busNo LIKE :search
               OR cm.conductor_name LIKE :search
+              OR cm.conductor_id LIKE :search
               OR dm.driver_name LIKE :search
+              OR dm.driver_id LIKE :search
               OR routes.routeName LIKE :search
+              OR routes.routeNo LIKE :search
+              OR routes.depot LIKE :search
             )`
         : "";
 
@@ -1498,6 +1502,7 @@ SELECT
 
   routes.id AS routeId,
   routes.routeNo AS routeNo,
+  routes.routeName AS routeName,
   routes.depot AS routeDepot,
   routes.start AS routeStart,
   routes.end AS routeEnd,
