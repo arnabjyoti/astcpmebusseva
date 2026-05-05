@@ -988,7 +988,7 @@ module.exports = {
           LEFT JOIN attendances at
             ON at.conductorId = cm.id
            AND DATE(at.attendanceDate) = c.day
-          WHERE cm.status IN ('Active', 'Block')
+          WHERE cm.status IN ('Active', 'Block', 'PendingBlock')
         )
         SELECT
           conductor_id AS conductorId,
