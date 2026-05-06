@@ -2444,9 +2444,8 @@ END AS estimated_time,
     JOIN busMasters bm ON t.busMasterId = bm.id
     WHERE lts.rn = 1
     ${whereConditions.length ? `AND ${whereConditions.join(" AND ")}` : ""}
-    ${
-      busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
-    } ORDER BY lts.date ASC;
+    ${busNo ? `AND bm.bus_no = ${sequelize.escape(busNo)}` : ""
+      } ORDER BY lts.date ASC;
   `;
 
     // let countQuery = `
