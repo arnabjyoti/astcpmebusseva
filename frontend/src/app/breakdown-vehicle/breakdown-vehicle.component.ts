@@ -97,10 +97,12 @@ export class BreakdownVehicleComponent implements OnInit {
   }
 
   updateForm(): void {
+    console.log("Clicked")
     if (this.breakdownForm.invalid || !this.selectedId) {
       this.breakdownForm.markAllAsTouched();
       return;
     }
+    console.log("Double Clicked")
 
     const payload = this.breakdownForm.getRawValue();
     const ENDPOINT = `${environment.BASE_URL}/api/updateBreakdown/${this.selectedId}`;

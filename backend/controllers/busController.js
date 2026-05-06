@@ -182,7 +182,7 @@ const syncBreakdownRecordFromDailyUpdate = async ({
   return null;
 };
 
-const CONDUCTOR_BLOCK_PENDING_AMOUNT = 3000;
+const CONDUCTOR_BLOCK_PENDING_AMOUNT = 5000;
 
 const toNumber = (value) => {
   const parsedValue = Number(value);
